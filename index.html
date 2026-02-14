@@ -6,18 +6,21 @@
   <title>3日間のお世話ゲーム（プロトタイプ）</title>
   <style>
     :root{
-      --bg:#0b0d12;
-      --card:#111424;
-      --card2:#0f1220;
-      --text:#eef2ff;
-      --muted:#a7b0d9;
-      --line:rgba(255,255,255,.10);
-      --btn:#6ee7ff;
-      --btnText:#061018;
-      --btn2:#a78bfa;
+      --bg:#eef8ff;
+      --card:rgba(255,255,255,.78);
+      --card2:rgba(255,255,255,.62);
+      --text:#0f172a;
+      --muted:#475569;
+      --line:rgba(15,23,42,.12);
+
+      --btn:#2dd4bf;
+      --btnText:#042f2e;
+
+      --btn2:#60a5fa;
       --danger:#fb7185;
       --ok:#34d399;
-      --shadow: 0 16px 40px rgba(0,0,0,.45);
+
+      --shadow: 0 16px 38px rgba(15,23,42,.12);
       --radius: 18px;
     }
     *{ box-sizing:border-box; }
@@ -26,18 +29,19 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Yu Gothic", "Meiryo", sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1200px 700px at 20% 10%, rgba(110,231,255,.13), transparent 55%),
-        radial-gradient(900px 600px at 80% 20%, rgba(167,139,250,.12), transparent 55%),
-        radial-gradient(900px 900px at 50% 110%, rgba(52,211,153,.10), transparent 55%),
-        var(--bg);
+        radial-gradient(1200px 700px at 15% 0%, rgba(45,212,191,.26), transparent 55%),
+        radial-gradient(900px 600px at 85% 10%, rgba(96,165,250,.22), transparent 55%),
+        radial-gradient(900px 900px at 45% 110%, rgba(167,243,208,.30), transparent 55%),
+        linear-gradient(180deg, #f6fdff, #eef8ff 35%, #f7fbff);
       min-height:100vh;
       overflow-x:hidden;
     }
     .wrap{ max-width:980px; margin:0 auto; padding:18px; }
+
     .topbar{
       display:flex; align-items:center; justify-content:space-between;
       padding:12px 14px;
-      background: rgba(255,255,255,.05);
+      background: var(--card2);
       border:1px solid var(--line);
       border-radius: 16px;
       box-shadow: var(--shadow);
@@ -46,22 +50,24 @@
     .brand{ display:flex; gap:10px; align-items:center; }
     .dot{
       width:12px; height:12px; border-radius:999px;
-      background: linear-gradient(135deg, rgba(110,231,255,.95), rgba(167,139,250,.95));
-      box-shadow: 0 0 18px rgba(110,231,255,.35);
+      background: linear-gradient(135deg, rgba(45,212,191,.95), rgba(96,165,250,.90));
+      box-shadow: 0 0 18px rgba(45,212,191,.28);
     }
-    .title{ font-weight:700; letter-spacing:.02em; font-size:14px; color:rgba(238,242,255,.92); }
+    .title{ font-weight:800; letter-spacing:.02em; font-size:14px; color:rgba(15,23,42,.92); }
     .sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+
     .pill{
       display:flex; align-items:center; gap:8px;
       padding:8px 10px;
       border-radius:999px;
-      background: rgba(255,255,255,.06);
+      background: rgba(255,255,255,.55);
       border:1px solid var(--line);
       font-size:12px;
-      color: rgba(238,242,255,.85);
+      color: rgba(15,23,42,.85);
       user-select:none;
     }
     .pill small{ color:var(--muted); }
+
     .grid{
       display:grid;
       gap:14px;
@@ -71,8 +77,9 @@
     @media (max-width: 880px){
       .grid{ grid-template-columns: 1fr; }
     }
+
     .card{
-      background: rgba(17,20,36,.62);
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -84,16 +91,17 @@
       margin:0;
       font-size:14px;
       letter-spacing:.02em;
-      color:rgba(238,242,255,.92);
-      font-weight:700;
+      color:rgba(15,23,42,.92);
+      font-weight:800;
     }
     .card p{
       margin:10px 0 0 0;
       font-size:13px;
-      line-height:1.7;
-      color: rgba(238,242,255,.82);
+      line-height:1.75;
+      color: rgba(15,23,42,.80);
     }
     .muted{ color:var(--muted); }
+
     .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
     button{
       border:0;
@@ -105,37 +113,41 @@
     .btn{
       padding:10px 12px;
       border-radius:14px;
-      background: linear-gradient(135deg, rgba(110,231,255,.95), rgba(110,231,255,.70));
+      background: linear-gradient(135deg, rgba(45,212,191,.95), rgba(45,212,191,.78));
       color: var(--btnText);
-      font-weight:700;
-      box-shadow: 0 12px 26px rgba(110,231,255,.18);
-      border:1px solid rgba(255,255,255,.08);
+      font-weight:800;
+      box-shadow: 0 12px 24px rgba(45,212,191,.14);
+      border:1px solid rgba(15,23,42,.10);
       transition: transform .08s ease, filter .12s ease;
     }
-    .btn:hover{ filter:brightness(1.05); }
+    .btn:hover{ filter:brightness(1.03); }
     .btn:active{ transform: translateY(1px) scale(.99); }
+
     .btn.secondary{
-      background: rgba(255,255,255,.06);
-      color: rgba(238,242,255,.92);
+      background: rgba(255,255,255,.55);
+      color: rgba(15,23,42,.90);
       border:1px solid var(--line);
       box-shadow:none;
-      font-weight:650;
+      font-weight:750;
     }
-    .btn.purple{
-      background: linear-gradient(135deg, rgba(167,139,250,.95), rgba(167,139,250,.70));
-      color:#0b0d12;
-      box-shadow: 0 12px 26px rgba(167,139,250,.18);
+    .btn.blue{
+      background: linear-gradient(135deg, rgba(96,165,250,.92), rgba(96,165,250,.72));
+      color:#071223;
+      box-shadow: 0 12px 24px rgba(96,165,250,.14);
     }
     .btn.danger{
-      background: linear-gradient(135deg, rgba(251,113,133,.95), rgba(251,113,133,.70));
-      color:#1b0b0f;
-      box-shadow: 0 12px 26px rgba(251,113,133,.16);
+      background: linear-gradient(135deg, rgba(251,113,133,.92), rgba(251,113,133,.72));
+      color:#2a0b10;
+      box-shadow: 0 12px 24px rgba(251,113,133,.14);
     }
     .btn:disabled{
-      opacity:.45;
+      opacity:.50;
       cursor:not-allowed;
-      filter:saturate(.6);
+      filter:saturate(.7);
     }
+
+    .screen{ display:none; }
+    .screen.active{ display:block; }
 
     .stage{
       display:flex; align-items:center; justify-content:center;
@@ -153,7 +165,7 @@
       width: 300px;
       height: 300px;
       object-fit:contain;
-      filter: drop-shadow(0 24px 40px rgba(0,0,0,.55));
+      filter: drop-shadow(0 20px 30px rgba(15,23,42,.18));
       transform-origin: 50% 80%;
     }
     .floaty{ animation: floaty 3.6s ease-in-out infinite; }
@@ -168,8 +180,8 @@
     }
     .droop{ animation: droop 2.6s ease-in-out infinite; }
     @keyframes droop{
-      0%,100%{ transform: translateY(0) rotate(0deg) scale(.995); filter: brightness(.95) contrast(1.02) drop-shadow(0 24px 40px rgba(0,0,0,.55)); }
-      50%{ transform: translateY(10px) rotate(-1.5deg) scale(.985); filter: brightness(.85) contrast(1.02) drop-shadow(0 24px 40px rgba(0,0,0,.55)); }
+      0%,100%{ transform: translateY(0) rotate(0deg) scale(.995); filter: brightness(.98) contrast(1.02) drop-shadow(0 20px 30px rgba(15,23,42,.18)); }
+      50%{ transform: translateY(10px) rotate(-1.5deg) scale(.985); filter: brightness(.86) contrast(1.02) drop-shadow(0 20px 30px rgba(15,23,42,.18)); }
     }
     .shake{ animation: shake .6s ease-in-out infinite; }
     @keyframes shake{
@@ -179,10 +191,10 @@
     }
     .glitch{
       filter:
-        drop-shadow(0 24px 40px rgba(0,0,0,.55))
+        drop-shadow(0 20px 30px rgba(15,23,42,.18))
         hue-rotate(14deg)
-        saturate(1.2)
-        contrast(1.12);
+        saturate(1.15)
+        contrast(1.08);
       animation: glitch 1.2s steps(2) infinite;
     }
     @keyframes glitch{
@@ -196,7 +208,7 @@
       position:absolute;
       width: 22px; height: 22px;
       border-radius: 999px;
-      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), rgba(110,231,255,.85) 35%, rgba(110,231,255,.15) 70%, transparent 75%);
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), rgba(96,165,250,.85) 35%, rgba(96,165,250,.18) 70%, transparent 75%);
       filter: blur(.1px);
       opacity:0;
       transform: translate(-35px, 30px) rotate(18deg);
@@ -215,14 +227,14 @@
       position:absolute;
       width: 20px; height: 16px;
       border-radius: 8px 8px 12px 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,.15), rgba(0,0,0,.25));
-      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(15,23,42,.10), rgba(15,23,42,.28));
+      border:1px solid rgba(15,23,42,.14);
       opacity:0;
       transform: translate(0,0) scale(.95);
       filter: blur(.1px);
       pointer-events:none;
     }
-    .poop.on{ opacity:.85; }
+    .poop.on{ opacity:.70; }
     .poop:nth-child(1){ left:36px; top:230px; transform: rotate(-10deg); }
     .poop:nth-child(2){ right:42px; top:246px; transform: rotate(12deg); }
     .poop:nth-child(3){ left: 86px; top:268px; transform: rotate(6deg) scale(.9); }
@@ -231,7 +243,7 @@
     .hearts{
       display:flex; gap:6px; align-items:center;
       padding:8px 10px; border-radius:14px;
-      background: rgba(255,255,255,.06);
+      background: rgba(255,255,255,.55);
       border:1px solid var(--line);
       width: fit-content;
     }
@@ -239,7 +251,7 @@
       width: 14px; height: 14px;
       transform: rotate(45deg);
       position:relative;
-      opacity:.35;
+      opacity:.30;
       filter: drop-shadow(0 2px 6px rgba(251,113,133,.20));
     }
     .heart::before,.heart::after{
@@ -254,8 +266,33 @@
     .heart.on{ opacity:1; }
     .heart.on::before,.heart.on::after{ background: rgba(251,113,133,.95); }
 
-    .screen{ display:none; }
-    .screen.active{ display:block; }
+    .choiceGrid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:12px;
+      margin-top:12px;
+    }
+    @media (max-width:520px){ .choiceGrid{ grid-template-columns:1fr; } }
+    .choice{
+      border:1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.55);
+      padding:12px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      transition: transform .12s ease, background .2s ease;
+    }
+    .choice:hover{ transform: translateY(-1px); background: rgba(255,255,255,.72); }
+    .choice.selected{ border-color: rgba(45,212,191,.55); background: rgba(45,212,191,.14); }
+    .choice.selected .tiny{ opacity: .95; }
+    .choice img{
+      width:72px; height:72px; object-fit:contain;
+      filter: drop-shadow(0 12px 16px rgba(15,23,42,.14));
+    }
+    .choice .ctext{ flex:1; }
+    .choice .ctext .cname{ font-weight:900; font-size:13px; }
+    .choice .ctext .cdesc{ font-size:12px; margin-top:4px; color: var(--muted); line-height:1.55; }
 
     .mapGrid{
       display:grid;
@@ -267,20 +304,20 @@
       height:84px;
       border-radius:16px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.05);
+      background: rgba(255,255,255,.50);
       position:relative;
       overflow:hidden;
       display:grid;
       place-items:center;
       transition: transform .12s ease, background .2s ease;
     }
-    .tile:hover{ transform: translateY(-1px); background: rgba(255,255,255,.07); }
-    .tile.revealed{ background: rgba(110,231,255,.07); }
+    .tile:hover{ transform: translateY(-1px); background: rgba(255,255,255,.68); }
+    .tile.revealed{ background: rgba(45,212,191,.14); }
     .spark{
       position:absolute; inset:-40%;
       background:
-        radial-gradient(circle at 30% 40%, rgba(110,231,255,.22), transparent 45%),
-        radial-gradient(circle at 70% 60%, rgba(167,139,250,.18), transparent 45%);
+        radial-gradient(circle at 30% 40%, rgba(45,212,191,.18), transparent 45%),
+        radial-gradient(circle at 70% 60%, rgba(96,165,250,.14), transparent 45%);
       opacity:0;
       transform: rotate(12deg);
     }
@@ -291,49 +328,23 @@
     }
     .tile span{
       font-size:12px;
-      color: rgba(238,242,255,.82);
+      color: rgba(15,23,42,.72);
       opacity:.85;
     }
     .foundImg{
       width:60px; height:60px; object-fit:contain;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.5));
+      filter: drop-shadow(0 10px 16px rgba(15,23,42,.16));
       opacity:.0;
       transform: translateY(6px) scale(.98);
       transition: opacity .25s ease, transform .25s ease;
     }
     .tile.found .foundImg{ opacity:1; transform: translateY(0) scale(1); }
 
-    .choiceGrid{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap:12px;
-      margin-top:12px;
-    }
-    @media (max-width:520px){ .choiceGrid{ grid-template-columns:1fr; } }
-    .choice{
-      border:1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(255,255,255,.05);
-      padding:12px;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      transition: transform .12s ease, background .2s ease;
-    }
-    .choice:hover{ transform: translateY(-1px); background: rgba(255,255,255,.07); }
-    .choice img{
-      width:72px; height:72px; object-fit:contain;
-      filter: drop-shadow(0 14px 20px rgba(0,0,0,.5));
-    }
-    .choice .ctext{ flex:1; }
-    .choice .ctext .cname{ font-weight:800; font-size:13px; }
-    .choice .ctext .cdesc{ font-size:12px; margin-top:4px; color: var(--muted); line-height:1.55; }
-
     .overlay{
       position:fixed; inset:0;
       display:none;
       place-items:center;
-      background: rgba(0,0,0,.58);
+      background: rgba(15,23,42,.45);
       backdrop-filter: blur(6px);
       z-index: 50;
       padding:18px;
@@ -341,7 +352,7 @@
     .overlay.on{ display:grid; }
     .modal{
       width:min(720px, 96vw);
-      background: rgba(17,20,36,.86);
+      background: rgba(255,255,255,.88);
       border:1px solid var(--line);
       border-radius: 18px;
       box-shadow: var(--shadow);
@@ -355,10 +366,9 @@
       justify-content:space-between;
       gap:10px;
     }
-    .modal .mhead .mtitle{ font-weight:800; font-size:13px; letter-spacing:.02em; }
+    .modal .mhead .mtitle{ font-weight:900; font-size:13px; letter-spacing:.02em; }
     .modal .mbody{ padding:14px; }
     .modal .mnote{ font-size:12px; color: var(--muted); line-height:1.7; }
-    .modal .mbody .btnrow{ margin-top:12px; }
 
     .thanks{
       min-height: 520px;
@@ -368,37 +378,33 @@
     }
     .thanks .word{
       font-size: 34px;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing:.08em;
-      color: rgba(238,242,255,.92);
-      text-shadow: 0 18px 42px rgba(0,0,0,.55);
+      color: rgba(15,23,42,.92);
+      text-shadow: 0 18px 42px rgba(15,23,42,.12);
     }
-    .fade{
-      animation: fadeIn 1.2s ease both;
-    }
+    .fade{ animation: fadeIn 1.2s ease both; }
     @keyframes fadeIn{
       from{ opacity:0; transform: translateY(6px); }
       to{ opacity:1; transform: translateY(0); }
     }
 
-    .tabs{
-      display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;
-    }
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
     .tab{
       padding:8px 10px;
       border-radius:999px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.05);
+      background: rgba(255,255,255,.55);
       font-size:12px;
-      color: rgba(238,242,255,.88);
-      opacity:.9;
+      color: rgba(15,23,42,.88);
+      opacity:.95;
     }
-    .tab.active{ background: rgba(110,231,255,.12); border-color: rgba(110,231,255,.22); }
+    .tab.active{ background: rgba(96,165,250,.14); border-color: rgba(96,165,250,.28); }
     .logBox{
       margin-top:12px;
       border:1px solid var(--line);
       border-radius:18px;
-      background: rgba(255,255,255,.04);
+      background: rgba(255,255,255,.55);
       padding:12px;
       overflow:auto;
       max-height: 360px;
@@ -406,22 +412,21 @@
     .logLine{
       font-size:12px;
       line-height:1.8;
-      color: rgba(238,242,255,.82);
-      border-bottom:1px dashed rgba(255,255,255,.10);
+      color: rgba(15,23,42,.82);
+      border-bottom:1px dashed rgba(15,23,42,.14);
       padding:6px 0;
     }
     .logLine:last-child{ border-bottom:0; }
     canvas{ max-width:100%; }
-    .tiny{
-      font-size:12px;
-      color: var(--muted);
-    }
+
+    .tiny{ font-size:12px; color: var(--muted); }
+
     .linkBox{
       margin-top:10px;
       padding:10px 12px;
       border-radius:14px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
+      background: rgba(255,255,255,.55);
       display:flex;
       gap:10px;
       align-items:center;
@@ -433,9 +438,9 @@
       min-width: 240px;
       padding:10px 10px;
       border-radius:12px;
-      background: rgba(0,0,0,.25);
-      border:1px solid rgba(255,255,255,.12);
-      color: rgba(238,242,255,.92);
+      background: rgba(255,255,255,.78);
+      border:1px solid rgba(15,23,42,.14);
+      color: rgba(15,23,42,.92);
       outline:none;
       font-size:12px;
     }
@@ -444,13 +449,13 @@
       position:absolute;
       top:10px; right:10px;
       font-size:12px;
-      color: rgba(238,242,255,.75);
-      opacity:.85;
+      color: rgba(15,23,42,.70);
+      opacity:.90;
       display:flex; align-items:center; gap:8px;
     }
     .toggle{
       width:42px; height:22px; border-radius:999px;
-      background: rgba(255,255,255,.10);
+      background: rgba(15,23,42,.08);
       border:1px solid var(--line);
       position:relative;
       flex: 0 0 auto;
@@ -459,11 +464,11 @@
       content:"";
       width:18px; height:18px; border-radius:999px;
       position:absolute; top:1px; left:1px;
-      background: rgba(238,242,255,.85);
+      background: rgba(15,23,42,.45);
       transition: left .18s ease, background .18s ease;
     }
-    .toggle.on{ background: rgba(110,231,255,.15); border-color: rgba(110,231,255,.22); }
-    .toggle.on::after{ left:21px; background: rgba(110,231,255,.90); }
+    .toggle.on{ background: rgba(45,212,191,.22); border-color: rgba(45,212,191,.28); }
+    .toggle.on::after{ left:21px; background: rgba(45,212,191,.92); }
   </style>
 </head>
 <body>
@@ -486,31 +491,43 @@
       <div class="grid">
         <div class="card">
           <div class="inner">
-            <h2>メッセージ</h2>
+            <h2>はじめに</h2>
             <p class="fade">
               ある日、あなたのもとに一通のメッセージが届く。<br>
               「なくしたものを探しています。見つけた人に、3日間だけ預けます。」<br>
               地図だけが添えられている。
             </p>
+
             <p class="muted">
-              見つけたものの意味は、あとからでも考えられます。<br>
-              ここでは、ただ拾ってみるところから始めます。
+              最初に、あなたの相棒と、呼ばれたい名前を決める。<br>
+              それから、マカロンの形をした「探しもの」を探しに行く。
             </p>
-            <div class="btnrow">
-              <button class="btn" id="btn_go_map">地図を手に取る</button>
-              <button class="btn secondary" id="btn_new_reset" title="保存を消します">最初から</button>
+
+            <div style="margin-top:12px;">
+              <div class="tiny" style="margin-bottom:6px;">呼ばれたい名前</div>
+              <div class="btnrow" style="margin-top:0;">
+                <input id="playerName" placeholder="○○（あなたの呼ばれ方）">
+                <button class="btn blue" id="btn_start" disabled>はじめる</button>
+                <button class="btn secondary" id="btn_new_reset" title="保存を消します">最初から</button>
+              </div>
+              <p class="tiny" style="margin-top:8px;">名前と選択はこの端末の中だけに保存されます。</p>
             </div>
+
+            <p class="tiny" id="introNeed" style="margin-top:6px;"></p>
           </div>
         </div>
+
         <div class="card">
-          <div class="inner">
-            <h2>名前</h2>
-            <p>触れた瞬間、あなたの名前を聞いてくる。</p>
-            <div class="btnrow" style="margin-top:10px;">
-              <input id="playerName" placeholder="○○（あなたの呼ばれ方）" style="flex:1; min-width:220px; padding:10px 10px; border-radius:12px; background: rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.12); color: rgba(238,242,255,.92); outline:none; font-size:13px;">
-              <button class="btn purple" id="btn_save_name">結ぶ</button>
+          <div class="stage">
+            <div class="charWrap">
+              <img id="charPreview" class="charImg floaty" alt="character preview" />
             </div>
-            <p class="tiny">名前はこの端末の中だけに保存されます。</p>
+          </div>
+          <div class="inner">
+            <h2>相棒</h2>
+            <p class="muted">正解はない。あなたが「この子」と思ったもの。</p>
+            <div class="choiceGrid" id="charChoices"></div>
+            <p class="tiny" id="introPickHint" style="margin-top:10px;">相棒を選ぶと、右の姿が少し変わります。</p>
           </div>
         </div>
       </div>
@@ -525,7 +542,7 @@
             <p class="muted">どこかに、マカロンの形をしたものがある。</p>
             <div class="mapGrid" id="mapGrid"></div>
             <div class="btnrow">
-              <button class="btn secondary" id="btn_back_intro">戻る</button>
+              <button class="btn secondary" id="btn_back_intro">設定へ戻る</button>
               <button class="btn" id="btn_hint">少しだけ目を慣らす</button>
             </div>
           </div>
@@ -539,42 +556,18 @@
       </div>
     </div>
 
-    <div class="screen" id="scr_select">
-      <div class="grid">
-        <div class="card">
-          <div class="inner">
-            <h2>マカロン</h2>
-            <p>見つけたそれは、ふっと温かい。</p>
-            <p class="muted">どれを持ち帰るかは、あなたが決めていい。</p>
-
-            <div class="choiceGrid" id="macaronChoices"></div>
-
-            <div class="btnrow">
-              <button class="btn secondary" id="btn_back_search">もう一度探す</button>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="inner">
-            <h2>手ざわり</h2>
-            <p class="muted" id="macaronNote">選んだ瞬間、結びつく。</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="screen" id="scr_arrival">
       <div class="grid">
         <div class="card">
           <div class="inner">
             <h2>到着</h2>
             <p id="arrivalText">
-              それは静かに置かれた。<br>
+              見つけたマカロンを持ち帰った。<br>
               しばらくすると、ふわりと浮かび上がるらしい。
             </p>
             <p class="muted">誕生は、あなたの操作では起きない。</p>
             <div class="btnrow">
-              <button class="btn secondary" id="btn_back_select">やり直す</button>
+              <button class="btn secondary" id="btn_back_search">もう一度探す</button>
             </div>
           </div>
         </div>
@@ -603,16 +596,14 @@
               </div>
             </div>
 
-            <p class="muted" id="careHint">
-              言葉ではわからない。表情と動きだけが変わる。
-            </p>
+            <p class="muted" id="careHint">言葉ではわからない。表情と動きだけが変わる。</p>
 
             <div class="btnrow" style="margin-top:10px;">
               <button class="btn" id="btn_food">食事</button>
               <button class="btn" id="btn_outing">お出かけ</button>
               <button class="btn" id="btn_mini">2択ミニゲーム</button>
               <button class="btn" id="btn_clean">排泄除去</button>
-              <button class="btn purple" id="btn_drink">ドリンク</button>
+              <button class="btn blue" id="btn_drink">ドリンク</button>
               <button class="btn danger" id="btn_macaron">マカロン</button>
               <button class="btn secondary" id="btn_logs">ログ</button>
             </div>
@@ -676,7 +667,7 @@
             <h2>ログ</h2>
             <p class="muted">評価はしない。起きたことだけ。</p>
 
-            <canvas id="heartChart" width="640" height="180" style="margin-top:10px; border:1px solid var(--line); border-radius:16px; background: rgba(0,0,0,.18);"></canvas>
+            <canvas id="heartChart" width="640" height="180" style="margin-top:10px; border:1px solid var(--line); border-radius:16px; background: rgba(255,255,255,.70);"></canvas>
 
             <div class="tabs" id="dayTabs"></div>
 
@@ -709,7 +700,7 @@
           <div class="inner">
             <h2>観察用ログ</h2>
             <p class="muted">ここでは操作できません。ログとハート推移のみ。</p>
-            <canvas id="heartChartObs" width="640" height="180" style="margin-top:10px; border:1px solid var(--line); border-radius:16px; background: rgba(0,0,0,.18);"></canvas>
+            <canvas id="heartChartObs" width="640" height="180" style="margin-top:10px; border:1px solid var(--line); border-radius:16px; background: rgba(255,255,255,.70);"></canvas>
 
             <div class="tabs" id="dayTabsObs"></div>
             <div class="logBox" id="logBoxObs"></div>
@@ -750,15 +741,15 @@
 
 <script>
 (() => {
-  const APP_KEY = "care3days_save_v1";
-  const SHARE_VERSION = 1;
+  const APP_KEY = "care3days_save_stage1_v2";
 
   const ASSETS = {
+    // すべて stage1 フォルダに入っている前提
     char: {
-      green: { closed: "public/char/green_closed.png", open: "public/char/green_open.png" },
-      blue:  { closed: "public/char/blue_closed.png",  open: "public/char/blue_open.png"  },
-      pink:  { closed: "public/char/pink_closed.png",  open: "public/char/pink_open.png"  },
-      purple:{ closed: "public/char/purple_closed.png",open: "public/char/purple_open.png"}
+      green: { closed: "stage1/green_closed.png", open: "stage1/green_open.png" },
+      blue:  { closed: "stage1/blue_closed.png",  open: "stage1/blue_open.png"  },
+      pink:  { closed: "stage1/pink_closed.png",  open: "stage1/pink_open.png"  },
+      purple:{ closed: "stage1/purple_closed.png",open: "stage1/purple_open.png"}
     },
     macaron: {
       green: "stage1/macaron_green.png",
@@ -770,8 +761,11 @@
 
   const DAY_MS = 24*60*60*1000;
   const LIFE_MS = 3*DAY_MS;
+
+  // 誕生は時間経過で起こす（3分）
   const HATCH_MS = 3*60*1000;
 
+  // デバッグ用。URLに ?fast=1 を付けると短縮
   const url = new URL(location.href);
   const FAST = url.searchParams.get("fast") === "1";
   const HATCH_MS_EFF = FAST ? 12*1000 : HATCH_MS;
@@ -783,7 +777,6 @@
   const screens = {
     intro: $("scr_intro"),
     search: $("scr_search"),
-    select: $("scr_select"),
     arrival: $("scr_arrival"),
     care: $("scr_care"),
     end: $("scr_end"),
@@ -807,6 +800,7 @@
   function rnd(a,b){ return a + Math.random()*(b-a); }
   function nowMs(){ return Date.now(); }
 
+  // シッター中は時間が停止する（内部時間だけ止める）
   function effectiveNow(s){
     if(!s) return nowMs();
     const baseNow = nowMs();
@@ -822,8 +816,8 @@
   }
 
   function showScreen(name){
-    Object.values(screens).forEach(el => el.classList.remove("active"));
-    screens[name].classList.add("active");
+    Object.values(screens).filter(Boolean).forEach(el => el.classList.remove("active"));
+    (screens[name] || null) && screens[name].classList.add("active");
   }
 
   function setModePill(){
@@ -842,20 +836,37 @@
     try{ return JSON.parse(str); }catch(e){ return fallback; }
   }
 
+  function emptyDay(d){
+    return {
+      day: d,
+      heartStart: null,
+      heartEnd: null,
+      sitterMs: 0,
+      careCounts: { food:0, outing:0, mini:0, clean:0, drink:0, macaron:0 },
+      choices: { food:[], outing:[], mini:[], clean:[] }
+    };
+  }
+
+  function genId(){
+    return "p" + Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
+  }
+
   function newSave(){
     const id = genId();
     const t = nowMs();
     return {
-      v: 1,
+      v: 2,
       id,
       playerName: "",
       startedAt: t,
       story: {
-        foundAt: null,
         chosenColor: null,
+        foundAt: null,
         arrivalAt: null,
         hatchAt: null,
-        hatched: false
+        hatched: false,
+        _targetTile: null,
+        _revealed: []
       },
       life: {
         bornAt: null,
@@ -863,7 +874,8 @@
         endedAt: null,
         isEnded: false,
         revivedUntil: null,
-        uncanny: false
+        uncanny: false,
+        _handledEnd: false
       },
       stats: {
         hunger: 30,
@@ -882,26 +894,11 @@
         macaron: 1
       },
       logs: {
-        day: {
-          "1": emptyDay(1),
-          "2": emptyDay(2),
-          "3": emptyDay(3)
-        },
+        day: { "1": emptyDay(1), "2": emptyDay(2), "3": emptyDay(3) },
         events: []
       },
-      _lastEff: t
-    };
-  }
-
-  function emptyDay(d){
-    return {
-      day: d,
-      heartStart: null,
-      heartEnd: null,
-      sitterMs: 0,
-      careCounts: { food:0, outing:0, mini:0, clean:0, drink:0, macaron:0 },
-      choices: { food:[], outing:[], mini:[], clean:[] },
-      notes: []
+      _lastEff: t,
+      _prevDay: 0
     };
   }
 
@@ -909,7 +906,7 @@
     const raw = localStorage.getItem(APP_KEY);
     if(raw){
       const parsed = safeJSONParse(raw, null);
-      if(parsed && parsed.v === 1) return parsed;
+      if(parsed && (parsed.v === 2)) return parsed;
     }
     return newSave();
   }
@@ -924,14 +921,11 @@
     saveNow();
   }
 
-  function genId(){
-    return "p" + Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
-  }
-
   function addEvent(type, detail){
     const t = effectiveNow(save);
-    const d = dayIndex(save);
+    const d = dayIndex(save) || 1;
     save.logs.events.push({ t, day:d, type, detail });
+
     const dayObj = save.logs.day[String(d)] || null;
     if(dayObj){
       if(type === "food"){ dayObj.careCounts.food++; dayObj.choices.food.push(detail.choice); }
@@ -940,6 +934,9 @@
       if(type === "clean"){ dayObj.careCounts.clean++; dayObj.choices.clean.push(detail.choice); }
       if(type === "drink"){ dayObj.careCounts.drink++; }
       if(type === "macaron"){ dayObj.careCounts.macaron++; }
+      if(type === "sitterOn" || type === "sitterOff"){
+        // sitterMs は切り替え時に更新
+      }
     }
   }
 
@@ -979,9 +976,10 @@
     }
   }
 
+  // 観察URL（ログとハート推移だけ）
   function buildSharePayload(s){
     const out = {
-      v: 1,
+      v: 2,
       id: s.id,
       createdAt: nowMs(),
       chosenColor: s.story.chosenColor,
@@ -1000,26 +998,19 @@
         sitterMs: obj.sitterMs,
         careCounts: obj.careCounts,
         choices: obj.choices,
-        events: s.logs.events.filter(e => e.day===d).slice(0,120).map(e => ({
-          t: e.t,
-          type: e.type,
-          detail: e.detail
-        }))
+        events: s.logs.events.filter(e => e.day===d).slice(0,120).map(e => ({ t:e.t, type:e.type, detail:e.detail }))
       });
     }
     return out;
   }
-
   function encodeShare(payload){
     const json = JSON.stringify(payload);
     return btoa(unescape(encodeURIComponent(json)));
   }
-
   function decodeShare(b64){
     const json = decodeURIComponent(escape(atob(b64)));
     return safeJSONParse(json, null);
   }
-
   function shareUrlForCurrentSave(){
     const payload = buildSharePayload(save);
     const data = encodeShare(payload);
@@ -1049,78 +1040,6 @@
     document.body.removeChild(ta);
   }
 
-  function buildMap(){
-    const grid = $("mapGrid");
-    grid.innerHTML = "";
-    const N = 12;
-    if(!save.story._targetTile){
-      save.story._targetTile = Math.floor(Math.random()*N);
-      save.story._revealed = [];
-      saveNow();
-    }
-    for(let i=0;i<N;i++){
-      const tile = document.createElement("button");
-      tile.className = "tile";
-      tile.type="button";
-      tile.innerHTML = `<div class="spark"></div><span>……</span><img class="foundImg" alt="macaron">`;
-      const img = tile.querySelector(".foundImg");
-      img.src = ASSETS.macaron.blue;
-      if(save.story._revealed.includes(i)){
-        tile.classList.add("revealed");
-        tile.querySelector("span").textContent = " ";
-        if(i === save.story._targetTile){
-          tile.classList.add("found");
-        }
-      }
-      tile.addEventListener("click", () => {
-        if(save.story.foundAt) return;
-        if(!save.story._revealed.includes(i)) save.story._revealed.push(i);
-        tile.classList.add("revealed");
-        tile.querySelector("span").textContent = " ";
-        if(i === save.story._targetTile){
-          tile.classList.add("found");
-          save.story.foundAt = nowMs();
-          $("searchNote").textContent = "見つかった。近づくと、温かい。";
-          addEvent("found", { where: i });
-          saveNow();
-          setTimeout(() => showSelect(), 600);
-        }else{
-          $("searchNote").textContent = "そこには、光の粒だけが残っている。";
-          saveNow();
-        }
-      });
-      grid.appendChild(tile);
-    }
-  }
-
-  function showSelect(){
-    showScreen("select");
-    const box = $("macaronChoices");
-    box.innerHTML = "";
-    const colors = ["green","blue","pink","purple"];
-    const desc = {
-      green: "少しだけ、草の匂いがする。",
-      blue: "ひんやりして、静か。",
-      pink: "頬がゆるむような温度。",
-      purple: "夢の手前みたいな手ざわり。"
-    };
-    colors.forEach(c => {
-      const btn = document.createElement("button");
-      btn.className = "choice";
-      btn.type="button";
-      btn.innerHTML = `
-        <img src="${ASSETS.macaron[c]}" alt="${c}">
-        <div class="ctext">
-          <div class="cname">${prettyColor(c)}</div>
-          <div class="cdesc">${desc[c]}</div>
-        </div>
-        <div class="tiny">選ぶ</div>
-      `;
-      btn.addEventListener("click", () => chooseMacaron(c));
-      box.appendChild(btn);
-    });
-  }
-
   function prettyColor(c){
     if(c==="green") return "みどり";
     if(c==="blue") return "あお";
@@ -1129,31 +1048,188 @@
     return c;
   }
 
-  function chooseMacaron(color){
-    save.story.chosenColor = color;
-    save.story.arrivalAt = effectiveNow(save);
-    save.story.hatchAt = save.story.arrivalAt + HATCH_MS_EFF;
-    save.story.hatched = false;
+  function renderOnboarding(){
+    showScreen("intro");
 
-    addEvent("choose", { color });
+    const box = $("charChoices");
+    const preview = $("charPreview");
+    if(!box || !preview) return;
+
+    box.innerHTML = "";
+    const colors = ["green","blue","pink","purple"];
+    const desc = {
+      green: "風が通るみたいに、軽い。",
+      blue: "静かな場所で、目が合う。",
+      pink: "少しだけ、あたたかい。",
+      purple: "夢の端っこに触れる。"
+    };
+
+    const selected = save.story.chosenColor || "";
+    const fallback = selected || "green";
+    preview.src = ASSETS.char[fallback].open;
+
+    colors.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "choice" + (c === selected ? " selected" : "");
+      btn.type="button";
+      btn.innerHTML = `
+        <img src="${ASSETS.char[c].open}" alt="${c}">
+        <div class="ctext">
+          <div class="cname">${prettyColor(c)}</div>
+          <div class="cdesc">${desc[c]}</div>
+        </div>
+        <div class="tiny">選ぶ</div>
+      `;
+
+      btn.addEventListener("mouseenter", () => { preview.src = ASSETS.char[c].open; });
+      btn.addEventListener("mouseleave", () => {
+        const cur = save.story.chosenColor || fallback;
+        preview.src = ASSETS.char[cur].open;
+      });
+
+      btn.addEventListener("click", () => {
+        save.story.chosenColor = c;
+        saveNow();
+
+        // 見た目だけ更新（全部作り直さずに選択状態だけ更新）
+        [...box.querySelectorAll(".choice")].forEach(el => el.classList.remove("selected"));
+        btn.classList.add("selected");
+        preview.src = ASSETS.char[c].open;
+        updateStartButton();
+      });
+
+      box.appendChild(btn);
+    });
+
+    // 既に名前があるなら入力欄に反映
+    const pn = $("playerName");
+    if(pn && save.playerName && !pn.value) pn.value = save.playerName;
+
+    updateStartButton();
+  }
+
+  function updateStartButton(){
+    const name = (($("playerName") && $("playerName").value) || "").trim();
+    const hasName = name.length > 0;
+    const hasChar = !!save.story.chosenColor;
+
+    const btn = $("btn_start");
+    if(btn) btn.disabled = !(hasName && hasChar);
+
+    const tip = $("introNeed");
+    if(!tip) return;
+
+    if(hasName && hasChar) tip.textContent = "";
+    else if(!hasName && !hasChar) tip.textContent = "名前と相棒を決めると、はじめられます。";
+    else if(!hasName) tip.textContent = "呼ばれたい名前を入れると、はじめられます。";
+    else tip.textContent = "相棒を選ぶと、はじめられます。";
+  }
+
+  function startFromOnboarding(){
+    const name = (($("playerName") && $("playerName").value) || "").trim();
+    const chosen = save.story.chosenColor;
+
+    if(!name || !chosen) return;
+
+    // 一度きれいにしてから、名前と相棒だけ残す
+    resetAll();
+    save.playerName = name;
+    save.story.chosenColor = chosen;
+
+    // 探しもの探しへ
+    resetSearch();
+    buildMap();
+
+    subline.textContent = name ? `○○（${name}）の記録` : "記録だけが残る";
     saveNow();
-    showArrival();
+    showScreen("search");
+  }
+
+  function resetSearch(){
+    save.story.foundAt = null;
+    save.story.arrivalAt = null;
+    save.story.hatchAt = null;
+    save.story.hatched = false;
+    save.story._targetTile = null;
+    save.story._revealed = [];
+    saveNow();
+  }
+
+  function buildMap(){
+    const grid = $("mapGrid");
+    grid.innerHTML = "";
+    const N = 12;
+
+    if(!save.story._targetTile){
+      save.story._targetTile = Math.floor(Math.random()*N);
+      save.story._revealed = [];
+      saveNow();
+    }
+
+    const chosen = save.story.chosenColor || "blue";
+    const macImg = ASSETS.macaron[chosen];
+
+    for(let i=0;i<N;i++){
+      const tile = document.createElement("button");
+      tile.className = "tile";
+      tile.type="button";
+      tile.innerHTML = `<div class="spark"></div><span>……</span><img class="foundImg" alt="macaron">`;
+      const img = tile.querySelector(".foundImg");
+      img.src = macImg;
+
+      if(save.story._revealed.includes(i)){
+        tile.classList.add("revealed");
+        tile.querySelector("span").textContent = " ";
+        if(i === save.story._targetTile){
+          tile.classList.add("found");
+        }
+      }
+
+      tile.addEventListener("click", () => {
+        if(save.story.foundAt) return;
+
+        if(!save.story._revealed.includes(i)) save.story._revealed.push(i);
+        tile.classList.add("revealed");
+        tile.querySelector("span").textContent = " ";
+
+        if(i === save.story._targetTile){
+          tile.classList.add("found");
+          save.story.foundAt = nowMs();
+
+          // 見つけた瞬間に「到着」させる（誕生はそこから3分後）
+          save.story.arrivalAt = effectiveNow(save);
+          save.story.hatchAt = save.story.arrivalAt + HATCH_MS_EFF;
+          save.story.hatched = false;
+
+          $("searchNote").textContent = "見つかった。近づくと、温かい。";
+          addEvent("found", { where: i, color: save.story.chosenColor });
+          saveNow();
+
+          setTimeout(() => showArrival(), 650);
+        }else{
+          $("searchNote").textContent = "そこには、光の粒だけが残っている。";
+          saveNow();
+        }
+      });
+
+      grid.appendChild(tile);
+    }
   }
 
   function showArrival(){
     showScreen("arrival");
-    const c = save.story.chosenColor;
+    const c = save.story.chosenColor || "green";
     $("arrivalImg").src = ASSETS.macaron[c];
-    $("arrivalText").innerHTML =
-      `それは静かに置かれた。<br>しばらくすると、ふわりと浮かび上がるらしい。`;
   }
 
   function maybeHatch(){
     if(save.story.hatched) return;
     if(!save.story.hatchAt) return;
+
     const t = effectiveNow(save);
     if(t >= save.story.hatchAt){
       save.story.hatched = true;
+
       const bornAt = save.story.hatchAt;
       save.life.bornAt = bornAt;
       save.life.deathAt = bornAt + LIFE_MS_EFF;
@@ -1161,6 +1237,7 @@
       save.life.endedAt = null;
       save.life.revivedUntil = null;
       save.life.uncanny = false;
+      save.life._handledEnd = false;
 
       save.logs.day["1"] = emptyDay(1);
       save.logs.day["2"] = emptyDay(2);
@@ -1195,16 +1272,17 @@
   function applySoftImpact({ hunger=0, waste=0, mood=0, hearts=0 }){
     save.stats.hunger = clamp(save.stats.hunger + hunger, 0, 100);
     save.stats.waste  = clamp(save.stats.waste  + waste, 0, 100);
+
     const moodCap = save.life.uncanny ? 60 : 100;
     save.stats.mood = clamp(save.stats.mood + mood, 0, moodCap);
+
     const heartCap = save.life.uncanny ? Math.min(save.stats.hearts, 70) : 100;
     save.stats.hearts = clamp(save.stats.hearts + hearts, 0, heartCap);
   }
 
-  function blockedByEnd(){
-    return save.life.isEnded;
-  }
+  function blockedByEnd(){ return save.life.isEnded; }
 
+  // お世話（2択）
   function actFood(){
     if(blockedByEnd()) return;
     openChoiceModal(
@@ -1250,7 +1328,7 @@
     const prompts = [
       { q:"光の粒を、集める？ 眺める？", a:"集める", b:"眺める", ka:"collect", kb:"watch" },
       { q:"近づく？ 少し離れる？", a:"近づく", b:"離れる", ka:"near", kb:"far" },
-      { q:"触れる？ 見守る？", a:"触れる", b:"見守る", ka:"touch", kb:"watch" }
+      { q:"触れる？ 見守る？", a:"触れる", b:"見守る", ka:"touch", kb:"watch2" }
     ];
     const p = prompts[Math.floor(Math.random()*prompts.length)];
     openChoiceModal(
@@ -1276,17 +1354,18 @@
     openCleanMini();
   }
 
+  // 排泄除去の小さなミニゲーム（クリックで消す）
   function openCleanMini(){
     modalTitle.textContent = "排泄除去";
-    modalNote.textContent = "画面の中に出る汚れを、クリックして消す。成功しても評価は出ない。";
+    modalNote.textContent = "画面の中に出る汚れをクリックして消す。成功しても評価は出ない。";
     modalBtns.innerHTML = "";
 
     const area = document.createElement("div");
     area.style.position = "relative";
     area.style.height = "220px";
     area.style.borderRadius = "16px";
-    area.style.border = "1px solid rgba(255,255,255,.12)";
-    area.style.background = "rgba(0,0,0,.22)";
+    area.style.border = "1px solid rgba(15,23,42,.14)";
+    area.style.background = "rgba(255,255,255,.75)";
     area.style.overflow = "hidden";
     area.style.marginTop = "12px";
 
@@ -1306,18 +1385,17 @@
       b.style.width = (18 + Math.random()*22) + "px";
       b.style.height = (14 + Math.random()*16) + "px";
       b.style.borderRadius = "12px";
-      b.style.border = "1px solid rgba(255,255,255,.14)";
-      b.style.background = "linear-gradient(180deg, rgba(255,255,255,.16), rgba(0,0,0,.35))";
+      b.style.border = "1px solid rgba(15,23,42,.16)";
+      b.style.background = "linear-gradient(180deg, rgba(15,23,42,.12), rgba(15,23,42,.28))";
       b.style.left = (8 + Math.random()*84) + "%";
       b.style.top = (8 + Math.random()*74) + "%";
       b.style.transform = `rotate(${Math.random()*22-11}deg)`;
       b.style.cursor = "pointer";
-      b.style.boxShadow = "0 10px 18px rgba(0,0,0,.45)";
+      b.style.boxShadow = "0 10px 18px rgba(15,23,42,.10)";
       b.addEventListener("click", () => {
         if(ended) return;
         b.remove();
         removed++;
-        status.textContent = " ";
         if(removed >= poopCount){
           finish(true);
         }
@@ -1367,6 +1445,7 @@
     overlay.classList.add("on");
   }
 
+  // 生存中アイテム
   function actDrink(){
     if(blockedByEnd()) return;
     if(save.items.drink <= 0) return;
@@ -1377,8 +1456,11 @@
         { label:"飲ませる", onPick: () => {
           save.items.drink--;
           applySoftImpact({ hunger: -16 + rnd(-3,3), waste: -10 + rnd(-3,3), mood: +8 + rnd(-2,2), hearts: +1 });
+
+          // 少しだけ寿命を延ばす（内部時間の調整）
           save.life.deathAt += (FAST ? 6*1000 : 2*60*60*1000);
-          addEvent("drink", { });
+
+          addEvent("drink", {});
           saveNow();
         }},
         { label:"やめておく", style:"secondary", onPick: () => {} }
@@ -1386,6 +1468,7 @@
     );
   }
 
+  // 死後アイテム
   function actMacaron(){
     if(!save.life.isEnded) return;
     if(save.items.macaron <= 0) return;
@@ -1401,10 +1484,13 @@
           save.life.endedAt = null;
           save.life.revivedUntil = t + (FAST ? 22*1000 : 12*60*60*1000);
           save.life.uncanny = true;
+
+          // どこか違和感のある復活
           save.stats.hunger = clamp(save.stats.hunger, 35, 85);
           save.stats.waste = clamp(save.stats.waste, 25, 90);
           save.stats.mood = clamp(save.stats.mood, 25, 55);
-          addEvent("macaron", { });
+
+          addEvent("macaron", {});
           saveNow();
           showCare();
         }},
@@ -1440,6 +1526,7 @@
     }
   }
 
+  // 時間経過による状態変化（表示はしない）
   function stepByTime(dtMs){
     const dt = dtMs / 1000;
 
@@ -1478,6 +1565,7 @@
     }
   }
 
+  // 状態はラベル表示しない。表情と動きだけで見せる
   function stateKind(){
     const { hunger, waste, mood } = save.stats;
     const bad = (hunger > 80) + (waste > 80);
@@ -1489,8 +1577,7 @@
   }
 
   function renderCare(){
-    const c = save.story.chosenColor;
-    if(!c) return;
+    const c = save.story.chosenColor || "green";
 
     $("btn_drink").disabled = save.life.isEnded || save.items.drink<=0;
     $("btn_macaron").disabled = (!save.life.isEnded) || save.items.macaron<=0;
@@ -1505,6 +1592,7 @@
 
     img.classList.remove("floaty","bop","droop","shake","glitch");
     tear.classList.remove("on");
+    img.style.filter = "";
 
     if(kind === "happy"){
       img.classList.add("bop");
@@ -1519,7 +1607,7 @@
       tear.classList.add("on");
     }else if(kind === "ended"){
       img.classList.add("droop");
-      img.style.filter = "grayscale(.9) brightness(.75) drop-shadow(0 24px 40px rgba(0,0,0,.55))";
+      img.style.filter = "grayscale(.9) brightness(.88) drop-shadow(0 20px 30px rgba(15,23,42,.18))";
     }
 
     if(save.life.uncanny && !save.life.isEnded){
@@ -1564,6 +1652,124 @@
     const shareUrl = shareUrlForCurrentSave();
     $("shareUrl").value = shareUrl;
     $("shareUrl2").value = shareUrl;
+  }
+
+  function msToHuman(ms){
+    if(!ms || ms<=0) return "0分";
+    const m = Math.round(ms/60000);
+    if(m < 60) return `${m}分`;
+    const h = Math.floor(m/60);
+    const mm = m%60;
+    return `${h}時間${mm}分`;
+  }
+
+  function summarizeChoices(choices){
+    const out = [];
+    const mapCount = (arr) => arr.reduce((acc,x)=>{ acc[x]=(acc[x]||0)+1; return acc; }, {});
+    const tFood = mapCount(choices.food || []);
+    const tOut = mapCount(choices.outing || []);
+    const tMini = mapCount(choices.mini || []);
+    const tClean = mapCount(choices.clean || []);
+
+    if(Object.keys(tFood).length){
+      out.push(`食事の選択: ${Object.entries(tFood).map(([k,v])=>`${foodLabel(k)}×${v}`).join(" / ")}`);
+    }
+    if(Object.keys(tOut).length){
+      out.push(`お出かけの選択: ${Object.entries(tOut).map(([k,v])=>`${outingLabel(k)}×${v}`).join(" / ")}`);
+    }
+    if(Object.keys(tMini).length){
+      out.push(`ミニゲームの選択: ${Object.entries(tMini).map(([k,v])=>`${miniLabel(k)}×${v}`).join(" / ")}`);
+    }
+    if(Object.keys(tClean).length){
+      out.push(`排泄除去: ${Object.entries(tClean).map(([k,v])=>`${cleanLabel(k)}×${v}`).join(" / ")}`);
+    }
+    if(!out.length) out.push("選択: （記録なし）");
+    return out;
+  }
+  function foodLabel(k){ return k==="light" ? "軽い" : (k==="hearty" ? "しっかり" : k); }
+  function outingLabel(k){ return k==="outside" ? "外" : (k==="home" ? "家" : k); }
+  function miniLabel(k){
+    const m = { collect:"集める", watch:"眺める", near:"近づく", far:"離れる", touch:"触れる", watch2:"見守る" };
+    return m[k] || k;
+  }
+  function cleanLabel(k){ return k==="done" ? "完了" : (k==="partial" ? "途中" : k); }
+
+  function eventToText(e){
+    const t = e.type;
+    if(t==="chooseChar") return `キャラ選択（${prettyColor(e.detail.color)}）`;
+    if(t==="found") return "見つけた";
+    if(t==="hatch") return "誕生した";
+    if(t==="food") return `食事（${foodLabel(e.detail.choice)}）`;
+    if(t==="outing") return `お出かけ（${outingLabel(e.detail.choice)}）`;
+    if(t==="mini") return `ミニ（${miniLabel(e.detail.choice)}）`;
+    if(t==="clean") return `排泄除去（${cleanLabel(e.detail.choice)}）`;
+    if(t==="drink") return "ドリンク";
+    if(t==="macaron") return "マカロン";
+    if(t==="sitterOn") return "シッターON";
+    if(t==="sitterOff") return "シッターOFF";
+    if(t==="end") return "終わった";
+    return t;
+  }
+
+  function buildHeartSeriesFromSave(s){
+    const arr = [];
+    for(let d=1; d<=3; d++){
+      const obj = s.logs.day[String(d)];
+      const start = (obj && obj.heartStart!=null) ? obj.heartStart : null;
+      const end = (obj && obj.heartEnd!=null) ? obj.heartEnd : ((d===dayIndex(s)) ? s.stats.hearts : null);
+      if(end!=null) arr.push({ x:d, y:end });
+      else if(start!=null) arr.push({ x:d, y:start });
+      else arr.push({ x:d, y:null });
+    }
+    return arr;
+  }
+
+  function drawHeartChart(canvas, series){
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "rgba(15,23,42,.18)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(36, 18);
+    ctx.lineTo(36, H-28);
+    ctx.lineTo(W-14, H-28);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(15,23,42,.70)";
+    ctx.font = "12px system-ui, sans-serif";
+    for(let d=1; d<=3; d++){
+      const x = mapX(d);
+      ctx.fillText("D"+d, x-8, H-10);
+    }
+
+    const pts = series.filter(p => p.y!=null).map(p => ({ x:mapX(p.x), y:mapY(p.y) }));
+    if(pts.length>=2){
+      ctx.strokeStyle = "rgba(251,113,133,.88)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.stroke();
+    }
+    pts.forEach(p => {
+      ctx.fillStyle = "rgba(251,113,133,.92)";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    function mapX(day){
+      const left = 36, right = W-14;
+      return left + (right-left)*( (day-1)/2 );
+    }
+    function mapY(val){
+      const top = 18, bottom = H-28;
+      const y = clamp(val,0,100);
+      return bottom - (bottom-top)*(y/100);
+    }
   }
 
   function showLogs(){
@@ -1632,124 +1838,7 @@
     }
   }
 
-  function msToHuman(ms){
-    if(!ms || ms<=0) return "0分";
-    const m = Math.round(ms/60000);
-    if(m < 60) return `${m}分`;
-    const h = Math.floor(m/60);
-    const mm = m%60;
-    return `${h}時間${mm}分`;
-  }
-
-  function summarizeChoices(choices){
-    const out = [];
-    const mapCount = (arr) => arr.reduce((acc,x)=>{ acc[x]=(acc[x]||0)+1; return acc; }, {});
-    const tFood = mapCount(choices.food || []);
-    const tOut = mapCount(choices.outing || []);
-    const tMini = mapCount(choices.mini || []);
-    const tClean = mapCount(choices.clean || []);
-
-    if(Object.keys(tFood).length){
-      out.push(`食事の選択: ${Object.entries(tFood).map(([k,v])=>`${foodLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tOut).length){
-      out.push(`お出かけの選択: ${Object.entries(tOut).map(([k,v])=>`${outingLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tMini).length){
-      out.push(`ミニゲームの選択: ${Object.entries(tMini).map(([k,v])=>`${miniLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tClean).length){
-      out.push(`排泄除去: ${Object.entries(tClean).map(([k,v])=>`${cleanLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(!out.length) out.push("選択: （記録なし）");
-    return out;
-  }
-  function foodLabel(k){ return k==="light" ? "軽い" : (k==="hearty" ? "しっかり" : k); }
-  function outingLabel(k){ return k==="outside" ? "外" : (k==="home" ? "家" : k); }
-  function miniLabel(k){
-    const m = { collect:"集める", watch:"眺める", near:"近づく", far:"離れる", touch:"触れる" };
-    return m[k] || k;
-  }
-  function cleanLabel(k){ return k==="done" ? "完了" : (k==="partial" ? "途中" : k); }
-
-  function eventToText(e){
-    const t = e.type;
-    if(t==="found") return "見つけた";
-    if(t==="choose") return `マカロンを選んだ（${prettyColor(e.detail.color)}）`;
-    if(t==="hatch") return "誕生した";
-    if(t==="food") return `食事（${foodLabel(e.detail.choice)}）`;
-    if(t==="outing") return `お出かけ（${outingLabel(e.detail.choice)}）`;
-    if(t==="mini") return `ミニ（${miniLabel(e.detail.choice)}）`;
-    if(t==="clean") return `排泄除去（${cleanLabel(e.detail.choice)}）`;
-    if(t==="drink") return "ドリンク";
-    if(t==="macaron") return "マカロン";
-    if(t==="sitterOn") return "シッターON";
-    if(t==="sitterOff") return "シッターOFF";
-    if(t==="end") return "終わった";
-    return t;
-  }
-
-  function buildHeartSeriesFromSave(s){
-    const arr = [];
-    for(let d=1; d<=3; d++){
-      const obj = s.logs.day[String(d)];
-      const start = (obj && obj.heartStart!=null) ? obj.heartStart : null;
-      const end = (obj && obj.heartEnd!=null) ? obj.heartEnd : ((d===dayIndex(s)) ? s.stats.hearts : null);
-      if(end!=null) arr.push({ x:d, y:end });
-      else if(start!=null) arr.push({ x:d, y:start });
-      else arr.push({ x:d, y:null });
-    }
-    return arr;
-  }
-
-  function drawHeartChart(canvas, series){
-    const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0,0,W,H);
-
-    ctx.globalAlpha = 0.8;
-    ctx.strokeStyle = "rgba(255,255,255,.18)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(36, 18);
-    ctx.lineTo(36, H-28);
-    ctx.lineTo(W-14, H-28);
-    ctx.stroke();
-
-    ctx.fillStyle = "rgba(238,242,255,.72)";
-    ctx.font = "12px system-ui, sans-serif";
-    for(let d=1; d<=3; d++){
-      const x = mapX(d);
-      ctx.fillText("D"+d, x-8, H-10);
-    }
-
-    const pts = series.filter(p => p.y!=null).map(p => ({ x:mapX(p.x), y:mapY(p.y) }));
-    if(pts.length>=2){
-      ctx.strokeStyle = "rgba(251,113,133,.82)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y);
-      ctx.stroke();
-    }
-    pts.forEach(p => {
-      ctx.fillStyle = "rgba(251,113,133,.92)";
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
-      ctx.fill();
-    });
-
-    function mapX(day){
-      const left = 36, right = W-14;
-      return left + (right-left)*( (day-1)/2 );
-    }
-    function mapY(val){
-      const top = 18, bottom = H-28;
-      const y = clamp(val,0,100);
-      return bottom - (bottom-top)*(y/100);
-    }
-  }
-
+  // 観察モード
   function initObserve(){
     setModePill();
     showScreen("observe");
@@ -1827,41 +1916,7 @@
     });
   }
 
-  function tick(){
-    if(!save) return;
-
-    if(save.story.arrivalAt && !save.story.hatched){
-      maybeHatch();
-      if(screens.arrival.classList.contains("active")){
-        $("arrivalImg").classList.add("floaty");
-      }
-      return;
-    }
-
-    if(save.life.bornAt){
-      const prevDay = save._prevDay || dayIndex(save);
-      const curDay = dayIndex(save);
-      finalizeDayIfNeeded(prevDay, curDay);
-      save._prevDay = curDay;
-
-      const effNow = effectiveNow(save);
-      const last = save._lastEff || effNow;
-      const dt = effNow - last;
-      if(dt > 0 && !save.sitter.on && !save.life.isEnded){
-        stepByTime(dt);
-      }
-      save._lastEff = effNow;
-
-      ensureDayHearts();
-      maybeEnd();
-
-      if(screens.care.classList.contains("active")){
-        renderCare();
-      }
-      saveNow();
-    }
-  }
-
+  // シッター切り替え（時間停止）
   function toggleSitter(force=null){
     if(!save.life.bornAt) return;
     if(save.life.isEnded) return;
@@ -1894,36 +1949,108 @@
     }
   }
 
+  function tick(){
+    if(!save) return;
+
+    // まだ誕生前（到着待ち）
+    if(save.story.arrivalAt && !save.story.hatched){
+      maybeHatch();
+      return;
+    }
+
+    if(save.life.bornAt){
+      const prevDay = save._prevDay || dayIndex(save);
+      const curDay = dayIndex(save);
+      finalizeDayIfNeeded(prevDay, curDay);
+      save._prevDay = curDay;
+
+      const effNow = effectiveNow(save);
+      const last = save._lastEff || effNow;
+      const dt = effNow - last;
+
+      if(dt > 0 && !save.sitter.on && !save.life.isEnded){
+        stepByTime(dt);
+      }
+      save._lastEff = effNow;
+
+      ensureDayHearts();
+      maybeEnd();
+
+      if(screens.care.classList.contains("active")){
+        renderCare();
+      }
+
+      saveNow();
+    }
+  }
+
+  // 初期化（プレイ）
   function initPlay(){
     setModePill();
-
     save = loadSave();
 
     if(save.playerName){
       $("playerName").value = save.playerName;
+      subline.textContent = save.playerName ? `○○（${save.playerName}）の記録` : "記録だけが残る";
     }
 
-    if(save.life.isEnded){
+    // 画面遷移の復元
+    if(!save.playerName || !save.story.chosenColor){
+      renderOnboarding();
+    }else if(save.life.isEnded){
       showEnd();
     }else if(save.life.bornAt){
       showCare();
     }else if(save.story.arrivalAt){
       showArrival();
-    }else if(save.story.foundAt){
-      showSelect();
     }else{
-      showScreen("intro");
-    }
-
-    buildMap();
-
-    $("btn_go_map").addEventListener("click", () => {
       buildMap();
       showScreen("search");
+    }
+
+    // ボタン
+    const pn = $("playerName");
+    if(pn){
+      pn.addEventListener("input", () => {
+        save.playerName = pn.value;
+        saveNow();
+        updateStartButton();
+      });
+    }
+
+    const startBtn = $("btn_start");
+    if(startBtn){
+      startBtn.addEventListener("click", () => startFromOnboarding());
+    }
+
+    $("btn_new_reset").addEventListener("click", () => {
+      // 保存を消して、最初に戻る
+      resetAll();
+      if(pn) pn.value = "";
+      renderOnboarding();
     });
-    $("btn_back_intro").addEventListener("click", () => showScreen("intro"));
-    $("btn_back_search").addEventListener("click", () => { buildMap(); showScreen("search"); });
-    $("btn_back_select").addEventListener("click", () => { resetProgressAfterChoose(); showSelect(); });
+
+    const backIntroBtn = $("btn_back_intro");
+    if(backIntroBtn){
+      backIntroBtn.addEventListener("click", () => {
+        // 進行中なら、軽く確認する
+        if(save.story.arrivalAt || save.life.bornAt){
+          openChoiceModal("設定へ戻る", "相棒や名前を変えると、探し直しになります。どうしますか？", [
+            { label:"戻る", cls:"secondary", onClick: () => { renderOnboarding(); } },
+            { label:"やめる", cls:"blue", onClick: () => {} }
+          ]);
+        }else{
+          renderOnboarding();
+        }
+      });
+    }
+
+    $("btn_back_search").addEventListener("click", () => {
+      resetSearch();
+      buildMap();
+      showScreen("search");
+      $("searchNote").textContent = "まだ、何も見つからない。";
+    });
 
     $("btn_hint").addEventListener("click", () => {
       if(save.story.foundAt) return;
@@ -1937,17 +2064,11 @@
 
     $("btn_new_reset").addEventListener("click", () => {
       resetAll();
-      buildMap();
       showScreen("intro");
+      $("searchNote").textContent = "まだ、何も見つからない。";
     });
 
-    $("btn_save_name").addEventListener("click", () => {
-      const name = ($("playerName").value || "").trim();
-      save.playerName = name;
-      saveNow();
-      $("subline").textContent = name ? `○○（${name}）の記録` : "記録だけが残る";
-    });
-
+    // お世話
     $("btn_food").addEventListener("click", actFood);
     $("btn_outing").addEventListener("click", actOuting);
     $("btn_mini").addEventListener("click", actMini);
@@ -1961,11 +2082,13 @@
       else showCare();
     });
 
-    $("btn_close_modal").addEventListener("click", closeModal);
+    // モーダル
+    $("btn_close_modal").addEventListener("click", () => overlay.classList.remove("on"));
     overlay.addEventListener("click", (e) => {
-      if(e.target === overlay) closeModal();
+      if(e.target === overlay) overlay.classList.remove("on");
     });
 
+    // シッター
     const tgl = $("toggle_sitter");
     tgl.addEventListener("click", () => toggleSitter());
     tgl.addEventListener("keydown", (e) => {
@@ -1975,6 +2098,7 @@
       }
     });
 
+    // 共有
     $("btn_copy_share").addEventListener("click", () => copyToClipboard($("shareUrl").value));
     $("btn_copy_share2").addEventListener("click", () => copyToClipboard($("shareUrl2").value));
     $("btn_logs_share").addEventListener("click", () => copyToClipboard($("shareUrl2").value));
@@ -1986,47 +2110,25 @@
       showLogs();
     });
 
+    // 共有URL初期反映
     const shareUrl = shareUrlForCurrentSave();
     $("shareUrl").value = shareUrl;
     $("shareUrl2").value = shareUrl;
     $("shareBox").style.display = "flex";
 
+    // タイマー
     if(tickTimer) clearInterval(tickTimer);
     tickTimer = setInterval(tick, 900);
     tick();
   }
 
-  function resetProgressAfterChoose(){
-    save.story.chosenColor = null;
-    save.story.arrivalAt = null;
-    save.story.hatchAt = null;
-    save.story.hatched = false;
-    save.life.bornAt = null;
-    save.life.deathAt = null;
-    save.life.isEnded = false;
-    save.life.endedAt = null;
-    save.life.revivedUntil = null;
-    save.life.uncanny = false;
-    save.life._handledEnd = false;
-    save._prevDay = 0;
-    save._lastEff = effectiveNow(save);
-
-    save.logs.day["1"] = emptyDay(1);
-    save.logs.day["2"] = emptyDay(2);
-    save.logs.day["3"] = emptyDay(3);
-    save.logs.events = [];
-    saveNow();
-  }
-
   setModePill();
-
   if(isObserveMode){
     initObserve();
     return;
   }
 
   initPlay();
-
 })();
 </script>
 </body>
