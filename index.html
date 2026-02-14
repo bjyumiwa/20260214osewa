@@ -560,6 +560,14 @@
                 <button class="btn secondary" id="btn_new_reset" title="保存を消します">最初から</button>
               </div>
               <p class="tiny" style="margin-top:8px;">名前と選択はこの端末の中だけに保存されます。</p>
+
+              <div class="linkBox" id="resumeBox" style="display:none; margin-top:12px;">
+                <div class="tiny">記録が残っています</div>
+                <div class="btnrow" style="margin-top:8px;">
+                  <button class="btn" id="btn_resume">つづきから</button>
+                </div>
+                <p class="tiny" id="resumeMeta" style="margin-top:6px;"></p>
+              </div>
             </div>
 
             <p class="tiny" id="introNeed" style="margin-top:6px;"></p>
@@ -916,6 +924,7 @@
       startedAt: t,
       story: {
         chosenColor: null,
+      twinColor: null,
         foundAt: null,
         arrivalAt: null,
         hatchAt: null,
@@ -1038,6 +1047,7 @@
       id: s.id,
       createdAt: nowMs(),
       chosenColor: s.story.chosenColor,
+      twinColor: s.story.twinColor,
       endedAt: s.life.endedAt || null,
       days: []
     };
@@ -1067,6 +1077,7 @@
     return safeJSONParse(json, null);
   }
   function shareUrlForCurrentSave(){
+    ensureTwinColors();
     const payload = buildSharePayload(save);
     const data = encodeShare(payload);
     const u = new URL(location.href);
@@ -1101,6 +1112,27 @@
     if(c==="pink") return "もも";
     if(c==="purple") return "むらさき";
     return c;
+  }
+
+  function hashStr(s){
+    let h = 0;
+    for(let i=0;i<(s||"" ).length;i++){ h = (h*31 + s.charCodeAt(i))>>>0; }
+    return h>>>0;
+  }
+
+  function pickTwinColor(primary){
+    const colors = ["green","blue","pink","purple"];
+    const opts = colors.filter(x => x !== primary);
+    return opts[Math.floor(Math.random()*opts.length)] || "blue";
+  }
+
+  function ensureTwinColors(){
+    if(!save || !save.story || !save.story.chosenColor) return;
+    const a = save.story.chosenColor;
+    if(!save.story.twinColor || save.story.twinColor === a){
+      save.story.twinColor = pickTwinColor(a);
+      saveNow();
+    }
   }
 
   function renderOnboarding(){
@@ -1160,6 +1192,7 @@
     const pn = $("playerName");
     if(pn && save.playerName && !pn.value) pn.value = save.playerName;
 
+    updateResumeBox();
     updateStartButton();
   }
 
@@ -1180,6 +1213,29 @@
     else tip.textContent = "相棒を選ぶと、はじめられます。";
   }
 
+
+  function updateResumeBox(){
+    const box = $("resumeBox");
+    const meta = $("resumeMeta");
+    const btn = $("btn_resume");
+    if(!box || !meta || !btn) return;
+
+    const hasProgress = !!(save && (save.life.isEnded || save.life.bornAt || save.story.arrivalAt || save.story.foundAt));
+    const ready = !!(save && save.playerName && save.story.chosenColor && hasProgress);
+
+    box.style.display = ready ? "block" : "none";
+    if(!ready) return;
+
+    let label = "";
+    if(save.life.isEnded) label = "3日間が終わっています";
+    else if(save.life.bornAt) label = `いまは Day ${dayIndex(save)}`;
+    else if(save.story.arrivalAt) label = "マカロンが到着している";
+    else label = "探している途中";
+    meta.textContent = label;
+
+    btn.onclick = () => { resumeToProgress(); };
+  }
+
   function startFromOnboarding(){
     const name = (($("playerName") && $("playerName").value) || "").trim();
     const chosen = save.story.chosenColor;
@@ -1190,6 +1246,7 @@
     resetAll();
     save.playerName = name;
     save.story.chosenColor = chosen;
+    save.story.twinColor = pickTwinColor(chosen);
 
     // 探しもの探しへ
     resetSearch();
@@ -1257,7 +1314,7 @@
           save.story.hatched = false;
 
           $("searchNote").textContent = "見つかった。近づくと、温かい。";
-          addEvent("found", { where: i, color: save.story.chosenColor });
+          addEvent("found", { where: i, colorA: save.story.chosenColor, colorB: save.story.twinColor });
           saveNow();
 
           setTimeout(() => showArrival(), 650);
@@ -1300,7 +1357,7 @@
       save.logs.events = [];
       save.logs.day["1"].heartStart = save.stats.hearts;
 
-      addEvent("hatch", { color: save.story.chosenColor });
+      addEvent("hatch", { colorA: save.story.chosenColor, colorB: save.story.twinColor });
       saveNow();
       showCare();
     }
@@ -1657,7 +1714,9 @@
 
   // 状態はラベル表示しない。表情と動きだけで見せる
   function renderCare(){
-    const c = save.story.chosenColor || "green";
+    ensureTwinColors();
+    const a = save.story.chosenColor || "green";
+    const b = save.story.twinColor || pickTwinColor(a);
 
     $("btn_drink").disabled = save.life.isEnded || save.items.drink<=0;
     $("btn_macaron").disabled = (!save.life.isEnded) || save.items.macaron<=0;
@@ -1669,11 +1728,12 @@
     const imgB = $("charImg2");
     const tear = $("tear");
     const poops = [ $("po1"), $("po2"), $("po3"), $("po4") ];
-
-    const useOpen = (kind === "happy") || (kind === "cry" && (c==="blue" || c==="pink"));
-    const src = useOpen ? ASSETS.char[c].open : ASSETS.char[c].closed;
-    imgA.src = src;
-    imgB.src = src;
+    const useOpenA = (kind === "happy") || (kind === "cry" && (a==="blue" || a==="pink"));
+    const useOpenB = (kind === "happy") || (kind === "cry" && (b==="blue" || b==="pink"));
+    const srcA = useOpenA ? ASSETS.char[a].open : ASSETS.char[a].closed;
+    const srcB = useOpenB ? ASSETS.char[b].open : ASSETS.char[b].closed;
+    imgA.src = srcA;
+    imgB.src = srcB;
 
     // 成長反映
     const sc = growthScaleLive();
@@ -1727,6 +1787,7 @@
     }
   }
   function showCare(){
+    ensureTwinColors();
     showScreen("care");
     renderCare();
     const shareUrl = shareUrlForCurrentSave();
@@ -1739,6 +1800,23 @@
     const shareUrl = shareUrlForCurrentSave();
     $("shareUrl").value = shareUrl;
     $("shareUrl2").value = shareUrl;
+  }
+
+  function resumeToProgress(){
+    if(!save.playerName || !save.story.chosenColor){
+      renderOnboarding();
+      return;
+    }
+    if(save.life.isEnded){
+      showEnd();
+    }else if(save.life.bornAt){
+      showCare();
+    }else if(save.story.arrivalAt){
+      showArrival();
+    }else{
+      buildMap();
+      showScreen("search");
+    }
   }
 
   function msToHuman(ms){
@@ -1936,9 +2014,13 @@
       $("logBoxObs").innerHTML = `<div class="logLine">読み込みに失敗しました。</div>`;
       return;
     }
-    const color = payload.chosenColor || "green";
-    $("charImgObs").src = ASSETS.char[color].open;
-    $("charImgObs2").src = ASSETS.char[color].open;
+    const colorA = payload.chosenColor || "green";
+    const opts = ["green","blue","pink","purple"].filter(x => x !== colorA);
+    const stableIdx = hashStr(payload.id || "") % Math.max(1, opts.length);
+    const fallbackB = opts[stableIdx] || pickTwinColor(colorA);
+    const colorB = (payload.twinColor && payload.twinColor !== colorA) ? payload.twinColor : fallbackB;
+    $("charImgObs").src = ASSETS.char[colorA].open;
+    $("charImgObs2").src = ASSETS.char[colorB].open;
 
     function setObsScale(day){
       const p = (day-1)/2;
@@ -2093,20 +2175,8 @@
       $("playerName").value = save.playerName;
       subline.textContent = save.playerName ? `○○（${save.playerName}）の記録` : "記録だけが残る";
     }
-
-    // 画面遷移の復元
-    if(!save.playerName || !save.story.chosenColor){
-      renderOnboarding();
-    }else if(save.life.isEnded){
-      showEnd();
-    }else if(save.life.bornAt){
-      showCare();
-    }else if(save.story.arrivalAt){
-      showArrival();
-    }else{
-      buildMap();
-      showScreen("search");
-    }
+    // 画面遷移：まずは物語の入口（必要なら"つづきから"）
+    renderOnboarding();
 
     // ボタン
     const pn = $("playerName");
