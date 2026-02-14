@@ -185,6 +185,7 @@
       object-fit:contain;
       transform-origin: 50% 85%;
       filter: drop-shadow(0 20px 30px rgba(15,23,42,.18));
+          transition: transform 650ms cubic-bezier(.2,.8,.2,1);
     }
     .charTwin.left{ transform: translateX(calc(-50% - var(--sep))) scale(var(--growA)) rotate(-3deg); }
     .charTwin.right{ transform: translateX(calc(-50% + var(--sep))) scale(var(--growB)) rotate(3deg); }
@@ -686,7 +687,7 @@
             <div class="btnrow" style="margin-top:10px;">
               <button class="btn" id="btn_food">食事</button>
               <button class="btn" id="btn_outing">お出かけ</button>
-              <button class="btn" id="btn_mini">2択ミニゲーム</button>
+              <button class="btn" id="btn_mini">つまらないゲーム</button>
               <button class="btn" id="btn_clean">排泄除去</button>
               <button class="btn blue" id="btn_drink">ドリンク</button>
               <button class="btn danger" id="btn_macaron">マカロン</button>
@@ -973,7 +974,9 @@ function dayMsEff(s){ return lifeMsEff(s) / 3; }
         hunger: 30,
         waste: 20,
         mood: 70,
-        hearts: 55
+        hearts: 55,
+        boringPlays: 0,
+        boringMilestone: 0
       },
       sitter: {
         on: false,
@@ -1089,6 +1092,20 @@ function dayMsEff(s){ return lifeMsEff(s) / 3; }
       save.story.twinColor = pickTwinColor(a);
       saveNow();
     }
+
+  // ログからミニゲーム回数を推定（古い保存データの救済用）
+  function estimateMiniPlaysFromLogs(s){
+    try{
+      if(!s || !s.logs || !s.logs.day) return 0;
+      let n = 0;
+      for(let d=1; d<=3; d++){
+        const obj = s.logs.day[String(d)];
+        if(obj && obj.careCounts && typeof obj.careCounts.mini === "number") n += obj.careCounts.mini;
+      }
+      return n;
+    }catch(e){ return 0; }
+  }
+
   }
 
 function normalizeSaveConfig(){
@@ -1099,7 +1116,16 @@ function normalizeSaveConfig(){
   // 古い保存データでも2体が同色にならないように
   ensureTwinColors();
   // 設定の既定値を端末側にも残す（次回の初期値）
-  try{ localStorage.setItem(TIME_MODE_KEY, save.config.fast ? "fast" : "normal"); }catch(e){}
+    // 古い保存データ用：統計フィールドの補完
+  if(!save.stats) save.stats = { hunger:30, waste:20, mood:70, hearts:55 };
+  if(typeof save.stats.boringPlays !== "number"){
+    // 既存ログから推定（なければ0）
+    save.stats.boringPlays = estimateMiniPlaysFromLogs(save);
+  }
+  if(typeof save.stats.boringMilestone !== "number"){
+    save.stats.boringMilestone = Math.floor((save.stats.boringPlays||0)/20);
+  }
+try{ localStorage.setItem(TIME_MODE_KEY, save.config.fast ? "fast" : "normal"); }catch(e){}
 }
 
   function wireTimeModeSelect(){
@@ -1445,27 +1471,99 @@ function renderOnboarding(){
     );
   }
 
+  
+  // つまらないゲーム100（2択の集まり）
+  const BORING_TOTAL = 100;
+  const BORING_GAMES = buildBoringGames();
+
+  function buildBoringGames(){
+    // 10×10＝100個。内容は「意味があるようで、ない」くらいの温度。
+    const nouns = ["ホコリ","影","余白","点","線","光","音","匂い","角","記憶"];
+    const pairs = [
+      ["数える","数えない"],
+      ["なでる","見送る"],
+      ["拾う","拾わない"],
+      ["揃える","崩す"],
+      ["近づく","離れる"],
+      ["止まる","進む"],
+      ["黙る","小さく言う"],
+      ["揺らす","揺らさない"],
+      ["隠す","出す"],
+      ["待つ","急ぐ"]
+    ];
+    const templates = [
+      "{N}をどうする？「{A}」/「{B}」",
+      "{N}に、{A}？ それとも{B}？",
+      "{A}ほうの{N} / {B}ほうの{N}",
+      "{N}を、いったん{A} / そのまま{B}",
+      "{N}は… {A} / {B}",
+      "{N}と、{A} / {B}",
+      "{A}してから{B} / {B}してから{A}",
+      "きょうの{N}：{A} / {B}",
+      "{N}を選ぶ：{A} / {B}",
+      "{N}に対して：{A} / {B}"
+    ];
+
+    const list = [];
+    let id = 1;
+    for(let i=0;i<nouns.length;i++){
+      for(let j=0;j<pairs.length;j++){
+        const n = nouns[i];
+        const a = pairs[j][0];
+        const b = pairs[j][1];
+        const t = templates[(i*3 + j) % templates.length];
+        const q = t.replaceAll("{N}", n).replaceAll("{A}", a).replaceAll("{B}", b);
+        list.push({ id, q, a, b });
+        id++;
+      }
+    }
+    return list.slice(0, BORING_TOTAL);
+  }
+
+  function miniChoiceKey(id, side){ return `g${id}${side}`; }
+  function parseMiniChoiceKey(k){
+    const m = /^g(\d{1,3})([AB])$/.exec(String(k||""));
+    if(!m) return null;
+    const id = parseInt(m[1],10);
+    const side = m[2];
+    if(!Number.isFinite(id) || id<1 || id> BORING_TOTAL) return null;
+    return { id, side };
+  }
+
+  function bumpBoringPlay(){
+    if(!save.stats) save.stats = { hunger:30, waste:20, mood:70, hearts:55 };
+    save.stats.boringPlays = (save.stats.boringPlays || 0) + 1;
+
+    // 20回ごとに「少し大きくなる」段階（数値は控えめに）
+    const step = Math.floor(save.stats.boringPlays / 20);
+    if(typeof save.stats.boringMilestone !== "number") save.stats.boringMilestone = 0;
+    if(step > save.stats.boringMilestone){
+      save.stats.boringMilestone = step;
+      // 出来事として残したいなら、ここで addEvent("grow", { step }) も可能
+    }
+  }
+
   function actMini(){
     if(blockedByEnd()) return;
-    const prompts = [
-      { q:"光の粒を、集める？ 眺める？", a:"集める", b:"眺める", ka:"collect", kb:"watch" },
-      { q:"近づく？ 少し離れる？", a:"近づく", b:"離れる", ka:"near", kb:"far" },
-      { q:"触れる？ 見守る？", a:"触れる", b:"見守る", ka:"touch", kb:"watch2" }
-    ];
-    const p = prompts[Math.floor(Math.random()*prompts.length)];
+
+    const g = BORING_GAMES[Math.floor(Math.random()*BORING_GAMES.length)];
     openChoiceModal(
-      "2択ミニゲーム",
-      p.q,
+      "つまらないゲーム",
+      `No.${g.id}/${BORING_TOTAL}  ${g.q}`,
       [
-        { label:p.a, onPick: () => {
-          applySoftImpact({ mood: +6 + rnd(-3,3), hearts: +1 });
-          addEvent("mini", { choice: p.ka });
-          saveNow();
-        }},
-        { label:p.b, style:"secondary", onPick: () => {
+        { label: g.a, onPick: () => {
+          bumpBoringPlay();
           applySoftImpact({ mood: +5 + rnd(-3,3), hearts: +1 });
-          addEvent("mini", { choice: p.kb });
+          addEvent("mini", { gid: g.id, side: "A", choice: miniChoiceKey(g.id,"A") });
           saveNow();
+          if(screens.care.classList.contains("active")) renderCare();
+        }},
+        { label: g.b, style:"secondary", onPick: () => {
+          bumpBoringPlay();
+          applySoftImpact({ mood: +5 + rnd(-3,3), hearts: +1 });
+          addEvent("mini", { gid: g.id, side: "B", choice: miniChoiceKey(g.id,"B") });
+          saveNow();
+          if(screens.care.classList.contains("active")) renderCare();
         }}
       ]
     );
@@ -1702,7 +1800,7 @@ function renderOnboarding(){
   // 生まれた直後は小さく、3日で少しずつ大きくなる（カウントダウン表示はしない）
 // 左＝ユーザーが選んだ子、右＝生まれてきた子（最初は右が少し小さい）
 function growthScalesLive(){
-  if(!save.life.bornAt) return { a:0.50, b:0.36, p:0 };
+  if(!save.life.bornAt) return { a:0.50, b:0.36, p:0, bonus:0 };
   const eff = effectiveNow(save);
 
   // 終了後は、その時点で止める
@@ -1716,10 +1814,19 @@ function growthScalesLive(){
   const bMin = 0.36;
   const bMax = 1.05;
 
+  const baseA = aMin + (aMax - aMin) * p;
+  const baseB = bMin + (bMax - bMin) * p;
+
+  // つまらないゲーム：20回ごとに、少しだけ大きくなる（控えめ、上限あり）
+  const plays = (save.stats && typeof save.stats.boringPlays === "number") ? save.stats.boringPlays : 0;
+  const step = Math.floor(plays / 20);
+  const bonus = clamp(step * 0.03, 0, 0.15);
+
   return {
-    a: aMin + (aMax - aMin) * p,
-    b: bMin + (bMax - bMin) * p,
-    p
+    a: clamp(baseA + bonus, 0.20, 1.25),
+    b: clamp(baseB + bonus, 0.20, 1.25),
+    p,
+    bonus
   };
 }
 
@@ -1862,7 +1969,7 @@ function separationFromScale(sc){
       out.push(`お出かけの選択: ${Object.entries(tOut).map(([k,v])=>`${outingLabel(k)}×${v}`).join(" / ")}`);
     }
     if(Object.keys(tMini).length){
-      out.push(`ミニゲームの選択: ${Object.entries(tMini).map(([k,v])=>`${miniLabel(k)}×${v}`).join(" / ")}`);
+      out.push(`つまらないゲームの選択: ${Object.entries(tMini).map(([k,v])=>`${miniLabel(k)}×${v}`).join(" / ")}`);
     }
     if(Object.keys(tClean).length){
       out.push(`排泄除去: ${Object.entries(tClean).map(([k,v])=>`${cleanLabel(k)}×${v}`).join(" / ")}`);
@@ -1873,6 +1980,16 @@ function separationFromScale(sc){
   function foodLabel(k){ return k==="light" ? "軽い" : (k==="hearty" ? "しっかり" : k); }
   function outingLabel(k){ return k==="outside" ? "外" : (k==="home" ? "家" : k); }
   function miniLabel(k){
+    const parsed = (typeof parseMiniChoiceKey === "function") ? parseMiniChoiceKey(k) : null;
+    if(parsed){
+      const g = (typeof BORING_GAMES !== "undefined") ? (BORING_GAMES[parsed.id-1] || null) : null;
+      if(g){
+        const lab = (parsed.side === "A") ? g.a : g.b;
+        return `#${parsed.id} ${lab}`;
+      }
+      return `#${parsed.id}`;
+    }
+    // 旧ミニゲーム互換
     const m = { collect:"集める", watch:"眺める", near:"近づく", far:"離れる", touch:"触れる", watch2:"見守る" };
     return m[k] || k;
   }
@@ -1885,7 +2002,10 @@ function separationFromScale(sc){
     if(t==="hatch") return "誕生した";
     if(t==="food") return `食事（${foodLabel(e.detail.choice)}）`;
     if(t==="outing") return `お出かけ（${outingLabel(e.detail.choice)}）`;
-    if(t==="mini") return `ミニ（${miniLabel(e.detail.choice)}）`;
+    if(t==="mini"){
+      const c = (e.detail && e.detail.choice!=null) ? e.detail.choice : ((e.detail && e.detail.gid) ? miniChoiceKey(e.detail.gid, e.detail.side||"A") : "");
+      return `つまらない（${miniLabel(c)}）`;
+    }
     if(t==="clean") return `排泄除去（${cleanLabel(e.detail.choice)}）`;
     if(t==="drink") return "ドリンク";
     if(t==="macaron") return "マカロン";
@@ -1993,7 +2113,7 @@ function separationFromScale(sc){
         lines.push(`ハートの変化: （未確定）`);
       }
 
-      lines.push(`お世話: 食事${obj.careCounts.food} / お出かけ${obj.careCounts.outing} / ミニ${obj.careCounts.mini} / 排泄除去${obj.careCounts.clean}`);
+      lines.push(`お世話: 食事${obj.careCounts.food} / お出かけ${obj.careCounts.outing} / つまらない${obj.careCounts.mini} / 排泄除去${obj.careCounts.clean}`);
       lines.push(`アイテム: ドリンク${obj.careCounts.drink} / マカロン${obj.careCounts.macaron}`);
       lines.push(`シッター: ${msToHuman(obj.sitterMs)}`);
 
