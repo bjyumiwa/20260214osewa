@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>3日間のお世話ゲーム（プロトタイプ）</title>
+  <title>3日間のお世話ゲーム（stage1）</title>
   <style>
     :root{
       --bg:#eef8ff;
@@ -18,7 +18,6 @@
 
       --btn2:#60a5fa;
       --danger:#fb7185;
-      --ok:#34d399;
 
       --shadow: 0 16px 38px rgba(15,23,42,.12);
       --radius: 18px;
@@ -101,15 +100,10 @@
       color: rgba(15,23,42,.80);
     }
     .muted{ color:var(--muted); }
+    .tiny{ font-size:12px; color: rgba(15,23,42,.70); line-height:1.6; }
 
     .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    button{
-      border:0;
-      background:none;
-      color:inherit;
-      font:inherit;
-      cursor:pointer;
-    }
+    button{ border:0; background:none; color:inherit; font:inherit; cursor:pointer; }
     .btn{
       padding:10px 12px;
       border-radius:14px;
@@ -118,357 +112,178 @@
       font-weight:800;
       box-shadow: 0 12px 24px rgba(45,212,191,.14);
       border:1px solid rgba(15,23,42,.10);
-      transition: transform .08s ease, filter .12s ease;
+      transition: transform .06s ease, filter .2s ease, opacity .2s ease;
     }
-    .btn:hover{ filter:brightness(1.03); }
+    .btn:hover{ filter: brightness(1.02); }
     .btn:active{ transform: translateY(1px) scale(.99); }
-
     .btn.secondary{
-      background: rgba(255,255,255,.55);
-      color: rgba(15,23,42,.90);
-      border:1px solid var(--line);
+      background: rgba(255,255,255,.62);
+      color: rgba(15,23,42,.86);
       box-shadow:none;
-      font-weight:750;
     }
     .btn.blue{
-      background: linear-gradient(135deg, rgba(96,165,250,.92), rgba(96,165,250,.72));
-      color:#071223;
-      box-shadow: 0 12px 24px rgba(96,165,250,.14);
+      background: linear-gradient(135deg, rgba(96,165,250,.95), rgba(96,165,250,.75));
+      color: #031a35;
+      box-shadow: 0 12px 24px rgba(96,165,250,.12);
     }
     .btn.danger{
-      background: linear-gradient(135deg, rgba(251,113,133,.92), rgba(251,113,133,.72));
-      color:#2a0b10;
-      box-shadow: 0 12px 24px rgba(251,113,133,.14);
+      background: linear-gradient(135deg, rgba(251,113,133,.92), rgba(251,113,133,.70));
+      color: #3a0413;
+      box-shadow: 0 12px 24px rgba(251,113,133,.12);
     }
-    .btn:disabled{
-      opacity:.50;
-      cursor:not-allowed;
-      filter:saturate(.7);
-    }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
 
     .screen{ display:none; }
     .screen.active{ display:block; }
 
     .stage{
-      display:flex; align-items:center; justify-content:center;
-      min-height: 420px;
-      position:relative;
-      padding:10px;
-    }
-    .charWrap{
-      width: 320px; height: 320px;
-      display:grid; place-items:center;
-      position:relative;
-      user-select:none;
-    }
-    .charImg{
-      width: 300px;
-      height: 300px;
-      object-fit:contain;
-      filter: drop-shadow(0 20px 30px rgba(15,23,42,.18));
-      transform-origin: 50% 80%;
-    }
-    .floaty{ animation: floaty 3.6s ease-in-out infinite; }
-    @keyframes floaty{
-      0%,100%{ transform: translateY(0); }
-      50%{ transform: translateY(-10px); }
-    }
-    .bop{ animation: bop 1.2s ease-in-out infinite; }
-    @keyframes bop{
-      0%,100%{ transform: translateY(0) scale(1); }
-      50%{ transform: translateY(-8px) scale(1.01); }
-    }
-    .droop{ animation: droop 2.6s ease-in-out infinite; }
-    @keyframes droop{
-      0%,100%{ transform: translateY(0) rotate(0deg) scale(.995); filter: brightness(.98) contrast(1.02) drop-shadow(0 20px 30px rgba(15,23,42,.18)); }
-      50%{ transform: translateY(10px) rotate(-1.5deg) scale(.985); filter: brightness(.86) contrast(1.02) drop-shadow(0 20px 30px rgba(15,23,42,.18)); }
-    }
-    .shake{ animation: shake .6s ease-in-out infinite; }
-    @keyframes shake{
-      0%,100%{ transform: translateX(0) rotate(0deg); }
-      25%{ transform: translateX(-3px) rotate(-.8deg); }
-      75%{ transform: translateX(3px) rotate(.8deg); }
-    }
-    .glitch{
-      filter:
-        drop-shadow(0 20px 30px rgba(15,23,42,.18))
-        hue-rotate(14deg)
-        saturate(1.15)
-        contrast(1.08);
-      animation: glitch 1.2s steps(2) infinite;
-    }
-    @keyframes glitch{
-      0%,100%{ transform: translate(0,0) scale(1); }
-      20%{ transform: translate(-1px, 1px) scale(1.001); }
-      40%{ transform: translate(2px, -1px) scale(.999); }
-      60%{ transform: translate(-2px, -1px) scale(1.002); }
-      80%{ transform: translate(1px, 2px) scale(1); }
-    }
-    .tear{
-      position:absolute;
-      width: 22px; height: 22px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), rgba(96,165,250,.85) 35%, rgba(96,165,250,.18) 70%, transparent 75%);
-      filter: blur(.1px);
-      opacity:0;
-      transform: translate(-35px, 30px) rotate(18deg);
-      animation: tear 1.4s ease-in-out infinite;
-      pointer-events:none;
-    }
-    @keyframes tear{
-      0%{ opacity:0; transform: translate(-35px, 30px) rotate(18deg) scale(.8); }
-      20%{ opacity:.9; }
-      80%{ opacity:.05; transform: translate(-28px, 60px) rotate(18deg) scale(1); }
-      100%{ opacity:0; transform: translate(-28px, 60px) rotate(18deg) scale(1); }
-    }
-    .tear.on{ opacity:1; }
-
-    .poop{
-      position:absolute;
-      width: 20px; height: 16px;
-      border-radius: 8px 8px 12px 12px;
-      background: linear-gradient(180deg, rgba(15,23,42,.10), rgba(15,23,42,.28));
-      border:1px solid rgba(15,23,42,.14);
-      opacity:0;
-      transform: translate(0,0) scale(.95);
-      filter: blur(.1px);
-      pointer-events:none;
-    }
-    .poop.on{ opacity:.70; }
-    .poop:nth-child(1){ left:36px; top:230px; transform: rotate(-10deg); }
-    .poop:nth-child(2){ right:42px; top:246px; transform: rotate(12deg); }
-    .poop:nth-child(3){ left: 86px; top:268px; transform: rotate(6deg) scale(.9); }
-    .poop:nth-child(4){ right: 96px; top:276px; transform: rotate(-8deg) scale(.92); }
-
-    .hearts{
-      display:flex; gap:6px; align-items:center;
-      padding:8px 10px; border-radius:14px;
-      background: rgba(255,255,255,.55);
-      border:1px solid var(--line);
-      width: fit-content;
-    }
-    .heart{
-      width: 14px; height: 14px;
-      transform: rotate(45deg);
-      position:relative;
-      opacity:.30;
-      filter: drop-shadow(0 2px 6px rgba(251,113,133,.20));
-    }
-    .heart::before,.heart::after{
-      content:"";
-      position:absolute;
-      width: 14px; height: 14px;
-      border-radius: 50%;
-      background: rgba(251,113,133,.85);
-      left:0; top:0;
-    }
-    .heart::after{ left:-7px; }
-    .heart.on{ opacity:1; }
-    .heart.on::before,.heart.on::after{ background: rgba(251,113,133,.95); }
-
-    .choiceGrid{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap:12px;
-      margin-top:12px;
-    }
-    @media (max-width:520px){ .choiceGrid{ grid-template-columns:1fr; } }
-    .choice{
-      border:1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(255,255,255,.55);
-      padding:12px;
+      height: 310px;
       display:flex;
-      gap:12px;
       align-items:center;
-      transition: transform .12s ease, background .2s ease;
+      justify-content:center;
+      background:
+        radial-gradient(260px 260px at 50% 60%, rgba(255,255,255,.78), rgba(255,255,255,0) 70%),
+        radial-gradient(380px 300px at 50% 50%, rgba(45,212,191,.13), rgba(96,165,250,.10) 60%, rgba(255,255,255,0) 72%);
+      border-bottom:1px solid var(--line);
+      position:relative;
+      overflow:hidden;
     }
-    .choice:hover{ transform: translateY(-1px); background: rgba(255,255,255,.72); }
-    .choice.selected{ border-color: rgba(45,212,191,.55); background: rgba(45,212,191,.14); }
-    .choice.selected .tiny{ opacity: .95; }
-    .choice img{
-      width:72px; height:72px; object-fit:contain;
-      filter: drop-shadow(0 12px 16px rgba(15,23,42,.14));
-    }
-    .choice .ctext{ flex:1; }
-    .choice .ctext .cname{ font-weight:900; font-size:13px; }
-    .choice .ctext .cdesc{ font-size:12px; margin-top:4px; color: var(--muted); line-height:1.55; }
+    .charWrap{ position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+    .charImg{ width: 210px; height:auto; filter: drop-shadow(0 18px 32px rgba(15,23,42,.18)); user-select:none; -webkit-user-drag:none; }
+    .floaty{ animation: floaty 3.2s ease-in-out infinite; }
+    @keyframes floaty{ 0%,100%{ transform: translateY(0px);} 50%{ transform: translateY(-8px);} }
 
-    .mapGrid{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:10px;
-      margin-top:12px;
+    .bigStart{
+      width:100%;
+      padding:14px 14px;
+      border-radius: 16px;
+      font-size:15px;
     }
-    .tile{
-      height:84px;
+
+    .formBlock{ margin-top:12px; padding:12px; border:1px solid var(--line); background: rgba(255,255,255,.62); border-radius:16px; }
+    input, select{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.75);
+      color: rgba(15,23,42,.9);
+      outline:none;
+      font-size:13px;
+    }
+
+    .choiceGrid{ display:grid; grid-template-columns: 1fr; gap:10px; margin-top:10px; }
+    .choice{
+      text-align:left;
+      width:100%;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px;
       border-radius:16px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.50);
+      background: rgba(255,255,255,.62);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .choice:hover{ background: rgba(255,255,255,.78); }
+    .choice:active{ transform: translateY(1px) scale(.995); }
+    .choice.selected{ border-color: rgba(45,212,191,.55); box-shadow: 0 10px 22px rgba(45,212,191,.10); }
+    .choice img{ width:54px; height:auto; }
+    .ctext{ flex:1; }
+    .cname{ font-weight:800; font-size:13px; }
+    .cdesc{ font-size:12px; color: rgba(15,23,42,.70); margin-top:2px; }
+
+    .stepRow{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .stepChip{ display:flex; gap:6px; align-items:center; padding:6px 10px; border-radius:999px; background: rgba(255,255,255,.60); border:1px solid var(--line); font-size:12px; color: rgba(15,23,42,.78); }
+    .stepChip .num{ width:18px; height:18px; border-radius:999px; display:flex; align-items:center; justify-content:center; background: rgba(45,212,191,.22); color: rgba(4,47,46,.92); font-weight:800; }
+
+    .mapGrid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-top:12px; }
+    @media (max-width: 520px){ .mapGrid{ grid-template-columns: repeat(3, 1fr);} }
+    .tile{
+      height:72px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.62);
       position:relative;
       overflow:hidden;
-      display:grid;
-      place-items:center;
-      transition: transform .12s ease, background .2s ease;
-    }
-    .tile:hover{ transform: translateY(-1px); background: rgba(255,255,255,.68); }
-    .tile.revealed{ background: rgba(45,212,191,.14); }
-    .spark{
-      position:absolute; inset:-40%;
-      background:
-        radial-gradient(circle at 30% 40%, rgba(45,212,191,.18), transparent 45%),
-        radial-gradient(circle at 70% 60%, rgba(96,165,250,.14), transparent 45%);
-      opacity:0;
-      transform: rotate(12deg);
-    }
-    .tile.revealed .spark{ opacity:1; animation: spin 3.6s linear infinite; }
-    @keyframes spin{
-      from{ transform: rotate(0deg); }
-      to{ transform: rotate(360deg); }
-    }
-    .tile span{
-      font-size:12px;
-      color: rgba(15,23,42,.72);
-      opacity:.85;
-    }
-    .foundImg{
-      width:60px; height:60px; object-fit:contain;
-      filter: drop-shadow(0 10px 16px rgba(15,23,42,.16));
-      opacity:.0;
-      transform: translateY(6px) scale(.98);
-      transition: opacity .25s ease, transform .25s ease;
-    }
-    .tile.found .foundImg{ opacity:1; transform: translateY(0) scale(1); }
-
-    .overlay{
-      position:fixed; inset:0;
-      display:none;
-      place-items:center;
-      background: rgba(15,23,42,.45);
-      backdrop-filter: blur(6px);
-      z-index: 50;
-      padding:18px;
-    }
-    .overlay.on{ display:grid; }
-    .modal{
-      width:min(720px, 96vw);
-      background: rgba(255,255,255,.88);
-      border:1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .modal .mhead{
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .modal .mhead .mtitle{ font-weight:900; font-size:13px; letter-spacing:.02em; }
-    .modal .mbody{ padding:14px; }
-    .modal .mnote{ font-size:12px; color: var(--muted); line-height:1.7; }
-
-    .thanks{
-      min-height: 520px;
-      display:grid;
-      place-items:center;
-      text-align:center;
-    }
-    .thanks .word{
-      font-size: 34px;
-      font-weight: 900;
-      letter-spacing:.08em;
-      color: rgba(15,23,42,.92);
-      text-shadow: 0 18px 42px rgba(15,23,42,.12);
-    }
-    .fade{ animation: fadeIn 1.2s ease both; }
-    @keyframes fadeIn{
-      from{ opacity:0; transform: translateY(6px); }
-      to{ opacity:1; transform: translateY(0); }
-    }
-
-    .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-    .tab{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.55);
-      font-size:12px;
-      color: rgba(15,23,42,.88);
-      opacity:.95;
-    }
-    .tab.active{ background: rgba(96,165,250,.14); border-color: rgba(96,165,250,.28); }
-    .logBox{
-      margin-top:12px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background: rgba(255,255,255,.55);
-      padding:12px;
-      overflow:auto;
-      max-height: 360px;
-    }
-    .logLine{
-      font-size:12px;
-      line-height:1.8;
-      color: rgba(15,23,42,.82);
-      border-bottom:1px dashed rgba(15,23,42,.14);
-      padding:6px 0;
-    }
-    .logLine:last-child{ border-bottom:0; }
-    canvas{ max-width:100%; }
-
-    .tiny{ font-size:12px; color: var(--muted); }
-
-    .linkBox{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.55);
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-    .linkBox input{
-      flex:1;
-      min-width: 240px;
-      padding:10px 10px;
-      border-radius:12px;
-      background: rgba(255,255,255,.78);
-      border:1px solid rgba(15,23,42,.14);
-      color: rgba(15,23,42,.92);
-      outline:none;
-      font-size:12px;
-    }
-
-    .cornerHint{
-      position:absolute;
-      top:10px; right:10px;
-      font-size:12px;
+      font-weight:700;
       color: rgba(15,23,42,.70);
-      opacity:.90;
-      display:flex; align-items:center; gap:8px;
     }
-    .toggle{
-      width:42px; height:22px; border-radius:999px;
-      background: rgba(15,23,42,.08);
-      border:1px solid var(--line);
-      position:relative;
-      flex: 0 0 auto;
+    .tile span{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+    .tile .foundImg{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; transform: scale(.98); transition: opacity .2s ease, transform .2s ease; }
+    .tile.revealed .foundImg{ opacity:.95; transform: scale(1); }
+    .tile.found{ border-color: rgba(96,165,250,.55); box-shadow: 0 10px 22px rgba(96,165,250,.10); }
+
+    .hatchRow{ display:flex; gap:10px; align-items:center; margin-top:10px; }
+    .hatchBar{ flex:1; height:10px; border-radius:999px; background: rgba(15,23,42,.08); border:1px solid var(--line); overflow:hidden; }
+    .hatchFill{ height:100%; width:0%; border-radius:999px; background: linear-gradient(90deg, rgba(45,212,191,.85), rgba(96,165,250,.78)); transition: width .35s ease; }
+    .hatchTime{ font-size:12px; color: rgba(15,23,42,.70); min-width: 86px; text-align:right; font-variant-numeric: tabular-nums; letter-spacing:.02em; }
+
+    /* 到着画面：マカロン中心＋気配（選んだキャラ）が周囲をうろうろ */
+    .arrivalStage{ width:100%; height:100%; position:relative; display:flex; align-items:center; justify-content:center; }
+    .macaronBtn{ border:0; background:transparent; padding:0; cursor:pointer; }
+    .macaronBtn:active{ transform: translateY(1px) scale(.995); }
+    .macaronImg{ width: 230px; height:auto; filter: drop-shadow(0 18px 32px rgba(15,23,42,.18)); }
+    .orbit{
+      position:absolute;
+      width: 360px;
+      height: 260px;
+      animation: orbit 5.6s linear infinite;
+      pointer-events:none;
     }
-    .toggle::after{
-      content:"";
-      width:18px; height:18px; border-radius:999px;
-      position:absolute; top:1px; left:1px;
-      background: rgba(15,23,42,.45);
-      transition: left .18s ease, background .18s ease;
+    .orbit .ghost{
+      width: 120px;
+      opacity:.33;
+      filter: blur(.2px) drop-shadow(0 12px 22px rgba(15,23,42,.08));
+      transform: translate(10px, 24px);
+      animation: ghostBob 2.6s ease-in-out infinite;
     }
+    @keyframes orbit{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
+    @keyframes ghostBob{ 0%,100%{ transform: translate(10px, 24px);} 50%{ transform: translate(10px, 16px);} }
+
+    .hearts{ display:flex; gap:6px; align-items:center; }
+    .heart{ width:18px; height:18px; transform: rotate(45deg); background: rgba(251,113,133,.28); border-radius: 4px; position:relative; }
+    .heart::before, .heart::after{ content:""; width:18px; height:18px; position:absolute; background: inherit; border-radius: 999px; }
+    .heart::before{ left:-9px; top:0; }
+    .heart::after{ left:0; top:-9px; }
+    .heart.on{ background: rgba(251,113,133,.88); }
+
+    .toggle{ width:42px; height:22px; border-radius:999px; background: rgba(15,23,42,.08); border:1px solid var(--line); position:relative; flex:0 0 auto; }
+    .toggle::after{ content:""; width:18px; height:18px; border-radius:999px; position:absolute; top:1px; left:1px; background: rgba(15,23,42,.45); transition: left .18s ease, background .18s ease; }
     .toggle.on{ background: rgba(45,212,191,.22); border-color: rgba(45,212,191,.28); }
     .toggle.on::after{ left:21px; background: rgba(45,212,191,.92); }
+
+    .linkBox{ display:flex; align-items:center; gap:10px; margin-top:12px; padding:10px; border:1px solid var(--line); background: rgba(255,255,255,.62); border-radius:16px; }
+    .linkBox input{ flex:1; }
+
+    .lifeRow{ margin-top:10px; padding:10px; border:1px solid var(--line); background: rgba(255,255,255,.62); border-radius:16px; }
+    .lifeTop{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .lifeText{ font-size:12px; color: rgba(15,23,42,.76); font-variant-numeric: tabular-nums; }
+    .lifeBar{ height:10px; border-radius:999px; background: rgba(15,23,42,.08); border:1px solid var(--line); overflow:hidden; margin-top:8px; }
+    .lifeFill{ height:100%; width:0%; border-radius:999px; background: linear-gradient(90deg, rgba(96,165,250,.78), rgba(45,212,191,.75)); transition: width .35s ease; }
+
+    .thanks{ height: 68vh; display:flex; align-items:center; justify-content:center; text-align:center; }
+    .word{ font-size: 34px; letter-spacing: .18em; font-weight: 900; color: rgba(15,23,42,.86); }
+
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .tab{ padding:8px 10px; border-radius:999px; border:1px solid var(--line); background: rgba(255,255,255,.62); font-size:12px; font-weight:800; color: rgba(15,23,42,.78); }
+    .tab.on{ border-color: rgba(45,212,191,.55); box-shadow: 0 10px 22px rgba(45,212,191,.10); }
+
+    .logBox{ margin-top:10px; padding:12px; border-radius:16px; border:1px solid var(--line); background: rgba(255,255,255,.62); }
+    .logLine{ font-size:12px; color: rgba(15,23,42,.78); line-height:1.7; padding:4px 0; border-bottom:1px dashed rgba(15,23,42,.12); }
+    .logLine:last-child{ border-bottom:0; }
+
+    .overlay{ position:fixed; inset:0; background: rgba(15,23,42,.22); display:none; align-items:center; justify-content:center; padding:18px; z-index:50; }
+    .overlay.on{ display:flex; }
+    .modal{ width:min(720px, 96vw); background: rgba(255,255,255,.92); border:1px solid rgba(15,23,42,.12); border-radius: 18px; box-shadow: 0 28px 64px rgba(15,23,42,.22); overflow:hidden; }
+    .mhead{ padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px solid rgba(15,23,42,.10); }
+    .mtitle{ font-weight:900; letter-spacing:.02em; }
+    .mbody{ padding:14px; }
+    .mnote{ font-size:13px; color: rgba(15,23,42,.80); line-height:1.75; }
+    .mnote p{ margin:0 0 10px 0; }
+    .mnote .small{ font-size:12px; color: rgba(15,23,42,.70); }
+
+    .fade{ opacity:.92; }
   </style>
 </head>
 <body>
@@ -477,7 +292,7 @@
       <div class="brand">
         <div class="dot"></div>
         <div>
-          <div class="title">3日間のお世話ゲーム</div>
+          <div class="title" id="ui_title">3日間のお世話ゲーム</div>
           <div class="sub" id="subline">記録だけが残る</div>
         </div>
       </div>
@@ -487,33 +302,133 @@
       </div>
     </div>
 
-    <div class="screen active" id="scr_intro">
+    <!-- 0: スタート -->
+    <div class="screen active" id="scr_start">
       <div class="grid">
         <div class="card">
           <div class="inner">
-            <h2>はじめに</h2>
-            <p class="fade">
-              ある日、あなたのもとに一通のメッセージが届く。<br>
-              「なくしたものを探しています。見つけた人に、3日間だけ預けます。」<br>
-              地図だけが添えられている。
+            <h2 id="t_start">スタート</h2>
+            <p class="fade" id="p_start">
+              3日間だけ。<br>
+              正解はない。評価もしない。<br>
+              残るのは、選んだことの記録だけ。
+            </p>
+            <div class="btnrow">
+              <button class="btn bigStart" id="btn_go_menu">スタート</button>
+              <button class="btn secondary" id="btn_reset_all">最初から</button>
+            </div>
+            <p class="tiny" id="p_start_hint" style="margin-top:10px;">
+              途中で閉じても、ローカルに記録が残ります。
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="stage">
+            <div class="charWrap">
+              <img id="startVisual" class="charImg floaty" alt="macaron" />
+            </div>
+          </div>
+          <div class="inner">
+            <h2 id="t_start_side">かけら</h2>
+            <p class="muted" id="p_start_side">まだ、開けない。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1: 準備（研究/言語/時間設定） -->
+    <div class="screen" id="scr_menu">
+      <div class="grid">
+        <div class="card">
+          <div class="inner">
+            <h2 id="t_menu">準備</h2>
+            <p class="fade" id="p_menu">
+              まずは、いくつか決める。<br>
+              そのあと「次へ」で始まります。
             </p>
 
-            <p class="muted">
-              最初に、あなたの相棒と、呼ばれたい名前を決める。<br>
-              それから、マカロンの形をした「探しもの」を探しに行く。
-            </p>
-
-            <div style="margin-top:12px;">
-              <div class="tiny" style="margin-bottom:6px;">呼ばれたい名前</div>
-              <div class="btnrow" style="margin-top:0;">
-                <input id="playerName" placeholder="○○（あなたの呼ばれ方）">
-                <button class="btn blue" id="btn_start" disabled>はじめる</button>
-                <button class="btn secondary" id="btn_new_reset" title="保存を消します">最初から</button>
-              </div>
-              <p class="tiny" style="margin-top:8px;">名前と選択はこの端末の中だけに保存されます。</p>
+            <div class="btnrow">
+              <button class="btn secondary" id="btn_about">研究について</button>
+              <button class="btn secondary" id="btn_lang">言語</button>
+              <button class="btn" id="btn_menu_next">次へ</button>
             </div>
 
-            <p class="tiny" id="introNeed" style="margin-top:6px;"></p>
+            <div class="formBlock">
+              <div class="tiny" id="t_time_setting" style="margin-bottom:6px;">時間設定</div>
+
+              <div class="tiny" id="t_life_setting" style="margin-top:6px;">3日間の長さ（テスト用に短くできます）</div>
+              <select id="lifePreset" aria-label="life preset">
+                <option value="real3d">リアル3日</option>
+                <option value="12h">12時間</option>
+                <option value="3h">3時間</option>
+                <option value="30m">30分</option>
+                <option value="10m">10分</option>
+                <option value="3m">3分</option>
+              </select>
+
+              <div class="tiny" id="t_hatch_setting" style="margin-top:10px;">タネになるまで</div>
+              <select id="hatchPreset" aria-label="hatch preset">
+                <option value="3m">3分</option>
+                <option value="60s">60秒</option>
+                <option value="30s">30秒</option>
+                <option value="12s">12秒（テスト）</option>
+              </select>
+
+              <p class="tiny" id="p_menu_lock" style="margin-top:10px; display:none;">進行中は、時間設定を変更できません。</p>
+            </div>
+
+            <p class="tiny" id="p_menu_note" style="margin-top:10px;">
+              ここで変えるのは、あなたの端末の中の時間だけです。
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="stage">
+            <div class="charWrap">
+              <img id="menuVisual" class="charImg floaty" alt="macaron" />
+            </div>
+          </div>
+          <div class="inner">
+            <h2 id="t_menu_side">言語</h2>
+            <p class="muted" id="p_menu_side">日本語 / English / 中文</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2: ユーザーの準備（名前とキャラ） -->
+    <div class="screen" id="scr_profile">
+      <div class="grid">
+        <div class="card">
+          <div class="inner">
+            <h2 id="t_profile">あなたの準備</h2>
+
+            <p class="fade" id="p_profile">
+              呼ばれたい名前と、相棒を決める。
+            </p>
+
+            <div class="stepRow" aria-label="手順">
+              <div class="stepChip"><span class="num">1</span><span id="s1">呼ばれたい名前</span></div>
+              <div class="stepChip"><span class="num">2</span><span id="s2">自分のキャラ</span></div>
+              <div class="stepChip"><span class="num">3</span><span id="s3">探しに行く</span></div>
+            </div>
+
+            <div class="formBlock">
+              <div class="tiny" id="t_name" style="margin-bottom:6px;">呼ばれたい名前</div>
+              <input id="playerName" placeholder="○○（例：ポー）" autocomplete="nickname">
+              <p class="tiny" id="profileNeed" style="margin-top:8px;"></p>
+            </div>
+
+            <div class="btnrow" style="margin-top:12px;">
+              <button class="btn secondary" id="btn_profile_back">戻る</button>
+              <button class="btn" id="btn_profile_next" disabled>探しに行く</button>
+              <button class="btn secondary" id="btn_profile_reset" title="保存を消します">最初から</button>
+            </div>
+
+            <p class="tiny" id="p_profile_note" style="margin-top:10px;">
+              入力は、この端末の中だけに保存されます。
+            </p>
           </div>
         </div>
 
@@ -524,63 +439,85 @@
             </div>
           </div>
           <div class="inner">
-            <h2>相棒</h2>
-            <p class="muted">正解はない。あなたが「この子」と思ったもの。</p>
+            <h2 id="t_buddy">自分のキャラ</h2>
+            <p class="muted" id="p_buddy">クリックして選ぶ。迷ったら、しばらく眺めてもいい。</p>
             <div class="choiceGrid" id="charChoices"></div>
-            <p class="tiny" id="introPickHint" style="margin-top:10px;">相棒を選ぶと、右の姿が少し変わります。</p>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- 3: 探す -->
     <div class="screen" id="scr_search">
       <div class="grid">
         <div class="card">
           <div class="inner">
-            <h2>探す</h2>
-            <p>現実と少しだけずれた空間。光の粒がゆっくり漂っている。</p>
-            <p class="muted">どこかに、マカロンの形をしたものがある。</p>
+            <h2 id="t_search">探す</h2>
+            <p id="p_search">
+              地図が届いた。宝探しみたいに、印をたどる。
+            </p>
+            <p class="muted" id="p_search2">どこかに、マカロンの形をしたものがある。見つけたら持ち帰る。</p>
             <div class="mapGrid" id="mapGrid"></div>
             <div class="btnrow">
-              <button class="btn secondary" id="btn_back_intro">設定へ戻る</button>
+              <button class="btn secondary" id="btn_back_profile">設定へ戻る</button>
               <button class="btn" id="btn_hint">少しだけ目を慣らす</button>
             </div>
           </div>
         </div>
         <div class="card">
           <div class="inner">
-            <h2>気配</h2>
+            <h2 id="t_presence">気配</h2>
             <p class="muted" id="searchNote">まだ、何も見つからない。</p>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- 4: 到着（マカロン＋誕生待ち。触れると早まる） -->
     <div class="screen" id="scr_arrival">
       <div class="grid">
         <div class="card">
           <div class="inner">
-            <h2>到着</h2>
+            <h2 id="t_arrival">到着</h2>
             <p id="arrivalText">
-              見つけたマカロンを持ち帰った。<br>
-              しばらくすると、ふわりと浮かび上がるらしい。
+              地図の印の場所で、マカロンを見つけた。<br>
+              持ち帰ると、しばらくしてふわりと浮かび上がるらしい。
             </p>
-            <p class="muted">誕生は、あなたの操作では起きない。</p>
+
+            <p class="muted" id="arrivalThanks">見つけてくれてありがとう。3分後に、お楽しみに。</p>
+            <div class="hatchRow" aria-label="誕生までの待ち時間">
+              <div class="hatchBar"><div class="hatchFill" id="hatchFill"></div></div>
+              <div class="hatchTime" id="hatchTime">あと 3:00</div>
+            </div>
+
+            <p class="tiny" id="arrivalTouchHint" style="margin-top:10px;">マカロンに触れると、いま開く。</p>
+
             <div class="btnrow">
               <button class="btn secondary" id="btn_back_search">もう一度探す</button>
             </div>
           </div>
         </div>
+
         <div class="card">
           <div class="stage">
-            <div class="charWrap">
-              <img id="arrivalImg" class="charImg floaty" alt="macaron" />
+            <div class="arrivalStage">
+              <div class="orbit" aria-hidden="true">
+                <img id="orbitChar" class="ghost" alt="ghost" />
+              </div>
+              <button class="macaronBtn" id="btn_touch_macaron" aria-label="touch macaron">
+                <img id="arrivalMacaron" class="macaronImg floaty" alt="macaron" />
+              </button>
             </div>
+          </div>
+          <div class="inner">
+            <h2 id="t_watch">見守り</h2>
+            <p class="muted" id="p_watch">近くで、気配がうろうろしている。</p>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- 5: お世話 -->
     <div class="screen" id="scr_care">
       <div class="grid">
         <div class="card">
@@ -598,6 +535,14 @@
 
             <p class="muted" id="careHint">言葉ではわからない。表情と動きだけが変わる。</p>
 
+            <div class="lifeRow" id="lifeRow">
+              <div class="lifeTop">
+                <div class="lifeText" id="lifeText">Day 1/3</div>
+                <div class="lifeText" id="lifeRemain">残り 2日</div>
+              </div>
+              <div class="lifeBar"><div class="lifeFill" id="lifeFill"></div></div>
+            </div>
+
             <div class="btnrow" style="margin-top:10px;">
               <button class="btn" id="btn_food">食事</button>
               <button class="btn" id="btn_outing">お出かけ</button>
@@ -609,43 +554,38 @@
             </div>
 
             <div class="linkBox" style="margin-top:12px;">
-              <div class="tiny">シッター</div>
-              <div style="display:flex; align-items:center; gap:10px;">
+              <div class="tiny" id="t_sitter">シッター</div>
+              <div style="display:flex; align-items:center; gap:10px; flex:1;">
                 <div class="toggle" id="toggle_sitter" role="switch" aria-checked="false" tabindex="0"></div>
                 <div class="tiny" id="sitterNote">時間は止まる</div>
               </div>
             </div>
 
             <div class="linkBox" id="shareBox" style="display:none;">
-              <div class="tiny">共有URL（観察用）</div>
+              <div class="tiny" id="t_share">共有URL（観察用）</div>
               <input id="shareUrl" readonly>
               <button class="btn secondary" id="btn_copy_share">コピー</button>
             </div>
 
-            <p class="tiny" id="endNote" style="margin-top:10px; display:none;">
-              ここから先は、操作できない。記録だけが残る。
-            </p>
+            <p class="tiny" id="endNote" style="margin-top:10px; display:none;">ここから先は、操作できない。記録だけが残る。</p>
           </div>
         </div>
 
         <div class="card">
           <div class="stage">
-            <div class="cornerHint" id="cornerHint" style="display:none;">
-              <span class="tiny">観察中</span>
-            </div>
             <div class="charWrap" id="charWrap">
               <img id="charImg" class="charImg" alt="character" />
-              <div class="tear" id="tear"></div>
-              <div class="poop" id="po1"></div>
-              <div class="poop" id="po2"></div>
-              <div class="poop" id="po3"></div>
-              <div class="poop" id="po4"></div>
             </div>
+          </div>
+          <div class="inner">
+            <h2 id="t_state">きょう</h2>
+            <p class="muted" id="stateHint">何かが変わる。理由は表示されない。</p>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- 6: エンディング -->
     <div class="screen" id="scr_end">
       <div class="card">
         <div class="thanks">
@@ -660,17 +600,17 @@
       </div>
     </div>
 
+    <!-- 7: ログ -->
     <div class="screen" id="scr_logs">
       <div class="grid">
         <div class="card">
           <div class="inner">
-            <h2>ログ</h2>
-            <p class="muted">評価はしない。起きたことだけ。</p>
+            <h2 id="t_logs">ログ</h2>
+            <p class="muted" id="p_logs">評価はしない。起きたことだけ。</p>
 
             <canvas id="heartChart" width="640" height="180" style="margin-top:10px; border:1px solid var(--line); border-radius:16px; background: rgba(255,255,255,.70);"></canvas>
 
             <div class="tabs" id="dayTabs"></div>
-
             <div class="logBox" id="logBox"></div>
 
             <div class="btnrow">
@@ -682,24 +622,25 @@
 
         <div class="card">
           <div class="inner">
-            <h2>共有</h2>
-            <p class="muted">このURLを開いた人は、ログとハート推移だけを見られます。操作はできません。</p>
+            <h2 id="t_share2">共有</h2>
+            <p class="muted" id="p_share2">このURLを開いた人は、ログとハート推移だけを見られます。操作はできません。</p>
             <div class="linkBox" style="margin-top:12px;">
               <input id="shareUrl2" readonly>
               <button class="btn secondary" id="btn_copy_share2">コピー</button>
             </div>
-            <p class="tiny">URLには観察用の情報が入ります。公開範囲に注意してください。</p>
+            <p class="tiny" id="p_share3">URLには観察用の情報が入ります。公開範囲に注意してください。</p>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- 8: 観察用 -->
     <div class="screen" id="scr_observe">
       <div class="grid">
         <div class="card">
           <div class="inner">
-            <h2>観察用ログ</h2>
-            <p class="muted">ここでは操作できません。ログとハート推移のみ。</p>
+            <h2 id="t_observe">観察用ログ</h2>
+            <p class="muted" id="p_observe">ここでは操作できません。ログとハート推移のみ。</p>
             <canvas id="heartChartObs" width="640" height="180" style="margin-top:10px; border:1px solid var(--line); border-radius:16px; background: rgba(255,255,255,.70);"></canvas>
 
             <div class="tabs" id="dayTabsObs"></div>
@@ -713,12 +654,13 @@
 
         <div class="card">
           <div class="stage">
-            <div class="cornerHint">
-              <span class="tiny">観察中</span>
-            </div>
             <div class="charWrap">
               <img id="charImgObs" class="charImg floaty" alt="character" />
             </div>
+          </div>
+          <div class="inner">
+            <h2 id="t_observe_side">観察</h2>
+            <p class="muted" id="p_observe_side">操作はできない。</p>
           </div>
         </div>
       </div>
@@ -729,19 +671,19 @@
   <div class="overlay" id="overlay">
     <div class="modal">
       <div class="mhead">
-        <div class="mtitle" id="modalTitle">選ぶ</div>
+        <div class="mtitle" id="modalTitle">お知らせ</div>
         <button class="btn secondary" id="btn_close_modal">閉じる</button>
       </div>
       <div class="mbody" id="modalBody">
         <div class="mnote" id="modalNote"></div>
-        <div class="btnrow" id="modalBtns"></div>
+        <div class="btnrow" id="modalBtns" style="margin-top:12px;"></div>
       </div>
     </div>
   </div>
 
 <script>
 (() => {
-  const APP_KEY = "care3days_save_stage1_v2";
+  const APP_KEY = "care3days_save_stage1_v3";
 
   const ASSETS = {
     // すべて stage1 フォルダに入っている前提
@@ -749,7 +691,7 @@
       green: { closed: "stage1/green_closed.png", open: "stage1/green_open.png" },
       blue:  { closed: "stage1/blue_closed.png",  open: "stage1/blue_open.png"  },
       pink:  { closed: "stage1/pink_closed.png",  open: "stage1/pink_open.png"  },
-      purple:{ closed: "stage1/purple_closed.png",open: "stage1/purple_open.png"}
+      purple:{ closed: "stage1/purple_closed.png",open: "stage1/purple_open.png" }
     },
     macaron: {
       green: "stage1/macaron_green.png",
@@ -759,23 +701,15 @@
     }
   };
 
-  const DAY_MS = 24*60*60*1000;
-  const LIFE_MS = 3*DAY_MS;
-
-  // 誕生は時間経過で起こす（3分）
-  const HATCH_MS = 3*60*1000;
-
-  // デバッグ用。URLに ?fast=1 を付けると短縮
   const url = new URL(location.href);
   const FAST = url.searchParams.get("fast") === "1";
-  const HATCH_MS_EFF = FAST ? 12*1000 : HATCH_MS;
-  const LIFE_MS_EFF  = FAST ? 90*1000 : LIFE_MS;
-
   const isObserveMode = !!url.searchParams.get("observe") && !!url.searchParams.get("data");
 
   const $ = (id) => document.getElementById(id);
   const screens = {
-    intro: $("scr_intro"),
+    start: $("scr_start"),
+    menu: $("scr_menu"),
+    profile: $("scr_profile"),
     search: $("scr_search"),
     arrival: $("scr_arrival"),
     care: $("scr_care"),
@@ -796,44 +730,154 @@
   let save = null;
   let tickTimer = null;
 
-  function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+  // 翻訳（最低限の範囲。足りないところは後で足せます）
+  const I18N = {
+    ja: {
+      startTitle: "スタート",
+      startBtn: "スタート",
+      reset: "最初から",
+      menuTitle: "準備",
+      about: "研究について",
+      language: "言語",
+      next: "次へ",
+      back: "戻る",
+      goSearch: "探しに行く",
+      profileTitle: "あなたの準備",
+      nameLabel: "呼ばれたい名前",
+      buddyLabel: "自分のキャラ",
+      searchTitle: "探す",
+      arrivalTitle: "到着",
+      touchHint: "マカロンに触れると、いま開く。",
+      careNow: "いま",
+      sitter: "シッター",
+      share: "共有URL（観察用）",
+      logs: "ログ",
+      thanks: "ありがとう",
+      close: "閉じる",
+      timeSetting: "時間設定",
+      lifeSetting: "3日間の長さ（テスト用に短くできます）",
+      hatchSetting: "タネになるまで",
+      lifeLocked: "進行中は、時間設定を変更できません。",
+      remain: "残り",
+      day: "Day",
+      observe: "観察",
+      observeOnly: "操作不可",
+      play: "プレイ",
+      local: "ローカル保存",
+
+      aboutTitle: "研究に協力のお願い",
+      aboutTabs: { ja:"日本語", en:"English", zh:"中文" },
+      aboutText: {
+        ja: "このゲームは研究目的で制作されています。\n\n記録されるのは、選択の回数、選んだ内容、ハートの推移、シッターの使用時間、アイテム使用の有無などです。これらは基本的にあなたの端末内（localStorage）に保存されます。\n\n共有URLを発行すると、第三者は『観察用ログ画面』で、ログとハート推移のみを閲覧できます。\n\n個人を特定できる情報は入力しないでください。途中でいつでもやめられます。",
+        en: "This game is created for research purposes.\n\nIt records only in-game traces such as choices, counts, heart changes, sitter usage time, and item usage. These records are stored locally in your device (localStorage).\n\nIf you share the generated URL, others can view only the observation log and the heart trend. They cannot operate the game.\n\nPlease do not enter personally identifying information. You may stop at any time.",
+        zh: "本游戏用于研究目的。\n\n记录内容仅包括游戏内的选择、次数、爱心变化、保姆功能使用时间、道具使用等痕迹，并保存在你的设备本地（localStorage）。\n\n如果你分享生成的链接，第三方只能查看观察日志与爱心变化，无法进行任何操作。\n\n请不要输入可识别个人身份的信息。你可以随时停止。"
+      }
+    },
+    en: {
+      startTitle: "Start",
+      startBtn: "Start",
+      reset: "Reset",
+      menuTitle: "Setup",
+      about: "About the study",
+      language: "Language",
+      next: "Next",
+      back: "Back",
+      goSearch: "Go search",
+      profileTitle: "Your setup",
+      nameLabel: "Name you want",
+      buddyLabel: "Your character",
+      searchTitle: "Search",
+      arrivalTitle: "Arrival",
+      touchHint: "Touch the macaron to open it now.",
+      careNow: "Now",
+      sitter: "Sitter",
+      share: "Share URL (observe)",
+      logs: "Log",
+      thanks: "Thank you",
+      close: "Close",
+      timeSetting: "Time settings",
+      lifeSetting: "Length of the 3 days (you can shorten for testing)",
+      hatchSetting: "Time to hatch",
+      lifeLocked: "You can't change time settings while playing.",
+      remain: "Remaining",
+      day: "Day",
+      observe: "Observe",
+      observeOnly: "Read-only",
+      play: "Play",
+      local: "Local save",
+
+      aboutTitle: "Request for research cooperation",
+      aboutTabs: { ja:"日本語", en:"English", zh:"中文" },
+      aboutText: { // 英語UIでも3言語出す
+        ja: "このゲームは研究目的で制作されています。\n\n記録されるのは、選択の回数、選んだ内容、ハートの推移、シッターの使用時間、アイテム使用の有無などです。これらは基本的にあなたの端末内（localStorage）に保存されます。\n\n共有URLを発行すると、第三者は『観察用ログ画面』で、ログとハート推移のみを閲覧できます。\n\n個人を特定できる情報は入力しないでください。途中でいつでもやめられます。",
+        en: "This game is created for research purposes.\n\nIt records only in-game traces such as choices, counts, heart changes, sitter usage time, and item usage. These records are stored locally in your device (localStorage).\n\nIf you share the generated URL, others can view only the observation log and the heart trend. They cannot operate the game.\n\nPlease do not enter personally identifying information. You may stop at any time.",
+        zh: "本游戏用于研究目的。\n\n记录内容仅包括游戏内的选择、次数、爱心变化、保姆功能使用时间、道具使用等痕迹，并保存在你的设备本地（localStorage）。\n\n如果你分享生成的链接，第三方只能查看观察日志与爱心变化，无法进行任何操作。\n\n请不要输入可识别个人身份的信息。你可以随时停止。"
+      }
+    },
+    zh: {
+      startTitle: "开始",
+      startBtn: "开始",
+      reset: "重置",
+      menuTitle: "准备",
+      about: "关于研究",
+      language: "语言",
+      next: "下一步",
+      back: "返回",
+      goSearch: "去寻找",
+      profileTitle: "你的准备",
+      nameLabel: "希望被称呼的名字",
+      buddyLabel: "你的角色",
+      searchTitle: "寻找",
+      arrivalTitle: "到达",
+      touchHint: "触碰马卡龙即可立刻打开。",
+      careNow: "现在",
+      sitter: "保姆",
+      share: "分享链接（观察）",
+      logs: "记录",
+      thanks: "谢谢",
+      close: "关闭",
+      timeSetting: "时间设置",
+      lifeSetting: "3天的长度（可用于测试缩短）",
+      hatchSetting: "孵化时间",
+      lifeLocked: "游戏进行中无法更改时间设置。",
+      remain: "剩余",
+      day: "Day",
+      observe: "观察",
+      observeOnly: "只读",
+      play: "游玩",
+      local: "本地保存",
+
+      aboutTitle: "研究协助说明",
+      aboutTabs: { ja:"日本語", en:"English", zh:"中文" },
+      aboutText: {
+        ja: "このゲームは研究目的で制作されています。\n\n記録されるのは、選択の回数、選んだ内容、ハートの推移、シッターの使用時間、アイテム使用の有無などです。これらは基本的にあなたの端末内（localStorage）に保存されます。\n\n共有URLを発行すると、第三者は『観察用ログ画面』で、ログとハート推移のみを閲覧できます。\n\n個人を特定できる情報は入力しないでください。途中でいつでもやめられます。",
+        en: "This game is created for research purposes.\n\nIt records only in-game traces such as choices, counts, heart changes, sitter usage time, and item usage. These records are stored locally in your device (localStorage).\n\nIf you share the generated URL, others can view only the observation log and the heart trend. They cannot operate the game.\n\nPlease do not enter personally identifying information. You may stop at any time.",
+        zh: "本游戏用于研究目的。\n\n记录内容仅包括游戏内的选择、次数、爱心变化、保姆功能使用时间、道具使用等痕迹，并保存在你的设备本地（localStorage）。\n\n如果你分享生成的链接，第三方只能查看观察日志与爱心变化，无法进行任何操作。\n\n请不要输入可识别个人身份的信息。你可以随时停止。"
+      }
+    }
+  };
+
+  function t(key){
+    const lang = (save && save.settings && save.settings.lang) ? save.settings.lang : "ja";
+    const dict = I18N[lang] || I18N.ja;
+    return dict[key] ?? (I18N.ja[key] ?? key);
+  }
+
+  function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
   function rnd(a,b){ return a + Math.random()*(b-a); }
   function nowMs(){ return Date.now(); }
-
-  // シッター中は時間が停止する（内部時間だけ止める）
-  function effectiveNow(s){
-    if(!s) return nowMs();
-    const baseNow = nowMs();
-    const pauseExtra = s.sitter.on ? (baseNow - s.sitter.onSince) : 0;
-    return baseNow - s.sitter.pausedTotal - pauseExtra;
-  }
-
-  function dayIndex(s){
-    if(!s || !s.life.bornAt) return 0;
-    const t = effectiveNow(s) - s.life.bornAt;
-    const d = Math.floor(t / DAY_MS) + 1;
-    return clamp(d, 1, 3);
-  }
 
   function showScreen(name){
     Object.values(screens).filter(Boolean).forEach(el => el.classList.remove("active"));
     (screens[name] || null) && screens[name].classList.add("active");
   }
 
-  function setModePill(){
-    if(isObserveMode){
-      modeLabel.textContent = "観察";
-      modeMeta.textContent = "操作不可";
-      subline.textContent = "ログとハート推移のみ";
-    }else{
-      modeLabel.textContent = "プレイ";
-      modeMeta.textContent = "ローカル保存";
-      subline.textContent = "記録だけが残る";
-    }
-  }
-
   function safeJSONParse(str, fallback){
     try{ return JSON.parse(str); }catch(e){ return fallback; }
+  }
+
+  function genId(){
+    return "p" + Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
   }
 
   function emptyDay(d){
@@ -847,24 +891,53 @@
     };
   }
 
-  function genId(){
-    return "p" + Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
+  function defaultLifeMsFromPreset(p){
+    const DAY = 24*60*60*1000;
+    if(p === "real3d") return 3*DAY;
+    if(p === "12h") return 12*60*60*1000;
+    if(p === "3h") return 3*60*60*1000;
+    if(p === "30m") return 30*60*1000;
+    if(p === "10m") return 10*60*1000;
+    if(p === "3m") return 3*60*1000;
+    return 3*DAY;
+  }
+
+  function defaultHatchMsFromPreset(p){
+    if(p === "3m") return 3*60*1000;
+    if(p === "60s") return 60*1000;
+    if(p === "30s") return 30*1000;
+    if(p === "12s") return 12*1000;
+    return 3*60*1000;
   }
 
   function newSave(){
     const id = genId();
-    const t = nowMs();
+    const t0 = nowMs();
+
+    // fast=1 の時はデフォルトを短縮（ただし、後からメニューで変更可能）
+    const lifeMs = FAST ? 90*1000 : defaultLifeMsFromPreset("real3d");
+    const hatchMs = FAST ? 12*1000 : defaultHatchMsFromPreset("3m");
+
     return {
-      v: 2,
+      v: 3,
       id,
+      startedAt: t0,
       playerName: "",
-      startedAt: t,
+      flow: { screen: "start" },
+      settings: {
+        lang: "ja",
+        lifePreset: FAST ? "3m" : "real3d",
+        lifeMs,
+        hatchPreset: FAST ? "12s" : "3m",
+        hatchMs
+      },
       story: {
         chosenColor: null,
         foundAt: null,
         arrivalAt: null,
         hatchAt: null,
         hatched: false,
+        hatchedByTouch: false,
         _targetTile: null,
         _revealed: []
       },
@@ -897,7 +970,7 @@
         day: { "1": emptyDay(1), "2": emptyDay(2), "3": emptyDay(3) },
         events: []
       },
-      _lastEff: t,
+      _lastEff: t0,
       _prevDay: 0
     };
   }
@@ -906,25 +979,398 @@
     const raw = localStorage.getItem(APP_KEY);
     if(raw){
       const parsed = safeJSONParse(raw, null);
-      if(parsed && (parsed.v === 2)) return parsed;
+      if(parsed && parsed.v === 3) return parsed;
     }
     return newSave();
   }
 
-  function saveNow(){
-    localStorage.setItem(APP_KEY, JSON.stringify(save));
+  function saveNow(){ localStorage.setItem(APP_KEY, JSON.stringify(save)); }
+  function resetAll(){ localStorage.removeItem(APP_KEY); save = newSave(); saveNow(); }
+
+  // シッター中は時間が停止する（内部時間だけ止める）
+  function effectiveNow(s){
+    if(!s) return nowMs();
+    const baseNow = nowMs();
+    const pauseExtra = s.sitter.on ? (baseNow - s.sitter.onSince) : 0;
+    return baseNow - s.sitter.pausedTotal - pauseExtra;
   }
 
-  function resetAll(){
-    localStorage.removeItem(APP_KEY);
-    save = newSave();
+  function getDayMs(){
+    const lifeMs = (save && save.settings && save.settings.lifeMs) ? save.settings.lifeMs : (3*24*60*60*1000);
+    return Math.max(1000, Math.floor(lifeMs / 3));
+  }
+
+  function dayIndex(s){
+    if(!s || !s.life.bornAt) return 0;
+    const t = effectiveNow(s) - s.life.bornAt;
+    const dayMs = getDayMs();
+    const d = Math.floor(t / dayMs) + 1;
+    return clamp(d, 1, 3);
+  }
+
+  function prettyColor(c){
+    if(c==="green") return "みどり";
+    if(c==="blue") return "あお";
+    if(c==="pink") return "もも";
+    if(c==="purple") return "むらさき";
+    return c;
+  }
+
+  function setModePill(){
+    if(isObserveMode){
+      modeLabel.textContent = t("observe");
+      modeMeta.textContent = t("observeOnly");
+      subline.textContent = "ログとハート推移のみ";
+    }else{
+      modeLabel.textContent = t("play");
+      modeMeta.textContent = t("local");
+      subline.textContent = "記録だけが残る";
+    }
+  }
+
+    function applyI18nStatic(){
+    const lang = (save && save.settings && save.settings.lang) ? save.settings.lang : "ja";
+
+    const UI = {
+      ja: {
+        p_start: "3日間だけ。<br>正解はない。評価もしない。<br>残るのは、選んだことの記録だけ。",
+        p_start_hint: "途中で閉じても、ローカルに記録が残ります。",
+        t_start_side: "かけら",
+        p_start_side: "まだ、開けない。",
+
+        p_menu: "まずは、いくつか決める。<br>そのあと『次へ』で始まります。",
+        p_menu_note: "ここで変えるのは、あなたの端末の中の時間だけです。",
+        t_menu_side: "言語",
+        p_menu_side: "日本語 / English / 中文",
+
+        p_profile: "呼ばれたい名前と、相棒を決める。",
+        p_profile_note: "入力は、この端末の中だけに保存されます。",
+        p_buddy: "クリックして選ぶ。迷ったら、しばらく眺めてもいい。",
+
+        p_search: "地図が届いた。宝探しみたいに、印をたどる。",
+        p_search2: "どこかに、マカロンの形をしたものがある。見つけたら持ち帰る。",
+        t_presence: "気配",
+        searchNote: "まだ、何も見つからない。",
+        btn_hint: "少しだけ目を慣らす",
+        btn_back_profile: "設定へ戻る",
+
+        arrivalText: "地図の印の場所で、マカロンを見つけた。<br>持ち帰ると、しばらくしてふわりと浮かび上がるらしい。",
+        arrivalThanks: "見つけてくれてありがとう。3分後に、お楽しみに。",
+        btn_back_search: "もう一度探す",
+        t_watch: "見守り",
+        p_watch: "近くで、気配がうろうろしている。",
+
+        careHint: "言葉ではわからない。表情と動きだけが変わる。",
+        stateHint: "何かが変わる。理由は表示されない。",
+
+        btn_food: "食事",
+        btn_outing: "お出かけ",
+        btn_mini: "2択ミニゲーム",
+        btn_clean: "排泄除去",
+        btn_drink: "ドリンク",
+        btn_macaron: "マカロン",
+        btn_logs: "ログ",
+        sitterOff: "時間は止まる",
+        sitterOn: "時間が止まっている",
+
+        t_logs: "ログ",
+        p_logs: "評価はしない。起きたことだけ。",
+        btn_back_care: "戻る",
+        t_share2: "共有",
+        p_share2: "このURLを開いた人は、ログとハート推移だけを見られます。操作はできません。",
+        btn_copy: "コピー",
+        btn_share_url: "共有URL",
+
+        t_observe: "観察用ログ",
+        p_observe: "ここでは操作できません。ログとハート推移のみ。",
+        btn_obs_back: "閉じる",
+        t_observe_side: "観察",
+        p_observe_side: "操作はできない。"
+      },
+      en: {
+        p_start: "Only 3 days.<br>No right answer. No grading.<br>Only the trace of your choices remains.",
+        p_start_hint: "Even if you close it, the record stays on this device.",
+        t_start_side: "Fragment",
+        p_start_side: "Not yet.",
+
+        p_menu: "Decide a few things first.<br>Then press Next to begin.",
+        p_menu_note: "These settings affect only time inside this device.",
+        t_menu_side: "Language",
+        p_menu_side: "日本語 / English / 中文",
+
+        p_profile: "Choose a name and your buddy.",
+        p_profile_note: "Your input is saved only on this device.",
+        p_buddy: "Click to choose. If unsure, you can just watch for a moment.",
+
+        p_search: "A map arrived. Like a treasure hunt, follow the marks.",
+        p_search2: "Somewhere, there is something shaped like a macaron. If you find it, bring it back.",
+        t_presence: "Presence",
+        searchNote: "Nothing found yet.",
+        btn_hint: "Let your eyes adjust",
+        btn_back_profile: "Back to setup",
+
+        arrivalText: "You found a macaron at the mark on the map.<br>When you bring it back, it will float up after a while.",
+        arrivalThanks: "Thank you for finding it. Please wait.",
+        btn_back_search: "Search again",
+        t_watch: "Watching",
+        p_watch: "A presence is wandering nearby.",
+
+        careHint: "No words. Only expressions and movement change.",
+        stateHint: "Something changes. The reason is not shown.",
+
+        btn_food: "Meal",
+        btn_outing: "Outing",
+        btn_mini: "Two-choice mini",
+        btn_clean: "Clean",
+        btn_drink: "Drink",
+        btn_macaron: "Macaron",
+        btn_logs: "Log",
+        sitterOff: "Time can stop",
+        sitterOn: "Time is stopped",
+
+        t_logs: "Log",
+        p_logs: "No grading. Just what happened.",
+        btn_back_care: "Back",
+        t_share2: "Share",
+        p_share2: "People opening this URL can view only the log and heart trend. They cannot operate the game.",
+        btn_copy: "Copy",
+        btn_share_url: "Share URL",
+
+        t_observe: "Observation log",
+        p_observe: "Read-only. Log and heart trend only.",
+        btn_obs_back: "Close",
+        t_observe_side: "Observe",
+        p_observe_side: "No operation."
+      },
+      zh: {
+        p_start: "只有3天。<br>没有正确答案，也不会被评价。<br>留下的只有你做过的选择记录。",
+        p_start_hint: "即使关闭，记录也会保存在本设备中。",
+        t_start_side: "碎片",
+        p_start_side: "还不能打开。",
+
+        p_menu: "先决定一些事项。<br>然后点击“下一步”开始。",
+        p_menu_note: "这些设置只影响你设备里的时间。",
+        t_menu_side: "语言",
+        p_menu_side: "日本語 / English / 中文",
+
+        p_profile: "选择名字和你的伙伴。",
+        p_profile_note: "输入内容仅保存在本设备中。",
+        p_buddy: "点击选择。若犹豫，可以先看一会儿。",
+
+        p_search: "地图到了。像寻宝一样，沿着标记前进。",
+        p_search2: "某处有马卡龙形状的东西。找到后把它带回来。",
+        t_presence: "气配",
+        searchNote: "还没有找到。",
+        btn_hint: "让眼睛适应一下",
+        btn_back_profile: "返回设置",
+
+        arrivalText: "你在地图标记处找到了马卡龙。<br>带回去后，过一会儿它会轻轻浮起。",
+        arrivalThanks: "谢谢你找到了它。请稍等。",
+        btn_back_search: "再找一次",
+        t_watch: "守望",
+        p_watch: "附近有某种气配在徘徊。",
+
+        careHint: "没有文字。只有表情和动作会变化。",
+        stateHint: "会发生变化，但不会显示原因。",
+
+        btn_food: "喂食",
+        btn_outing: "外出",
+        btn_mini: "二选小游戏",
+        btn_clean: "清理",
+        btn_drink: "饮料",
+        btn_macaron: "马卡龙",
+        btn_logs: "记录",
+        sitterOff: "时间可以暂停",
+        sitterOn: "时间已暂停",
+
+        t_logs: "记录",
+        p_logs: "不评价，只记录发生的事。",
+        btn_back_care: "返回",
+        t_share2: "分享",
+        p_share2: "打开此链接的人只能查看记录与爱心变化，无法进行任何操作。",
+        btn_copy: "复制",
+        btn_share_url: "分享链接",
+
+        t_observe: "观察记录",
+        p_observe: "只读：仅显示记录与爱心变化。",
+        btn_obs_back: "关闭",
+        t_observe_side: "观察",
+        p_observe_side: "无法操作。"
+      }
+    };
+
+    const u = UI[lang] || UI.ja;
+
+    // 基本ラベル
+    $("t_start").textContent = t("startTitle");
+    $("btn_go_menu").textContent = t("startBtn");
+    $("btn_reset_all").textContent = t("reset");
+
+    $("t_menu").textContent = t("menuTitle");
+    $("btn_about").textContent = t("about");
+    $("btn_lang").textContent = t("language");
+    $("btn_menu_next").textContent = t("next");
+    $("t_time_setting").textContent = t("timeSetting");
+    $("t_life_setting").textContent = t("lifeSetting");
+    $("t_hatch_setting").textContent = t("hatchSetting");
+
+    $("t_profile").textContent = t("profileTitle");
+    $("t_name").textContent = t("nameLabel");
+    $("t_buddy").textContent = t("buddyLabel");
+    $("btn_profile_back").textContent = t("back");
+    $("btn_profile_next").textContent = t("goSearch");
+    $("btn_profile_reset").textContent = t("reset");
+
+    $("t_search").textContent = t("searchTitle");
+
+    $("t_arrival").textContent = t("arrivalTitle");
+    $("arrivalTouchHint").textContent = t("touchHint");
+
+    $("careTitle").textContent = t("careNow");
+    $("t_sitter").textContent = t("sitter");
+    $("t_share").textContent = t("share");
+
+    $("btn_end_logs").textContent = t("logs");
+    $("btn_end_share").textContent = t("share");
+    $("btn_close_modal").textContent = t("close");
+
+    // 文章・補助ラベル
+    $("p_start").innerHTML = u.p_start;
+    $("p_start_hint").textContent = u.p_start_hint;
+    $("t_start_side").textContent = u.t_start_side;
+    $("p_start_side").textContent = u.p_start_side;
+
+    $("p_menu").innerHTML = u.p_menu;
+    $("p_menu_note").textContent = u.p_menu_note;
+    $("t_menu_side").textContent = u.t_menu_side;
+    $("p_menu_side").textContent = u.p_menu_side;
+
+    $("p_profile").textContent = u.p_profile;
+    $("p_profile_note").textContent = u.p_profile_note;
+    $("p_buddy").textContent = u.p_buddy;
+
+    $("p_search").textContent = u.p_search;
+    $("p_search2").textContent = u.p_search2;
+    $("t_presence").textContent = u.t_presence;
+    if(!save.story.foundAt) $("searchNote").textContent = u.searchNote;
+    $("btn_hint").textContent = u.btn_hint;
+    $("btn_back_profile").textContent = u.btn_back_profile;
+
+    $("arrivalText").innerHTML = u.arrivalText;
+    if(!save.story.hatched) $("arrivalThanks").textContent = u.arrivalThanks;
+    $("btn_back_search").textContent = u.btn_back_search;
+    $("t_watch").textContent = u.t_watch;
+    $("p_watch").textContent = u.p_watch;
+
+    $("sitterNote").textContent = (save.sitter.on ? u.sitterOn : u.sitterOff);
+
+    $("careHint").textContent = u.careHint;
+    $("stateHint").textContent = u.stateHint;
+    $("btn_food").textContent = u.btn_food;
+    $("btn_outing").textContent = u.btn_outing;
+    $("btn_mini").textContent = u.btn_mini;
+    $("btn_clean").textContent = u.btn_clean;
+    $("btn_drink").textContent = u.btn_drink;
+    $("btn_macaron").textContent = u.btn_macaron;
+    $("btn_logs").textContent = u.btn_logs;
+
+    $("t_logs").textContent = u.t_logs;
+    $("p_logs").textContent = u.p_logs;
+    $("btn_back_care").textContent = u.btn_back_care;
+    $("t_share2").textContent = u.t_share2;
+    $("p_share2").textContent = u.p_share2;
+    $("btn_copy_share").textContent = u.btn_copy;
+    $("btn_copy_share2").textContent = u.btn_copy;
+    $("btn_logs_share").textContent = u.btn_share_url;
+
+    $("t_observe").textContent = u.t_observe;
+    $("p_observe").textContent = u.p_observe;
+    $("btn_obs_back").textContent = u.btn_obs_back;
+    $("t_observe_side").textContent = u.t_observe_side;
+    $("p_observe_side").textContent = u.p_observe_side;
+
+    // 終了画面の語
+    const word = document.querySelector(".word");
+    if(word) word.textContent = t("thanks");
+  }
+
+  function openModal(title, html, buttons){
+    modalTitle.textContent = title;
+    modalNote.innerHTML = html;
+    modalBtns.innerHTML = "";
+    (buttons || []).forEach(b => {
+      const el = document.createElement("button");
+      el.className = "btn " + (b.style || "secondary");
+      el.textContent = b.label;
+      el.addEventListener("click", () => {
+        closeModal();
+        b.onClick && b.onClick();
+      });
+      modalBtns.appendChild(el);
+    });
+    overlay.classList.add("on");
+  }
+  function closeModal(){ overlay.classList.remove("on"); }
+
+  function openLanguageModal(){
+    const lang = save.settings.lang;
+    const html = `
+      <p class="small">日本語 / English / 中文</p>
+    `;
+    openModal(t("language"), html, [
+      { label:"日本語", style: (lang==="ja"?"":"secondary"), onClick: () => setLang("ja") },
+      { label:"English", style: (lang==="en"?"":"secondary"), onClick: () => setLang("en") },
+      { label:"中文", style: (lang==="zh"?"":"secondary"), onClick: () => setLang("zh") }
+    ]);
+  }
+
+  function openAboutModal(){
+    const dict = I18N[save.settings.lang] || I18N.ja;
+    const tabs = dict.aboutTabs;
+    const text = dict.aboutText;
+
+    const render = (active) => {
+      const tabHtml = `
+        <div class="tabs" style="margin-top:0;">
+          <button class="tab ${active==='ja'?'on':''}" data-tab="ja">${tabs.ja}</button>
+          <button class="tab ${active==='en'?'on':''}" data-tab="en">${tabs.en}</button>
+          <button class="tab ${active==='zh'?'on':''}" data-tab="zh">${tabs.zh}</button>
+        </div>
+        <div style="margin-top:10px; white-space:pre-line;">${escapeHtml(text[active] || "")}</div>
+      `;
+      openModal(dict.aboutTitle, tabHtml, [
+        { label: t("close"), style: "secondary" }
+      ]);
+
+      // タブのクリック（モーダルの中なので、ここで付け直す）
+      [...modalNote.querySelectorAll(".tab")].forEach(btn => {
+        btn.addEventListener("click", () => render(btn.dataset.tab));
+      });
+    };
+
+    render(save.settings.lang === "zh" ? "zh" : (save.settings.lang === "en" ? "en" : "ja"));
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function setLang(lang){
+    save.settings.lang = lang;
     saveNow();
+    applyI18nStatic();
+    setModePill();
   }
 
   function addEvent(type, detail){
-    const t = effectiveNow(save);
+    const t0 = effectiveNow(save);
     const d = dayIndex(save) || 1;
-    save.logs.events.push({ t, day:d, type, detail });
+    save.logs.events.push({ t: t0, day:d, type, detail });
 
     const dayObj = save.logs.day[String(d)] || null;
     if(dayObj){
@@ -934,17 +1380,7 @@
       if(type === "clean"){ dayObj.careCounts.clean++; dayObj.choices.clean.push(detail.choice); }
       if(type === "drink"){ dayObj.careCounts.drink++; }
       if(type === "macaron"){ dayObj.careCounts.macaron++; }
-      if(type === "sitterOn" || type === "sitterOff"){
-        // sitterMs は切り替え時に更新
-      }
     }
-  }
-
-  function formatTime(ms){
-    const dt = new Date(ms);
-    const hh = String(dt.getHours()).padStart(2,"0");
-    const mm = String(dt.getMinutes()).padStart(2,"0");
-    return `${hh}:${mm}`;
   }
 
   function ensureDayHearts(){
@@ -979,10 +1415,13 @@
   // 観察URL（ログとハート推移だけ）
   function buildSharePayload(s){
     const out = {
-      v: 2,
+      v: 3,
       id: s.id,
       createdAt: nowMs(),
+      lang: s.settings.lang,
       chosenColor: s.story.chosenColor,
+      lifeMs: s.settings.lifeMs,
+      hatchMs: s.settings.hatchMs,
       endedAt: s.life.endedAt || null,
       days: []
     };
@@ -1040,24 +1479,40 @@
     document.body.removeChild(ta);
   }
 
-  function prettyColor(c){
-    if(c==="green") return "みどり";
-    if(c==="blue") return "あお";
-    if(c==="pink") return "もも";
-    if(c==="purple") return "むらさき";
-    return c;
+  // 画面レンダリング
+  function renderStart(){
+    // 見た目用：ピンクマカロンを出す（まだ選択前なので固定）
+    $("startVisual").src = ASSETS.macaron.pink;
+    save.flow.screen = "start";
+    saveNow();
+    showScreen("start");
   }
 
-  function renderOnboarding(){
-    showScreen("intro");
+  function renderMenu(){
+    $("menuVisual").src = ASSETS.macaron.green;
 
+    // 進行中は時間設定をロック
+    const locked = !!(save.life.bornAt || save.story.arrivalAt);
+    $("lifePreset").disabled = locked;
+    $("hatchPreset").disabled = locked;
+    $("p_menu_lock").style.display = locked ? "block" : "none";
+
+    // 現在の設定を反映
+    $("lifePreset").value = save.settings.lifePreset;
+    $("hatchPreset").value = save.settings.hatchPreset;
+
+    save.flow.screen = "menu";
+    saveNow();
+    showScreen("menu");
+  }
+
+  function renderProfile(){
     const box = $("charChoices");
     const preview = $("charPreview");
-    if(!box || !preview) return;
 
     box.innerHTML = "";
     const colors = ["green","blue","pink","purple"];
-    const desc = {
+    const descJa = {
       green: "風が通るみたいに、軽い。",
       blue: "静かな場所で、目が合う。",
       pink: "少しだけ、あたたかい。",
@@ -1071,14 +1526,13 @@
     colors.forEach(c => {
       const btn = document.createElement("button");
       btn.className = "choice" + (c === selected ? " selected" : "");
-      btn.type="button";
+      btn.type = "button";
       btn.innerHTML = `
         <img src="${ASSETS.char[c].open}" alt="${c}">
         <div class="ctext">
           <div class="cname">${prettyColor(c)}</div>
-          <div class="cdesc">${desc[c]}</div>
+          <div class="cdesc">${descJa[c]}</div>
         </div>
-        <div class="tiny">選ぶ</div>
       `;
 
       btn.addEventListener("mouseenter", () => { preview.src = ASSETS.char[c].open; });
@@ -1090,57 +1544,56 @@
       btn.addEventListener("click", () => {
         save.story.chosenColor = c;
         saveNow();
-
-        // 見た目だけ更新（全部作り直さずに選択状態だけ更新）
         [...box.querySelectorAll(".choice")].forEach(el => el.classList.remove("selected"));
         btn.classList.add("selected");
         preview.src = ASSETS.char[c].open;
-        updateStartButton();
+        updateProfileNext();
       });
 
       box.appendChild(btn);
     });
 
-    // 既に名前があるなら入力欄に反映
+    // 名前を反映
     const pn = $("playerName");
-    if(pn && save.playerName && !pn.value) pn.value = save.playerName;
+    pn.value = save.playerName || pn.value || "";
 
-    updateStartButton();
+    updateProfileNext();
+    save.flow.screen = "profile";
+    saveNow();
+    showScreen("profile");
   }
 
-  function updateStartButton(){
-    const name = (($("playerName") && $("playerName").value) || "").trim();
+  function updateProfileNext(){
+    const name = ($("playerName").value || "").trim();
     const hasName = name.length > 0;
     const hasChar = !!save.story.chosenColor;
 
-    const btn = $("btn_start");
-    if(btn) btn.disabled = !(hasName && hasChar);
+    $("btn_profile_next").disabled = !(hasName && hasChar);
 
-    const tip = $("introNeed");
-    if(!tip) return;
-
+    const tip = $("profileNeed");
     if(hasName && hasChar) tip.textContent = "";
-    else if(!hasName && !hasChar) tip.textContent = "名前と相棒を決めると、はじめられます。";
-    else if(!hasName) tip.textContent = "呼ばれたい名前を入れると、はじめられます。";
-    else tip.textContent = "相棒を選ぶと、はじめられます。";
+    else if(!hasName && !hasChar) tip.textContent = "名前とキャラを決めると、探しに行けます。";
+    else if(!hasName) tip.textContent = "名前を入れると、探しに行けます。";
+    else tip.textContent = "キャラを選ぶと、探しに行けます。";
   }
 
-  function startFromOnboarding(){
-    const name = (($("playerName") && $("playerName").value) || "").trim();
+  function startNewRunFromProfile(){
+    const name = ($("playerName").value || "").trim();
     const chosen = save.story.chosenColor;
-
     if(!name || !chosen) return;
 
-    // 一度きれいにしてから、名前と相棒だけ残す
+    // 設定と言語だけ残してリスタート
+    const keep = { settings: {...save.settings} };
     resetAll();
+    save.settings = keep.settings;
     save.playerName = name;
     save.story.chosenColor = chosen;
 
-    // 探しもの探しへ
     resetSearch();
     buildMap();
 
     subline.textContent = name ? `○○（${name}）の記録` : "記録だけが残る";
+    save.flow.screen = "search";
     saveNow();
     showScreen("search");
   }
@@ -1150,6 +1603,7 @@
     save.story.arrivalAt = null;
     save.story.hatchAt = null;
     save.story.hatched = false;
+    save.story.hatchedByTouch = false;
     save.story._targetTile = null;
     save.story._revealed = [];
     saveNow();
@@ -1172,17 +1626,15 @@
     for(let i=0;i<N;i++){
       const tile = document.createElement("button");
       tile.className = "tile";
-      tile.type="button";
-      tile.innerHTML = `<div class="spark"></div><span>……</span><img class="foundImg" alt="macaron">`;
+      tile.type = "button";
+      tile.innerHTML = `<span>……</span><img class="foundImg" alt="macaron">`;
       const img = tile.querySelector(".foundImg");
       img.src = macImg;
 
       if(save.story._revealed.includes(i)){
         tile.classList.add("revealed");
         tile.querySelector("span").textContent = " ";
-        if(i === save.story._targetTile){
-          tile.classList.add("found");
-        }
+        if(i === save.story._targetTile) tile.classList.add("found");
       }
 
       tile.addEventListener("click", () => {
@@ -1196,16 +1648,17 @@
           tile.classList.add("found");
           save.story.foundAt = nowMs();
 
-          // 見つけた瞬間に「到着」させる（誕生はそこから3分後）
+          // 見つけた瞬間に「到着」。そこから hatchMs 後に誕生（ただし触れると早まる）
           save.story.arrivalAt = effectiveNow(save);
-          save.story.hatchAt = save.story.arrivalAt + HATCH_MS_EFF;
+          save.story.hatchAt = save.story.arrivalAt + save.settings.hatchMs;
           save.story.hatched = false;
+          save.story.hatchedByTouch = false;
 
           $("searchNote").textContent = "見つかった。近づくと、温かい。";
           addEvent("found", { where: i, color: save.story.chosenColor });
           saveNow();
 
-          setTimeout(() => showArrival(), 650);
+          setTimeout(() => showArrival(), 600);
         }else{
           $("searchNote").textContent = "そこには、光の粒だけが残っている。";
           saveNow();
@@ -1216,58 +1669,117 @@
     }
   }
 
+  function fmtMMSS(ms){
+    const s = Math.max(0, Math.ceil(ms/1000));
+    const mm = String(Math.floor(s/60));
+    const ss = String(s%60).padStart(2,"0");
+    return `${mm}:${ss}`;
+  }
+
+  function updateArrivalCountdown(){
+    const elTime = $("hatchTime");
+    const elFill = $("hatchFill");
+    const elThanks = $("arrivalThanks");
+    if(!elTime || !elFill || !elThanks) return;
+    if(!save.story.hatchAt) return;
+
+    const remain = save.story.hatchAt - effectiveNow(save);
+    const clampedMs = Math.max(0, remain);
+    const total = save.settings.hatchMs;
+    const prog = clamp(1 - (clampedMs/total), 0, 1);
+
+    elFill.style.width = (prog*100).toFixed(1) + "%";
+
+    if(clampedMs <= 0){
+      elTime.textContent = "いま";
+      elThanks.textContent = "見つけてくれてありがとう。いま、ふわりと。";
+    }else{
+      elTime.textContent = "あと " + fmtMMSS(clampedMs);
+      const sec = Math.ceil(clampedMs/1000);
+      if(sec > 60) elThanks.textContent = "見つけてくれてありがとう。もうすこし。";
+      else elThanks.textContent = "見つけてくれてありがとう。もうすぐ。";
+    }
+  }
+
   function showArrival(){
     showScreen("arrival");
+    save.flow.screen = "arrival";
+    saveNow();
+
     const c = save.story.chosenColor || "green";
-    $("arrivalImg").src = ASSETS.macaron[c];
+    $("arrivalMacaron").src = ASSETS.macaron[c];
+    $("orbitChar").src = ASSETS.char[c].closed;
+
+    updateArrivalCountdown();
+  }
+
+  function hatchNow(byTouch){
+    if(save.story.hatched) return;
+
+    save.story.hatched = true;
+    save.story.hatchedByTouch = !!byTouch;
+
+    const bornAt = effectiveNow(save);
+    save.life.bornAt = bornAt;
+    save.life.deathAt = bornAt + save.settings.lifeMs;
+    save.life.isEnded = false;
+    save.life.endedAt = null;
+    save.life.revivedUntil = null;
+    save.life.uncanny = false;
+    save.life._handledEnd = false;
+
+    // ログ初期化
+    save.logs.day["1"] = emptyDay(1);
+    save.logs.day["2"] = emptyDay(2);
+    save.logs.day["3"] = emptyDay(3);
+    save.logs.events = [];
+    save.logs.day["1"].heartStart = save.stats.hearts;
+
+    addEvent("hatch", { color: save.story.chosenColor, byTouch: !!byTouch });
+    saveNow();
+    showCare();
   }
 
   function maybeHatch(){
     if(save.story.hatched) return;
     if(!save.story.hatchAt) return;
 
-    const t = effectiveNow(save);
-    if(t >= save.story.hatchAt){
-      save.story.hatched = true;
-
-      const bornAt = save.story.hatchAt;
-      save.life.bornAt = bornAt;
-      save.life.deathAt = bornAt + LIFE_MS_EFF;
-      save.life.isEnded = false;
-      save.life.endedAt = null;
-      save.life.revivedUntil = null;
-      save.life.uncanny = false;
-      save.life._handledEnd = false;
-
-      save.logs.day["1"] = emptyDay(1);
-      save.logs.day["2"] = emptyDay(2);
-      save.logs.day["3"] = emptyDay(3);
-      save.logs.events = [];
-      save.logs.day["1"].heartStart = save.stats.hearts;
-
-      addEvent("hatch", { color: save.story.chosenColor });
-      saveNow();
-      showCare();
+    const t0 = effectiveNow(save);
+    if(t0 >= save.story.hatchAt){
+      hatchNow(false);
     }
   }
 
-  function openChoiceModal(title, note, choices){
-    modalTitle.textContent = title;
-    modalNote.textContent = note;
-    modalBtns.innerHTML = "";
-    choices.forEach(ch => {
-      const b = document.createElement("button");
-      b.className = "btn " + (ch.style || "");
-      b.textContent = ch.label;
-      b.addEventListener("click", () => {
-        closeModal();
-        ch.onPick();
-      });
-      modalBtns.appendChild(b);
-    });
-    overlay.classList.add("on");
+  // 状態変化（時間経過）
+  function stepByTime(dtMs){
+    const dayMs = getDayMs();
+
+    // 1日（= life/3）で、空腹は約12時間相当、排泄は約8時間相当で100に近づく
+    const hungerAdd = dtMs * (200 / dayMs); // dayMs/2 で 100
+    const wasteAdd  = dtMs * (300 / dayMs); // dayMs/3 で 100
+
+    save.stats.hunger = clamp(save.stats.hunger + hungerAdd, 0, 100);
+    save.stats.waste  = clamp(save.stats.waste  + wasteAdd, 0, 100);
+
+    // 放置のじわじわ
+    let moodDrop = 0;
+    let heartDrop = 0;
+
+    if(save.stats.hunger > 75) moodDrop += (dtMs/dayMs) * 28;
+    if(save.stats.waste  > 70) moodDrop += (dtMs/dayMs) * 30;
+    if(save.stats.waste  > 70) heartDrop += (dtMs/dayMs) * 9;
+
+    if(save.stats.hunger < 30 && save.stats.waste < 35) moodDrop -= (dtMs/dayMs) * 8;
+
+    // 不気味な復活後は上限を抑える
+    const moodCap = save.life.uncanny ? 60 : 100;
+    save.stats.mood = clamp(save.stats.mood - moodDrop, 0, moodCap);
+
+    const heartCap = save.life.uncanny ? Math.min(save.stats.hearts, 70) : 100;
+    save.stats.hearts = clamp(save.stats.hearts - heartDrop, 0, heartCap);
+
+    // 日跨ぎのシッター記録などは tick 側で処理
   }
-  function closeModal(){ overlay.classList.remove("on"); }
 
   function applySoftImpact({ hunger=0, waste=0, mood=0, hearts=0 }){
     save.stats.hunger = clamp(save.stats.hunger + hunger, 0, 100);
@@ -1285,42 +1797,34 @@
   // お世話（2択）
   function actFood(){
     if(blockedByEnd()) return;
-    openChoiceModal(
-      "食事",
-      "軽くするか、しっかりにするか。理由は表示されない。",
-      [
-        { label:"軽い食事", style:"secondary", onPick: () => {
-          applySoftImpact({ hunger: -18 + rnd(-2,2), waste: +10 + rnd(-2,2), mood: +4 + rnd(-1,1), hearts: +1 });
-          addEvent("food", { choice: "light" });
-          saveNow();
-        }},
-        { label:"しっかりした食事", onPick: () => {
-          applySoftImpact({ hunger: -30 + rnd(-3,3), waste: +16 + rnd(-3,3), mood: +2 + rnd(-2,2), hearts: +1 });
-          addEvent("food", { choice: "hearty" });
-          saveNow();
-        }}
-      ]
-    );
+    openModal("食事", "<p>軽くするか、しっかりにするか。理由は表示されない。</p>", [
+      { label:"軽い食事", style:"secondary", onClick: () => {
+        applySoftImpact({ hunger: -18 + rnd(-2,2), waste: +10 + rnd(-2,2), mood: +4 + rnd(-1,1), hearts: +1 });
+        addEvent("food", { choice: "light" });
+        saveNow();
+      }},
+      { label:"しっかりした食事", style:"", onClick: () => {
+        applySoftImpact({ hunger: -30 + rnd(-3,3), waste: +16 + rnd(-3,3), mood: +2 + rnd(-2,2), hearts: +1 });
+        addEvent("food", { choice: "hearty" });
+        saveNow();
+      }}
+    ]);
   }
 
   function actOuting(){
     if(blockedByEnd()) return;
-    openChoiceModal(
-      "お出かけ",
-      "外へ出るか、家で過ごすか。",
-      [
-        { label:"外に出る", onPick: () => {
-          applySoftImpact({ hunger: +8 + rnd(-2,2), waste: +8 + rnd(-2,2), mood: +10 + rnd(-2,2), hearts: +2 });
-          addEvent("outing", { choice: "outside" });
-          saveNow();
-        }},
-        { label:"家で過ごす", style:"secondary", onPick: () => {
-          applySoftImpact({ hunger: +4 + rnd(-2,2), waste: +4 + rnd(-2,2), mood: +6 + rnd(-2,2), hearts: +1 });
-          addEvent("outing", { choice: "home" });
-          saveNow();
-        }}
-      ]
-    );
+    openModal("お出かけ", "<p>外へ出るか、家で過ごすか。</p>", [
+      { label:"外に出る", style:"", onClick: () => {
+        applySoftImpact({ hunger: +8 + rnd(-2,2), waste: +8 + rnd(-2,2), mood: +10 + rnd(-2,2), hearts: +2 });
+        addEvent("outing", { choice: "outside" });
+        saveNow();
+      }},
+      { label:"家で過ごす", style:"secondary", onClick: () => {
+        applySoftImpact({ hunger: +4 + rnd(-2,2), waste: +4 + rnd(-2,2), mood: +6 + rnd(-2,2), hearts: +1 });
+        addEvent("outing", { choice: "home" });
+        saveNow();
+      }}
+    ]);
   }
 
   function actMini(){
@@ -1331,384 +1835,280 @@
       { q:"触れる？ 見守る？", a:"触れる", b:"見守る", ka:"touch", kb:"watch2" }
     ];
     const p = prompts[Math.floor(Math.random()*prompts.length)];
-    openChoiceModal(
-      "2択ミニゲーム",
-      p.q,
-      [
-        { label:p.a, onPick: () => {
-          applySoftImpact({ mood: +6 + rnd(-3,3), hearts: +1 });
-          addEvent("mini", { choice: p.ka });
-          saveNow();
-        }},
-        { label:p.b, style:"secondary", onPick: () => {
-          applySoftImpact({ mood: +5 + rnd(-3,3), hearts: +1 });
-          addEvent("mini", { choice: p.kb });
-          saveNow();
-        }}
-      ]
-    );
+    openModal("2択ミニゲーム", `<p>${escapeHtml(p.q)}</p>`, [
+      { label:p.a, style:"", onClick: () => {
+        applySoftImpact({ mood: +6 + rnd(-3,3), hearts: +1 });
+        addEvent("mini", { choice: p.ka });
+        saveNow();
+      }},
+      { label:p.b, style:"secondary", onClick: () => {
+        applySoftImpact({ mood: +5 + rnd(-3,3), hearts: +1 });
+        addEvent("mini", { choice: p.kb });
+        saveNow();
+      }}
+    ]);
   }
 
   function actClean(){
     if(blockedByEnd()) return;
-    openCleanMini();
-  }
-
-  // 排泄除去の小さなミニゲーム（クリックで消す）
-  function openCleanMini(){
-    modalTitle.textContent = "排泄除去";
-    modalNote.textContent = "画面の中に出る汚れをクリックして消す。成功しても評価は出ない。";
-    modalBtns.innerHTML = "";
-
-    const area = document.createElement("div");
-    area.style.position = "relative";
-    area.style.height = "220px";
-    area.style.borderRadius = "16px";
-    area.style.border = "1px solid rgba(15,23,42,.14)";
-    area.style.background = "rgba(255,255,255,.75)";
-    area.style.overflow = "hidden";
-    area.style.marginTop = "12px";
-
-    const status = document.createElement("div");
-    status.className = "tiny";
-    status.style.marginTop = "10px";
-    status.textContent = " ";
-
-    const poopCount = 7;
-    let removed = 0;
-    let ended = false;
-
-    function makeBlob(){
-      const b = document.createElement("button");
-      b.type="button";
-      b.style.position="absolute";
-      b.style.width = (18 + Math.random()*22) + "px";
-      b.style.height = (14 + Math.random()*16) + "px";
-      b.style.borderRadius = "12px";
-      b.style.border = "1px solid rgba(15,23,42,.16)";
-      b.style.background = "linear-gradient(180deg, rgba(15,23,42,.12), rgba(15,23,42,.28))";
-      b.style.left = (8 + Math.random()*84) + "%";
-      b.style.top = (8 + Math.random()*74) + "%";
-      b.style.transform = `rotate(${Math.random()*22-11}deg)`;
-      b.style.cursor = "pointer";
-      b.style.boxShadow = "0 10px 18px rgba(15,23,42,.10)";
-      b.addEventListener("click", () => {
-        if(ended) return;
-        b.remove();
-        removed++;
-        if(removed >= poopCount){
-          finish(true);
-        }
-      });
-      return b;
-    }
-
-    for(let i=0;i<poopCount;i++){
-      area.appendChild(makeBlob());
-    }
-
-    const timer = document.createElement("div");
-    timer.className = "tiny";
-    timer.style.marginTop = "8px";
-    let left = FAST ? 6 : 12;
-
-    const iv = setInterval(() => {
-      if(ended) return;
-      left--;
-      if(left<=0){
-        finish(false);
-      }
-    }, 1000);
-
-    function finish(success){
-      if(ended) return;
-      ended = true;
-      clearInterval(iv);
-
-      if(success){
-        applySoftImpact({ waste: -28 + rnd(-4,4), mood: +6 + rnd(-2,2), hearts: +1 });
+    openModal("排泄除去", "<p>放置するとゆっくり悪化。やると少し改善。</p>", [
+      { label:"やる", style:"", onClick: () => {
+        applySoftImpact({ waste: -28 + rnd(-4,4), mood: +5 + rnd(-2,2), hearts: +1 });
         addEvent("clean", { choice: "done" });
-      }else{
-        applySoftImpact({ waste: -12 + rnd(-3,3), mood: +1 + rnd(-2,2), hearts: 0 });
+        saveNow();
+      }},
+      { label:"今はやらない", style:"secondary", onClick: () => {
+        applySoftImpact({ mood: -1 + rnd(-1,1), hearts: 0 });
         addEvent("clean", { choice: "partial" });
-      }
-      saveNow();
-      closeModal();
-    }
-
-    const body = $("modalBody");
-    body.innerHTML = "";
-    body.appendChild(status);
-    body.appendChild(area);
-    body.appendChild(timer);
-
-    overlay.classList.add("on");
+        saveNow();
+      }}
+    ]);
   }
 
-  // 生存中アイテム
   function actDrink(){
     if(blockedByEnd()) return;
-    if(save.items.drink <= 0) return;
-    openChoiceModal(
-      "ドリンク",
-      "生存中に使える。少しだけ戻る感じがする。理由は説明されない。",
-      [
-        { label:"飲ませる", onPick: () => {
-          save.items.drink--;
-          applySoftImpact({ hunger: -16 + rnd(-3,3), waste: -10 + rnd(-3,3), mood: +8 + rnd(-2,2), hearts: +1 });
+    if(save.items.drink <= 0){
+      openModal("ドリンク", "<p>もう、残っていない。</p>", [{ label:t("close"), style:"secondary" }]);
+      return;
+    }
 
-          // 少しだけ寿命を延ばす（内部時間の調整）
-          save.life.deathAt += (FAST ? 6*1000 : 2*60*60*1000);
+    save.items.drink -= 1;
 
-          addEvent("drink", {});
-          saveNow();
-        }},
-        { label:"やめておく", style:"secondary", onPick: () => {} }
-      ]
-    );
+    // 生存時間を少し戻す／延ばす（1/12日分 ≒ 2時間相当）
+    const addMs = Math.floor(getDayMs() / 12);
+    save.life.deathAt += addMs;
+
+    applySoftImpact({ hunger: -10 + rnd(-2,2), mood: +4 + rnd(-2,2), hearts: +1 });
+    addEvent("drink", { addMs });
+    saveNow();
   }
 
-  // 死後アイテム
   function actMacaron(){
-    if(!save.life.isEnded) return;
-    if(save.items.macaron <= 0) return;
+    // 死後のみ使用可。復活はどこか違和感。
+    if(!save.life.isEnded){
+      openModal("マカロン", "<p>まだ。ここでは使えない。</p>", [{ label:t("close"), style:"secondary" }]);
+      return;
+    }
+    if(save.items.macaron <= 0){
+      openModal("マカロン", "<p>もう、残っていない。</p>", [{ label:t("close"), style:"secondary" }]);
+      return;
+    }
 
-    openChoiceModal(
-      "マカロン",
-      "死後に使える。一時的に戻るが、完全には戻らない。",
-      [
-        { label:"使う", onPick: () => {
-          save.items.macaron--;
-          const t = effectiveNow(save);
-          save.life.isEnded = false;
-          save.life.endedAt = null;
-          save.life.revivedUntil = t + (FAST ? 22*1000 : 12*60*60*1000);
-          save.life.uncanny = true;
+    save.items.macaron -= 1;
 
-          // どこか違和感のある復活
-          save.stats.hunger = clamp(save.stats.hunger, 35, 85);
-          save.stats.waste = clamp(save.stats.waste, 25, 90);
-          save.stats.mood = clamp(save.stats.mood, 25, 55);
+    // 一時的に復活（1/2日分 ≒ 12時間相当）
+    const reviveMs = Math.floor(getDayMs() / 2);
+    save.life.isEnded = false;
+    save.life.revivedUntil = effectiveNow(save) + reviveMs;
+    save.life.uncanny = true;
+    save.life._handledEnd = false;
 
-          addEvent("macaron", {});
-          saveNow();
-          showCare();
-        }},
-        { label:"やめておく", style:"secondary", onPick: () => {} }
-      ]
-    );
+    applySoftImpact({ hunger: +8, waste: +5, mood: +2, hearts: 0 });
+    addEvent("macaron", { reviveMs });
+    saveNow();
+
+    showCare();
+  }
+
+  // シッター
+  function toggleSitter(){
+    if(blockedByEnd()) return;
+
+    const t0 = nowMs();
+    if(!save.sitter.on){
+      save.sitter.on = true;
+      save.sitter.onSince = t0;
+      addEvent("sitterOn", {});
+      saveNow();
+    }else{
+      save.sitter.on = false;
+      const used = t0 - save.sitter.onSince;
+      save.sitter.pausedTotal += used;
+      save.sitter.usedTotal += used;
+      save.sitter.onSince = null;
+
+      // dayの集計
+      const d = dayIndex(save) || 1;
+      save.logs.day[String(d)].sitterMs += used;
+
+      addEvent("sitterOff", { used });
+      saveNow();
+    }
+    renderCare();
+  }
+
+  // 終了判定
+  function getEndAt(){
+    // 復活中なら復活終了が先
+    if(save.life.revivedUntil) return save.life.revivedUntil;
+    return save.life.deathAt;
   }
 
   function maybeEnd(){
+    if(save.life.isEnded) return;
     if(!save.life.bornAt) return;
 
-    const t = effectiveNow(save);
-
-    if(save.life.revivedUntil && t >= save.life.revivedUntil){
-      save.life.revivedUntil = null;
-      save.life.isEnded = true;
-      save.life.endedAt = t;
-    }
-
-    if(!save.life.revivedUntil && !save.life.isEnded){
-      if(t >= save.life.deathAt){
+    const t0 = effectiveNow(save);
+    const endAt = getEndAt();
+    if(endAt && t0 >= endAt){
+      if(!save.life._handledEnd){
+        save.life._handledEnd = true;
         save.life.isEnded = true;
-        save.life.endedAt = t;
+        save.life.endedAt = t0;
+        save.life.revivedUntil = null;
+        finalizeAllDaysAtEnd();
+        addEvent("end", {});
+        saveNow();
+        showEnd();
       }
     }
-
-    if(save.life.isEnded && !save.life._handledEnd){
-      save.life._handledEnd = true;
-      finalizeAllDaysAtEnd();
-      addEvent("end", {});
-      saveNow();
-      showEnd();
-    }
   }
 
-  // 時間経過による状態変化（表示はしない）
-  function stepByTime(dtMs){
-    const dt = dtMs / 1000;
-
-    const hungerRate = 100 / (FAST ? 35 : (12*60*60));
-    const wasteRate  = 100 / (FAST ? 25 : (8*60*60));
-
-    let hungerAdd = dt * hungerRate;
-    let wasteAdd  = dt * wasteRate;
+  // 表情や見た目（ラベルは出さない）
+  function decideFace(){
+    // 0:元気, 1:元気がない, 2:泣いてる
+    const h = save.stats.hunger;
+    const w = save.stats.waste;
+    const m = save.stats.mood;
 
     if(save.life.uncanny){
-      hungerAdd *= 1.25;
-      wasteAdd  *= 1.25;
+      if(h>75 || w>70) return 2;
+      if(m<35) return 1;
+      return 1;
     }
 
-    save.stats.hunger = clamp(save.stats.hunger + hungerAdd, 0, 100);
-    save.stats.waste  = clamp(save.stats.waste  + wasteAdd, 0, 100);
+    if(h>82 || w>78) return 2;
+    if(m<35 || h>65 || w>60) return 1;
+    return 0;
+  }
 
-    let moodDrop = 0;
-    if(save.stats.hunger > 70) moodDrop += (dt * 0.020);
-    if(save.stats.waste > 70) moodDrop += (dt * 0.024);
-    if(save.stats.hunger > 85) moodDrop += (dt * 0.028);
-    if(save.stats.waste > 85) moodDrop += (dt * 0.032);
-
-    let moodRise = 0;
-    if(save.stats.hunger < 45 && save.stats.waste < 45){
-      moodRise += dt * 0.010;
-    }
-
-    const moodCap = save.life.uncanny ? 60 : 100;
-    save.stats.mood = clamp(save.stats.mood - moodDrop + moodRise, 0, moodCap);
-
-    if(save.stats.hunger > 85 || save.stats.waste > 85){
-      save.stats.hearts = clamp(save.stats.hearts - dt*0.0012, 0, save.life.uncanny ? Math.min(save.stats.hearts,70) : 100);
-    }else if(save.stats.mood > 75 && save.stats.hunger < 55 && save.stats.waste < 55){
-      save.stats.hearts = clamp(save.stats.hearts + dt*0.0006, 0, save.life.uncanny ? Math.min(save.stats.hearts,70) : 100);
+  function renderHearts(){
+    const v = clamp(save.stats.hearts, 0, 100);
+    const on = Math.round(v/20);
+    for(let i=1; i<=5; i++){
+      const el = $("h"+i);
+      el.classList.toggle("on", i<=on);
     }
   }
 
-  // 状態はラベル表示しない。表情と動きだけで見せる
-  function stateKind(){
-    const { hunger, waste, mood } = save.stats;
-    const bad = (hunger > 80) + (waste > 80);
-    if(save.life.isEnded) return "ended";
-    if(bad >= 2 || mood < 22) return "cry";
-    if(bad >= 1 || mood < 45) return "sad";
-    if(mood > 72 && hunger < 60 && waste < 60) return "happy";
-    return "ok";
+  function fmtRemain(ms){
+    if(ms <= 0) return "0:00";
+
+    const totalSec = Math.floor(ms/1000);
+    const d = Math.floor(totalSec / (24*3600));
+    const h = Math.floor((totalSec % (24*3600)) / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+
+    // lifeMs が短い時は hh:mm:ss に寄せる
+    if(save.settings.lifeMs <= 6*60*60*1000){
+      const hh = String(Math.floor(totalSec/3600)).padStart(2,"0");
+      const mm = String(Math.floor((totalSec%3600)/60)).padStart(2,"0");
+      const ss = String(totalSec%60).padStart(2,"0");
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    if(d > 0) return `${d}日 ${h}時間${m}分`;
+    if(h > 0) return `${h}時間${m}分`;
+    return `${m}分${s}秒`;
+  }
+
+  function renderLifeMeter(){
+    const total = save.settings.lifeMs;
+    const endAt = getEndAt();
+    const remain = Math.max(0, endAt - effectiveNow(save));
+    const spent = clamp(1 - (remain/Math.max(1,total)), 0, 1);
+
+    const d = dayIndex(save) || 1;
+    $("lifeText").textContent = `${t("day")} ${d}/3`;
+    $("lifeRemain").textContent = `${t("remain")} ${fmtRemain(remain)}`;
+    $("lifeFill").style.width = (spent*100).toFixed(1) + "%";
+  }
+
+
+  function sitterNoteText(on){
+    const lang = (save && save.settings && save.settings.lang) ? save.settings.lang : "ja";
+    const map = {
+      ja: { on: "時間が止まっている", off: "時間は止まる" },
+      en: { on: "Time is stopped", off: "Time can stop" },
+      zh: { on: "时间已暂停", off: "时间可以暂停" }
+    };
+    const m = map[lang] || map.ja;
+    return on ? m.on : m.off;
   }
 
   function renderCare(){
-    const c = save.story.chosenColor || "green";
+    renderHearts();
+    renderLifeMeter();
 
-    $("btn_drink").disabled = save.life.isEnded || save.items.drink<=0;
-    $("btn_macaron").disabled = (!save.life.isEnded) || save.items.macaron<=0;
-
-    const kind = stateKind();
-    const img = $("charImg");
-    const tear = $("tear");
-    const poops = [ $("po1"), $("po2"), $("po3"), $("po4") ];
-
-    const useOpen = (kind === "happy") || (kind === "cry" && (c==="blue" || c==="pink"));
-    img.src = useOpen ? ASSETS.char[c].open : ASSETS.char[c].closed;
-
-    img.classList.remove("floaty","bop","droop","shake","glitch");
-    tear.classList.remove("on");
-    img.style.filter = "";
-
-    if(kind === "happy"){
-      img.classList.add("bop");
-    }else if(kind === "ok"){
-      img.classList.add("floaty");
-    }else if(kind === "sad"){
-      img.classList.add("droop");
-      tear.classList.add("on");
-    }else if(kind === "cry"){
-      img.classList.add("droop");
-      img.classList.add("shake");
-      tear.classList.add("on");
-    }else if(kind === "ended"){
-      img.classList.add("droop");
-      img.style.filter = "grayscale(.9) brightness(.88) drop-shadow(0 20px 30px rgba(15,23,42,.18))";
-    }
-
-    if(save.life.uncanny && !save.life.isEnded){
-      img.classList.add("glitch");
-    }
-
-    const dirty = save.stats.waste > 70;
-    poops.forEach(p => p.classList.toggle("on", dirty));
-
-    const h = save.stats.hearts;
-    const level = Math.round(clamp(h,0,100)/20);
-    [ $("h1"),$("h2"),$("h3"),$("h4"),$("h5") ].forEach((el,i)=>{
-      el.classList.toggle("on", i < level);
-    });
-
+    // シッター表示
     const tgl = $("toggle_sitter");
-    tgl.classList.toggle("on", save.sitter.on);
-    tgl.setAttribute("aria-checked", save.sitter.on ? "true":"false");
-    $("sitterNote").textContent = save.sitter.on ? "止まっている" : "時間は止まる";
+    tgl.classList.toggle("on", !!save.sitter.on);
+    tgl.setAttribute("aria-checked", save.sitter.on ? "true" : "false");
+    $("sitterNote").textContent = sitterNoteText(!!save.sitter.on);
 
-    $("endNote").style.display = save.life.isEnded ? "block" : "none";
-    $("shareBox").style.display = "flex";
+    // キャラ画像（状態ラベルなし）
+    const c = save.story.chosenColor || "green";
+    const face = decideFace();
+    const img = $("charImg");
 
-    const hint = $("careHint");
-    if(save.life.uncanny && !save.life.isEnded){
-      hint.textContent = "戻ってきた。でも、どこか違う気がする。";
+    if(face === 0) img.src = ASSETS.char[c].open;
+    else img.src = ASSETS.char[c].closed;
+
+    // 状態の雰囲気で、ほんの少し動きを変える
+    if(face === 2){
+      img.classList.add("floaty");
+      img.style.transform = "translateY(2px) scale(.995)";
     }else{
-      hint.textContent = "言葉ではわからない。表情と動きだけが変わる。";
+      img.classList.add("floaty");
+      img.style.transform = "";
     }
+
+    // 共有URL
+    const shareUrl = shareUrlForCurrentSave();
+    $("shareUrl").value = shareUrl;
+    $("shareUrl2").value = shareUrl;
+    $("shareBox").style.display = "flex";
   }
 
   function showCare(){
     showScreen("care");
+    save.flow.screen = "care";
+    saveNow();
     renderCare();
-    const shareUrl = shareUrlForCurrentSave();
-    $("shareUrl").value = shareUrl;
-    $("shareUrl2").value = shareUrl;
   }
 
   function showEnd(){
     showScreen("end");
+    save.flow.screen = "end";
+    saveNow();
+
     const shareUrl = shareUrlForCurrentSave();
     $("shareUrl").value = shareUrl;
     $("shareUrl2").value = shareUrl;
   }
 
-  function msToHuman(ms){
-    if(!ms || ms<=0) return "0分";
-    const m = Math.round(ms/60000);
-    if(m < 60) return `${m}分`;
-    const h = Math.floor(m/60);
-    const mm = m%60;
-    return `${h}時間${mm}分`;
+  function showLogs(){
+    showScreen("logs");
+    save.flow.screen = "logs";
+    saveNow();
+
+    const series = buildHeartSeriesFromSave(save);
+    drawHeartChart($("heartChart"), series);
+
+    renderLogTabs(save, $("dayTabs"), $("logBox"));
   }
 
-  function summarizeChoices(choices){
-    const out = [];
-    const mapCount = (arr) => arr.reduce((acc,x)=>{ acc[x]=(acc[x]||0)+1; return acc; }, {});
-    const tFood = mapCount(choices.food || []);
-    const tOut = mapCount(choices.outing || []);
-    const tMini = mapCount(choices.mini || []);
-    const tClean = mapCount(choices.clean || []);
+  function showObserve(payload){
+    showScreen("observe");
 
-    if(Object.keys(tFood).length){
-      out.push(`食事の選択: ${Object.entries(tFood).map(([k,v])=>`${foodLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tOut).length){
-      out.push(`お出かけの選択: ${Object.entries(tOut).map(([k,v])=>`${outingLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tMini).length){
-      out.push(`ミニゲームの選択: ${Object.entries(tMini).map(([k,v])=>`${miniLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tClean).length){
-      out.push(`排泄除去: ${Object.entries(tClean).map(([k,v])=>`${cleanLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(!out.length) out.push("選択: （記録なし）");
-    return out;
-  }
-  function foodLabel(k){ return k==="light" ? "軽い" : (k==="hearty" ? "しっかり" : k); }
-  function outingLabel(k){ return k==="outside" ? "外" : (k==="home" ? "家" : k); }
-  function miniLabel(k){
-    const m = { collect:"集める", watch:"眺める", near:"近づく", far:"離れる", touch:"触れる", watch2:"見守る" };
-    return m[k] || k;
-  }
-  function cleanLabel(k){ return k==="done" ? "完了" : (k==="partial" ? "途中" : k); }
+    const c = payload.chosenColor || "green";
+    $("charImgObs").src = ASSETS.char[c].open;
 
-  function eventToText(e){
-    const t = e.type;
-    if(t==="chooseChar") return `キャラ選択（${prettyColor(e.detail.color)}）`;
-    if(t==="found") return "見つけた";
-    if(t==="hatch") return "誕生した";
-    if(t==="food") return `食事（${foodLabel(e.detail.choice)}）`;
-    if(t==="outing") return `お出かけ（${outingLabel(e.detail.choice)}）`;
-    if(t==="mini") return `ミニ（${miniLabel(e.detail.choice)}）`;
-    if(t==="clean") return `排泄除去（${cleanLabel(e.detail.choice)}）`;
-    if(t==="drink") return "ドリンク";
-    if(t==="macaron") return "マカロン";
-    if(t==="sitterOn") return "シッターON";
-    if(t==="sitterOff") return "シッターOFF";
-    if(t==="end") return "終わった";
-    return t;
+    const series = buildHeartSeriesFromPayload(payload);
+    drawHeartChart($("heartChartObs"), series);
+
+    renderObserveTabs(payload, $("dayTabsObs"), $("logBoxObs"));
   }
 
   function buildHeartSeriesFromSave(s){
@@ -1722,6 +2122,20 @@
       else arr.push({ x:d, y:null });
     }
     return arr;
+  }
+
+  function buildHeartSeriesFromPayload(p){
+    const arr = [];
+    for(const d of (p.days || [])){
+      if(d.heartEnd!=null) arr.push({ x:d.day, y:d.heartEnd });
+      else if(d.heartStart!=null) arr.push({ x:d.day, y:d.heartStart });
+      else arr.push({ x:d.day, y:null });
+    }
+    // 念のため 1..3 を補完
+    const byDay = new Map(arr.map(a => [a.x, a]));
+    const out = [];
+    for(let i=1;i<=3;i++) out.push(byDay.get(i) || {x:i,y:null});
+    return out;
   }
 
   function drawHeartChart(canvas, series){
@@ -1772,181 +2186,120 @@
     }
   }
 
-  function showLogs(){
-    showScreen("logs");
-    const tabs = $("dayTabs");
-    const box = $("logBox");
-    tabs.innerHTML = "";
-    box.innerHTML = "";
+  function foodLabel(k){ return k==="light" ? "軽い" : (k==="hearty" ? "しっかり" : k); }
+  function outingLabel(k){ return k==="outside" ? "外" : (k==="home" ? "家" : k); }
+  function miniLabel(k){
+    const m = { collect:"集める", watch:"眺める", near:"近づく", far:"離れる", touch:"触れる", watch2:"見守る" };
+    return m[k] || k;
+  }
+  function cleanLabel(k){ return k==="done" ? "完了" : (k==="partial" ? "途中" : k); }
 
+  function eventToText(e){
+    const t0 = e.type;
+    if(t0==="found") return "見つけた";
+    if(t0==="hatch") return e.detail && e.detail.byTouch ? "触れて誕生した" : "誕生した";
+    if(t0==="food") return `食事（${foodLabel(e.detail.choice)}）`;
+    if(t0==="outing") return `お出かけ（${outingLabel(e.detail.choice)}）`;
+    if(t0==="mini") return `ミニ（${miniLabel(e.detail.choice)}）`;
+    if(t0==="clean") return `排泄除去（${cleanLabel(e.detail.choice)}）`;
+    if(t0==="drink") return "ドリンク";
+    if(t0==="macaron") return "マカロン";
+    if(t0==="sitterOn") return "シッターON";
+    if(t0==="sitterOff") return "シッターOFF";
+    if(t0==="end") return "終わった";
+    return t0;
+  }
+
+  function msToHuman(ms){
+    if(!ms || ms<=0) return "0分";
+    const m = Math.round(ms/60000);
+    if(m < 60) return `${m}分`;
+    const h = Math.floor(m/60);
+    const mm = m%60;
+    return `${h}時間${mm}分`;
+  }
+
+  function renderLogTabs(s, tabsEl, boxEl){
+    tabsEl.innerHTML = "";
     for(let d=1; d<=3; d++){
       const b = document.createElement("button");
-      b.className = "tab";
-      b.type="button";
-      b.textContent = `Day ${d}`;
-      b.addEventListener("click", () => renderDay(d));
-      tabs.appendChild(b);
+      b.className = "tab" + (d===1 ? " on" : "");
+      b.textContent = "Day " + d;
+      b.addEventListener("click", () => {
+        [...tabsEl.querySelectorAll(".tab")].forEach(x=>x.classList.remove("on"));
+        b.classList.add("on");
+        renderDayLog(s, d, boxEl);
+      });
+      tabsEl.appendChild(b);
     }
-    renderDay(dayIndex(save) || 1);
+    renderDayLog(s, 1, boxEl);
 
-    drawHeartChart($("heartChart"), buildHeartSeriesFromSave(save));
-
+    // 共有欄を更新
     const shareUrl = shareUrlForCurrentSave();
+    $("shareUrl").value = shareUrl;
     $("shareUrl2").value = shareUrl;
-
-    function renderDay(d){
-      [...tabs.children].forEach((t,i)=>t.classList.toggle("active", i===d-1));
-      box.innerHTML = "";
-
-      const obj = save.logs.day[String(d)] || emptyDay(d);
-      const heartStart = obj.heartStart;
-      const heartEnd = (obj.heartEnd != null) ? obj.heartEnd : ((d===dayIndex(save)) ? save.stats.hearts : null);
-      const delta = (heartStart!=null && heartEnd!=null) ? (heartEnd-heartStart) : null;
-
-      const lines = [];
-      lines.push(`Day ${d}`);
-      if(heartStart!=null && heartEnd!=null){
-        const sign = delta>=0 ? "+" : "";
-        lines.push(`ハートの変化: ${sign}${Math.round(delta)}`);
-      }else{
-        lines.push(`ハートの変化: （未確定）`);
-      }
-
-      lines.push(`お世話: 食事${obj.careCounts.food} / お出かけ${obj.careCounts.outing} / ミニ${obj.careCounts.mini} / 排泄除去${obj.careCounts.clean}`);
-      lines.push(`アイテム: ドリンク${obj.careCounts.drink} / マカロン${obj.careCounts.macaron}`);
-      lines.push(`シッター: ${msToHuman(obj.sitterMs)}`);
-
-      const cLines = summarizeChoices(obj.choices);
-      cLines.forEach(s => lines.push(s));
-
-      const evs = save.logs.events.filter(e => e.day===d);
-      if(evs.length){
-        lines.push(`出来事:`);
-        evs.slice(0,120).forEach(e => {
-          lines.push(`  ${formatTime(e.t)}  ${eventToText(e)}`);
-        });
-      }else{
-        lines.push(`出来事: （なし）`);
-      }
-
-      lines.forEach(s => {
-        const div = document.createElement("div");
-        div.className = "logLine";
-        div.textContent = s;
-        box.appendChild(div);
-      });
-    }
   }
 
-  // 観察モード
-  function initObserve(){
-    setModePill();
-    showScreen("observe");
-
-    const data = url.searchParams.get("data");
-    const payload = decodeShare(data);
-    if(!payload){
-      $("logBoxObs").innerHTML = `<div class="logLine">読み込みに失敗しました。</div>`;
-      return;
-    }
-    const color = payload.chosenColor || "green";
-    $("charImgObs").src = ASSETS.char[color].open;
-
-    const tabs = $("dayTabsObs");
-    const box = $("logBoxObs");
-    tabs.innerHTML = "";
-    box.innerHTML = "";
-
+  function renderObserveTabs(p, tabsEl, boxEl){
+    tabsEl.innerHTML = "";
     for(let d=1; d<=3; d++){
       const b = document.createElement("button");
-      b.className = "tab";
-      b.type="button";
-      b.textContent = `Day ${d}`;
-      b.addEventListener("click", () => render(d));
-      tabs.appendChild(b);
-    }
-    render(1);
-
-    const series = payload.days.map(x => ({ x:x.day, y:(x.heartEnd!=null ? x.heartEnd : x.heartStart) }));
-    drawHeartChart($("heartChartObs"), series);
-
-    function render(d){
-      [...tabs.children].forEach((t,i)=>t.classList.toggle("active", i===d-1));
-      box.innerHTML = "";
-
-      const day = payload.days[d-1];
-      if(!day){
-        box.innerHTML = `<div class="logLine">（なし）</div>`;
-        return;
-      }
-      const lines = [];
-      lines.push(`Day ${day.day}`);
-      if(day.heartDelta!=null){
-        const sign = day.heartDelta>=0 ? "+" : "";
-        lines.push(`ハートの変化: ${sign}${Math.round(day.heartDelta)}`);
-      }else{
-        lines.push(`ハートの変化: （未確定）`);
-      }
-      lines.push(`お世話: 食事${day.careCounts.food} / お出かけ${day.careCounts.outing} / ミニ${day.careCounts.mini} / 排泄除去${day.careCounts.clean}`);
-      lines.push(`アイテム: ドリンク${day.careCounts.drink} / マカロン${day.careCounts.macaron}`);
-      lines.push(`シッター: ${msToHuman(day.sitterMs)}`);
-
-      const cLines = summarizeChoices(day.choices);
-      cLines.forEach(s => lines.push(s));
-
-      if(day.events && day.events.length){
-        lines.push(`出来事:`);
-        day.events.slice(0,120).forEach(e => {
-          lines.push(`  ${formatTime(e.t)}  ${eventToText(e)}`);
-        });
-      }else{
-        lines.push(`出来事: （なし）`);
-      }
-
-      lines.forEach(s => {
-        const div = document.createElement("div");
-        div.className = "logLine";
-        div.textContent = s;
-        box.appendChild(div);
+      b.className = "tab" + (d===1 ? " on" : "");
+      b.textContent = "Day " + d;
+      b.addEventListener("click", () => {
+        [...tabsEl.querySelectorAll(".tab")].forEach(x=>x.classList.remove("on"));
+        b.classList.add("on");
+        renderDayLogPayload(p, d, boxEl);
       });
+      tabsEl.appendChild(b);
     }
-
-    $("btn_obs_back").addEventListener("click", () => {
-      history.back();
-    });
+    renderDayLogPayload(p, 1, boxEl);
   }
 
-  // シッター切り替え（時間停止）
-  function toggleSitter(force=null){
-    if(!save.life.bornAt) return;
-    if(save.life.isEnded) return;
+  function renderDayLog(s, d, boxEl){
+    const obj = s.logs.day[String(d)];
+    const lines = [];
 
-    const wantOn = (force!=null) ? force : !save.sitter.on;
+    lines.push(`Day ${d}`);
 
-    if(wantOn && !save.sitter.on){
-      save.sitter.on = true;
-      save.sitter.onSince = nowMs();
-      addEvent("sitterOn", {});
-      saveNow();
-      renderCare();
+    if(obj.heartStart!=null) lines.push(`ハート: ${obj.heartStart} → ${(obj.heartEnd!=null?obj.heartEnd:(d===dayIndex(s)?s.stats.hearts:"…"))}`);
+    lines.push(`シッター: ${msToHuman(obj.sitterMs)}`);
+
+    const c = obj.careCounts;
+    lines.push(`回数: 食事${c.food} / お出かけ${c.outing} / ミニ${c.mini} / 排泄除去${c.clean} / ドリンク${c.drink} / マカロン${c.macaron}`);
+
+    const ev = s.logs.events.filter(e => e.day===d);
+    if(ev.length){
+      lines.push("出来事:");
+      ev.slice(0,120).forEach(e => lines.push("・" + eventToText(e)));
+    }
+
+    boxEl.innerHTML = lines.map(x => `<div class="logLine">${escapeHtml(x)}</div>`).join("");
+  }
+
+  function renderDayLogPayload(p, d, boxEl){
+    const obj = (p.days || []).find(x => x.day===d);
+    const lines = [];
+    lines.push(`Day ${d}`);
+    if(!obj){
+      lines.push("記録なし");
+      boxEl.innerHTML = lines.map(x => `<div class="logLine">${escapeHtml(x)}</div>`).join("");
       return;
     }
-    if(!wantOn && save.sitter.on){
-      const used = nowMs() - save.sitter.onSince;
-      save.sitter.on = false;
-      save.sitter.pausedTotal += used;
-      save.sitter.usedTotal += used;
 
-      const d = dayIndex(save);
-      const obj = save.logs.day[String(d)];
-      if(obj) obj.sitterMs += used;
+    if(obj.heartStart!=null && obj.heartEnd!=null) lines.push(`ハート: ${obj.heartStart} → ${obj.heartEnd}（${obj.heartDelta>=0?"+":""}${obj.heartDelta}）`);
+    lines.push(`シッター: ${msToHuman(obj.sitterMs)}`);
 
-      save.sitter.onSince = null;
-      addEvent("sitterOff", { ms: used });
-      saveNow();
-      renderCare();
-      return;
+    const c = obj.careCounts;
+    lines.push(`回数: 食事${c.food} / お出かけ${c.outing} / ミニ${c.mini} / 排泄除去${c.clean} / ドリンク${c.drink} / マカロン${c.macaron}`);
+
+    const ev = (obj.events || []);
+    if(ev.length){
+      lines.push("出来事:");
+      ev.slice(0,120).forEach(e => lines.push("・" + (e.type || "")));
     }
+
+    boxEl.innerHTML = lines.map(x => `<div class="logLine">${escapeHtml(x)}</div>`).join("");
   }
 
   function tick(){
@@ -1954,7 +2307,9 @@
 
     // まだ誕生前（到着待ち）
     if(save.story.arrivalAt && !save.story.hatched){
+      updateArrivalCountdown();
       maybeHatch();
+      saveNow();
       return;
     }
 
@@ -1979,82 +2334,111 @@
       if(screens.care.classList.contains("active")){
         renderCare();
       }
-
       saveNow();
     }
   }
 
-  // 初期化（プレイ）
+  // 進行復元
   function initPlay(){
     setModePill();
     save = loadSave();
 
+    // 表示
     if(save.playerName){
-      $("playerName").value = save.playerName;
       subline.textContent = save.playerName ? `○○（${save.playerName}）の記録` : "記録だけが残る";
     }
 
-    // 画面遷移の復元
-    if(!save.playerName || !save.story.chosenColor){
-      renderOnboarding();
-    }else if(save.life.isEnded){
+    applyI18nStatic();
+
+    // 画像
+    $("startVisual").src = ASSETS.macaron.pink;
+    $("menuVisual").src = ASSETS.macaron.green;
+
+    // 復元
+    if(save.life.isEnded){
       showEnd();
     }else if(save.life.bornAt){
       showCare();
     }else if(save.story.arrivalAt){
       showArrival();
-    }else{
+    }else if(save.playerName && save.story.chosenColor){
       buildMap();
       showScreen("search");
+    }else{
+      // まだ始めていない
+      const scr = save.flow && save.flow.screen ? save.flow.screen : "start";
+      if(scr === "menu") renderMenu();
+      else if(scr === "profile") renderProfile();
+      else renderStart();
     }
 
-    // ボタン
-    const pn = $("playerName");
-    if(pn){
-      pn.addEventListener("input", () => {
-        save.playerName = pn.value;
-        saveNow();
-        updateStartButton();
-      });
-    }
-
-    const startBtn = $("btn_start");
-    if(startBtn){
-      startBtn.addEventListener("click", () => startFromOnboarding());
-    }
-
-    $("btn_new_reset").addEventListener("click", () => {
-      // 保存を消して、最初に戻る
-      resetAll();
-      if(pn) pn.value = "";
-      renderOnboarding();
+    // スタート
+    $("btn_go_menu").addEventListener("click", () => {
+      renderMenu();
     });
 
-    const backIntroBtn = $("btn_back_intro");
-    if(backIntroBtn){
-      backIntroBtn.addEventListener("click", () => {
-        // 進行中なら、軽く確認する
-        if(save.story.arrivalAt || save.life.bornAt){
-          openChoiceModal("設定へ戻る", "相棒や名前を変えると、探し直しになります。どうしますか？", [
-            { label:"戻る", cls:"secondary", onClick: () => { renderOnboarding(); } },
-            { label:"やめる", cls:"blue", onClick: () => {} }
-          ]);
-        }else{
-          renderOnboarding();
-        }
-      });
-    }
+    // 全リセット
+    $("btn_reset_all").addEventListener("click", () => {
+      resetAll();
+      applyI18nStatic();
+      renderStart();
+    });
+    $("btn_profile_reset").addEventListener("click", () => {
+      resetAll();
+      applyI18nStatic();
+      renderStart();
+    });
 
-    $("btn_back_search").addEventListener("click", () => {
-      resetSearch();
-      buildMap();
-      showScreen("search");
-      $("searchNote").textContent = "まだ、何も見つからない。";
+    // メニュー操作
+    $("btn_about").addEventListener("click", openAboutModal);
+    $("btn_lang").addEventListener("click", openLanguageModal);
+
+    $("lifePreset").addEventListener("change", () => {
+      const p = $("lifePreset").value;
+      save.settings.lifePreset = p;
+      save.settings.lifeMs = defaultLifeMsFromPreset(p);
+      saveNow();
+    });
+    $("hatchPreset").addEventListener("change", () => {
+      const p = $("hatchPreset").value;
+      save.settings.hatchPreset = p;
+      save.settings.hatchMs = defaultHatchMsFromPreset(p);
+      saveNow();
+    });
+
+    $("btn_menu_next").addEventListener("click", () => {
+      renderProfile();
+    });
+
+    // プロフィール
+    $("btn_profile_back").addEventListener("click", () => {
+      renderMenu();
+    });
+
+    $("playerName").addEventListener("input", () => {
+      save.playerName = $("playerName").value;
+      saveNow();
+      updateProfileNext();
+    });
+
+    $("btn_profile_next").addEventListener("click", () => startNewRunFromProfile());
+
+    // 探す
+    $("btn_back_profile").addEventListener("click", () => {
+      // 進行中なら確認
+      if(save.story.arrivalAt || save.life.bornAt){
+        openModal("戻る", "<p>設定へ戻ると、探し直しになります。</p>", [
+          { label:"戻る", style:"", onClick: () => renderProfile() },
+          { label:"やめる", style:"secondary" }
+        ]);
+      }else{
+        renderProfile();
+      }
     });
 
     $("btn_hint").addEventListener("click", () => {
       if(save.story.foundAt) return;
-      const N=12;
+      const N = 12;
       const i = Math.floor(Math.random()*N);
       if(!save.story._revealed.includes(i)) save.story._revealed.push(i);
       saveNow();
@@ -2062,10 +2446,18 @@
       $("searchNote").textContent = "光の粒が、少しだけ道を示した。";
     });
 
-    $("btn_new_reset").addEventListener("click", () => {
-      resetAll();
-      showScreen("intro");
+    // 到着
+    $("btn_back_search").addEventListener("click", () => {
+      resetSearch();
+      buildMap();
+      showScreen("search");
       $("searchNote").textContent = "まだ、何も見つからない。";
+    });
+
+    // 触れて早める
+    $("btn_touch_macaron").addEventListener("click", () => {
+      if(save.story.hatched) return;
+      hatchNow(true);
     });
 
     // お世話
@@ -2076,10 +2468,30 @@
     $("btn_drink").addEventListener("click", actDrink);
     $("btn_macaron").addEventListener("click", actMacaron);
 
-    $("btn_logs").addEventListener("click", () => showLogs());
+    // ログ
+    $("btn_logs").addEventListener("click", showLogs);
+    $("btn_end_logs").addEventListener("click", showLogs);
+
+    // 共有
+    $("btn_copy_share").addEventListener("click", () => copyToClipboard($("shareUrl").value));
+    $("btn_copy_share2").addEventListener("click", () => copyToClipboard($("shareUrl2").value));
+    $("btn_logs_share").addEventListener("click", () => copyToClipboard($("shareUrl2").value));
+    $("btn_end_share").addEventListener("click", () => copyToClipboard(shareUrlForCurrentSave()));
+
+    // 戻る
     $("btn_back_care").addEventListener("click", () => {
       if(save.life.isEnded) showEnd();
       else showCare();
+    });
+
+    // シッター
+    const tgl = $("toggle_sitter");
+    tgl.addEventListener("click", toggleSitter);
+    tgl.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        toggleSitter();
+      }
     });
 
     // モーダル
@@ -2088,44 +2500,21 @@
       if(e.target === overlay) overlay.classList.remove("on");
     });
 
-    // シッター
-    const tgl = $("toggle_sitter");
-    tgl.addEventListener("click", () => toggleSitter());
-    tgl.addEventListener("keydown", (e) => {
-      if(e.key === "Enter" || e.key === " "){
-        e.preventDefault();
-        toggleSitter();
+    // 観察モード
+    if(isObserveMode){
+      const data = url.searchParams.get("data");
+      const payload = decodeShare(data);
+      if(payload){
+        showObserve(payload);
+        $("btn_obs_back").addEventListener("click", () => {
+          // 観察画面は閉じる＝トップへ
+          location.href = location.pathname;
+        });
       }
-    });
+    }
 
-    // 共有
-    $("btn_copy_share").addEventListener("click", () => copyToClipboard($("shareUrl").value));
-    $("btn_copy_share2").addEventListener("click", () => copyToClipboard($("shareUrl2").value));
-    $("btn_logs_share").addEventListener("click", () => copyToClipboard($("shareUrl2").value));
-
-    $("btn_end_logs").addEventListener("click", () => showLogs());
-    $("btn_end_share").addEventListener("click", () => {
-      const u = shareUrlForCurrentSave();
-      copyToClipboard(u);
-      showLogs();
-    });
-
-    // 共有URL初期反映
-    const shareUrl = shareUrlForCurrentSave();
-    $("shareUrl").value = shareUrl;
-    $("shareUrl2").value = shareUrl;
-    $("shareBox").style.display = "flex";
-
-    // タイマー
     if(tickTimer) clearInterval(tickTimer);
-    tickTimer = setInterval(tick, 900);
-    tick();
-  }
-
-  setModePill();
-  if(isObserveMode){
-    initObserve();
-    return;
+    tickTimer = setInterval(tick, 400);
   }
 
   initPlay();
