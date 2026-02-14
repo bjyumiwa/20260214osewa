@@ -171,7 +171,8 @@
     /* ここから：誕生後は2人で並ぶ（小さく生まれ、3日かけて成長） */
     .charPair{
       position:absolute; inset:0;
-      --grow: .50;
+      --growA: .50;
+      --growB: .36;
       --sep: 96px;
       pointer-events:none;
     }
@@ -185,8 +186,8 @@
       transform-origin: 50% 85%;
       filter: drop-shadow(0 20px 30px rgba(15,23,42,.18));
     }
-    .charTwin.left{ transform: translateX(calc(-50% - var(--sep))) scale(var(--grow)) rotate(-3deg); }
-    .charTwin.right{ transform: translateX(calc(-50% + var(--sep))) scale(var(--grow)) rotate(3deg); }
+    .charTwin.left{ transform: translateX(calc(-50% - var(--sep))) scale(var(--growA)) rotate(-3deg); }
+    .charTwin.right{ transform: translateX(calc(-50% + var(--sep))) scale(var(--growB)) rotate(3deg); }
 
     /* 状態に合わせた動き（ラベルは出さない） */
     .charPair.k-happy{ animation: bop 1.2s ease-in-out infinite; }
@@ -494,6 +495,19 @@
       font-size:12px;
     }
 
+    select.sel{
+      flex:1;
+      min-width: 240px;
+      padding:10px 10px;
+      border-radius:12px;
+      background: rgba(255,255,255,.78);
+      border:1px solid rgba(15,23,42,.14);
+      color: rgba(15,23,42,.92);
+      outline:none;
+      font-size:12px;
+      appearance:none;
+    }
+
     .cornerHint{
       position:absolute;
       top:10px; right:10px;
@@ -560,6 +574,17 @@
                 <button class="btn secondary" id="btn_new_reset" title="保存を消します">最初から</button>
               </div>
               <p class="tiny" style="margin-top:8px;">名前と選択はこの端末の中だけに保存されます。</p>
+
+              <div style="margin-top:12px;">
+                <div class="tiny" style="margin-bottom:6px;">時間設定</div>
+                <div class="btnrow" style="margin-top:0;">
+                  <select id="timeMode" class="sel">
+                    <option value="normal">通常（誕生3分／寿命3日）</option>
+                    <option value="fast">テスト（誕生約12秒／寿命約90秒）</option>
+                  </select>
+                </div>
+                <p class="tiny" id="timeModeNote" style="margin-top:6px;"></p>
+              </div>
 
               <div class="linkBox" id="resumeBox" style="display:none; margin-top:12px;">
                 <div class="tiny">記録が残っています</div>
@@ -828,11 +853,34 @@
   // 誕生は時間経過で起こす（3分）
   const HATCH_MS = 3*60*1000;
 
-  // デバッグ用。URLに ?fast=1 を付けると短縮
-  const url = new URL(location.href);
-  const FAST = url.searchParams.get("fast") === "1";
-  const HATCH_MS_EFF = FAST ? 12*1000 : HATCH_MS;
-  const LIFE_MS_EFF  = FAST ? 90*1000 : LIFE_MS;
+  // 時間設定（テスト用に短縮もできる）
+// URLに ?fast=1 を付けると一時的にテストモードになります
+const url = new URL(location.href);
+const TIME_MODE_KEY = "care3days_timeMode";
+const baseMode = (url.searchParams.get("fast") === "1") ? "fast" : ((localStorage.getItem(TIME_MODE_KEY) === "fast") ? "fast" : "normal");
+
+function inferFastFromSave(s){
+  try{
+    if(s && s.life && s.life.bornAt && s.life.deathAt){
+      const d = s.life.deathAt - s.life.bornAt;
+      if(d > 0 && d < 10*60*1000) return true;
+    }
+    if(s && s.story && s.story.hatchAt && s.story.arrivalAt){
+      const d = s.story.hatchAt - s.story.arrivalAt;
+      if(d > 0 && d < 60*1000) return true;
+    }
+  }catch(e){}
+  return baseMode === "fast";
+}
+
+function isFast(s){
+  const obj = s || save;
+  if(obj && obj.config && typeof obj.config.fast === "boolean") return obj.config.fast;
+  return baseMode === "fast";
+}
+function hatchMsEff(s){ return isFast(s) ? 12*1000 : HATCH_MS; }
+function lifeMsEff(s){ return isFast(s) ? 90*1000 : LIFE_MS; }
+function dayMsEff(s){ return lifeMsEff(s) / 3; }
 
   const isObserveMode = !!url.searchParams.get("observe") && !!url.searchParams.get("data");
 
@@ -874,7 +922,7 @@
   function dayIndex(s){
     if(!s || !s.life.bornAt) return 0;
     const t = effectiveNow(s) - s.life.bornAt;
-    const d = Math.floor(t / DAY_MS) + 1;
+    const d = Math.floor(t / dayMsEff(s)) + 1;
     return clamp(d, 1, 3);
   }
 
@@ -919,6 +967,7 @@
     const t = nowMs();
     return {
       v: 2,
+      config: { fast: (baseMode === 'fast'), timeMode: (baseMode === 'fast' ? 'fast' : 'normal') },
       id,
       playerName: "",
       startedAt: t,
@@ -1135,7 +1184,52 @@
     }
   }
 
-  function renderOnboarding(){
+function normalizeSaveConfig(){
+  if(!save) return;
+  if(!save.config) save.config = {};
+  if(typeof save.config.fast !== "boolean") save.config.fast = inferFastFromSave(save);
+  if(!save.config.timeMode) save.config.timeMode = save.config.fast ? "fast" : "normal";
+  // 古い保存データでも2体が同色にならないように
+  ensureTwinColors();
+  // 設定の既定値を端末側にも残す（次回の初期値）
+  try{ localStorage.setItem(TIME_MODE_KEY, save.config.fast ? "fast" : "normal"); }catch(e){}
+}
+
+  function wireTimeModeSelect(){
+  const sel = $('timeMode');
+  const note = $('timeModeNote');
+  if(!sel || !note) return;
+
+  // 進行している場合は、途中で切り替えると時刻がずれるので無効化
+  const progressed = !!(save && (save.story.foundAt || save.story.arrivalAt || save.life.bornAt || save.life.isEnded));
+  sel.disabled = progressed;
+
+  const curMode = (save && save.config && save.config.fast) ? 'fast' : 'normal';
+  sel.value = curMode;
+
+  const setNote = (mode) => {
+    if(progressed){
+      note.textContent = '途中からは変えられません。新しく始めるときに設定できます。';
+    }else{
+      note.textContent = (mode==='fast') ? 'テスト用：誕生と3日間が短く進みます。' : '通常：誕生は3分、寿命は3日です。';
+    }
+  };
+  setNote(sel.value);
+
+  sel.onchange = () => {
+    const mode = sel.value;
+    try{ localStorage.setItem(TIME_MODE_KEY, mode); }catch(e){}
+    if(save && !progressed){
+      if(!save.config) save.config = {};
+      save.config.fast = (mode === 'fast');
+      save.config.timeMode = mode;
+      saveNow();
+    }
+    setNote(mode);
+  };
+}
+
+function renderOnboarding(){
     showScreen("intro");
 
     const box = $("charChoices");
@@ -1192,6 +1286,8 @@
     const pn = $("playerName");
     if(pn && save.playerName && !pn.value) pn.value = save.playerName;
 
+    wireTimeModeSelect();
+
     updateResumeBox();
     updateStartButton();
   }
@@ -1237,13 +1333,20 @@
   }
 
   function startFromOnboarding(){
-    const name = (($("playerName") && $("playerName").value) || "").trim();
+    const name = (($('playerName') && $('playerName').value) || '').trim();
     const chosen = save.story.chosenColor;
+    const modeSel = ($('timeMode') && $('timeMode').value) ? $('timeMode').value : (save.config && save.config.fast ? 'fast' : 'normal');
 
     if(!name || !chosen) return;
 
     // 一度きれいにしてから、名前と相棒だけ残す
     resetAll();
+    // 時間設定を反映（新しく始めるときだけ）
+    if(!save.config) save.config = {};
+    save.config.fast = (modeSel === "fast");
+    save.config.timeMode = modeSel;
+    try{ localStorage.setItem(TIME_MODE_KEY, modeSel); }catch(e){}
+
     save.playerName = name;
     save.story.chosenColor = chosen;
     save.story.twinColor = pickTwinColor(chosen);
@@ -1310,7 +1413,7 @@
 
           // 見つけた瞬間に「到着」させる（誕生はそこから3分後）
           save.story.arrivalAt = effectiveNow(save);
-          save.story.hatchAt = save.story.arrivalAt + HATCH_MS_EFF;
+          save.story.hatchAt = save.story.arrivalAt + hatchMsEff(save);
           save.story.hatched = false;
 
           $("searchNote").textContent = "見つかった。近づくと、温かい。";
@@ -1344,7 +1447,7 @@
 
       const bornAt = save.story.hatchAt;
       save.life.bornAt = bornAt;
-      save.life.deathAt = bornAt + LIFE_MS_EFF;
+      save.life.deathAt = bornAt + lifeMsEff(save);
       save.life.isEnded = false;
       save.life.endedAt = null;
       save.life.revivedUntil = null;
@@ -1522,7 +1625,7 @@
     const timer = document.createElement("div");
     timer.className = "tiny";
     timer.style.marginTop = "8px";
-    let left = FAST ? 6 : 12;
+    let left = isFast(save) ? 6 : 12;
 
     const iv = setInterval(() => {
       if(ended) return;
@@ -1570,7 +1673,7 @@
           applySoftImpact({ hunger: -16 + rnd(-3,3), waste: -10 + rnd(-3,3), mood: +8 + rnd(-2,2), hearts: +1 });
 
           // 少しだけ寿命を延ばす（内部時間の調整）
-          save.life.deathAt += (FAST ? 6*1000 : 2*60*60*1000);
+          save.life.deathAt += (isFast(save) ? 6*1000 : 2*60*60*1000);
 
           addEvent("drink", {});
           saveNow();
@@ -1594,7 +1697,7 @@
           const t = effectiveNow(save);
           save.life.isEnded = false;
           save.life.endedAt = null;
-          save.life.revivedUntil = t + (FAST ? 22*1000 : 12*60*60*1000);
+          save.life.revivedUntil = t + (isFast(save) ? 22*1000 : 12*60*60*1000);
           save.life.uncanny = true;
 
           // どこか違和感のある復活
@@ -1642,8 +1745,8 @@
   function stepByTime(dtMs){
     const dt = dtMs / 1000;
 
-    const hungerRate = 100 / (FAST ? 35 : (12*60*60));
-    const wasteRate  = 100 / (FAST ? 25 : (8*60*60));
+    const hungerRate = 100 / (isFast(save) ? 35 : (12*60*60));
+    const wasteRate  = 100 / (isFast(save) ? 25 : (8*60*60));
 
     let hungerAdd = dt * hungerRate;
     let wasteAdd  = dt * wasteRate;
@@ -1690,22 +1793,30 @@
 
 
   // 生まれた直後は小さく、3日で少しずつ大きくなる（カウントダウン表示はしない）
-  function growthScaleLive(){
-    if(!save.life.bornAt) return 0.50;
-    const eff = effectiveNow(save);
+// 左＝ユーザーが選んだ子、右＝生まれてきた子（最初は右が少し小さい）
+function growthScalesLive(){
+  if(!save.life.bornAt) return { a:0.50, b:0.36, p:0 };
+  const eff = effectiveNow(save);
 
-    // 終了後は、その時点で止める
-    const endT = save.life.isEnded ? (save.life.endedAt || save.life.deathAt) : save.life.deathAt;
-    const denom = Math.max(1, endT - save.life.bornAt);
-    const t = clamp(eff - save.life.bornAt, 0, denom);
-    const p = t / denom;
+  // 終了後は、その時点で止める
+  const endT = save.life.isEnded ? (save.life.endedAt || save.life.deathAt) : save.life.deathAt;
+  const denom = Math.max(1, endT - save.life.bornAt);
+  const t = clamp(eff - save.life.bornAt, 0, denom);
+  const p = t / denom;
 
-    const minS = 0.50;
-    const maxS = 1.05; // 少しだけ大きめに（3日間の変化を感じられる程度）
-    return minS + (maxS - minS) * p;
-  }
+  const aMin = 0.50;
+  const aMax = 1.05;
+  const bMin = 0.36;
+  const bMax = 1.05;
 
-  function separationFromScale(sc){
+  return {
+    a: aMin + (aMax - aMin) * p,
+    b: bMin + (bMax - bMin) * p,
+    p
+  };
+}
+
+function separationFromScale(sc){
     // 小さいほど離れて見え、大きいほど少し寄り添う
     const p = clamp((sc-0.50)/(1.05-0.50), 0, 1);
     const sep = 96 - 38*p; // px
@@ -1736,9 +1847,11 @@
     imgB.src = srcB;
 
     // 成長反映
-    const sc = growthScaleLive();
-    pair.style.setProperty("--grow", sc.toFixed(3));
-    pair.style.setProperty("--sep", separationFromScale(sc));
+    const gs = growthScalesLive();
+    pair.style.setProperty("--growA", gs.a.toFixed(3));
+    pair.style.setProperty("--growB", gs.b.toFixed(3));
+    const scMean = (gs.a + gs.b) / 2;
+    pair.style.setProperty("--sep", separationFromScale(scMean));
 
     // クラス整理
     pair.classList.remove("k-ok","k-happy","k-sad","k-cry","k-ended","uncanny");
@@ -2028,7 +2141,9 @@
       const sep = 96 - 38 * p;
       const pair = $("charPairObs");
       if(pair){
-        pair.style.setProperty("--grow", sc.toFixed(3));
+        pair.style.setProperty("--growA", sc.toFixed(3));
+        const scB = 0.36 + (1.05-0.36)*p;
+        pair.style.setProperty("--growB", scB.toFixed(3));
         pair.style.setProperty("--sep", `${sep.toFixed(1)}px`);
       }
     }
@@ -2170,6 +2285,8 @@
   function initPlay(){
     setModePill();
     save = loadSave();
+
+    normalizeSaveConfig();
 
     if(save.playerName){
       $("playerName").value = save.playerName;
