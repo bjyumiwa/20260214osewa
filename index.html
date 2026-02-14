@@ -779,21 +779,79 @@
 (() => {
   const APP_KEY = "care3days_save_stage1_v2";
 
-  const ASSETS = {
-    // すべて stage1 フォルダに入っている前提
-    char: {
-      green: { closed: "stage1/green_closed.png", open: "stage1/green_open.png" },
-      blue:  { closed: "stage1/blue_closed.png",  open: "stage1/blue_open.png"  },
-      pink:  { closed: "stage1/pink_closed.png",  open: "stage1/pink_open.png"  },
-      purple:{ closed: "stage1/purple_closed.png",open: "stage1/purple_open.png"}
-    },
-    macaron: {
-      green: "stage1/macaron_green.png",
-      blue:  "stage1/macaron_blue.png",
-      pink:  "stage1/macaron_pink.png",
-      purple:"stage1/macaron_purple.png"
+
+  // 画像アセットの置き場所は、環境によって揺れやすいので自動検出します
+  // 優先順位：public/char/ → stage1/（過去互換）
+  const ASSET_BASE_CANDIDATES = ["public/char/", "stage1/"];
+  let ASSET_BASE = ASSET_BASE_CANDIDATES[0];
+
+  function buildAssets(base){
+    return {
+      char: {
+        green: { closed: base + "green_closed.png", open: base + "green_open.png" },
+        blue:  { closed: base + "blue_closed.png",  open: base + "blue_open.png"  },
+        pink:  { closed: base + "pink_closed.png",  open: base + "pink_open.png"  },
+        purple:{ closed: base + "purple_closed.png",open: base + "purple_open.png"}
+      },
+      macaron: {
+        green: base + "macaron_green.png",
+        blue:  base + "macaron_blue.png",
+        pink:  base + "macaron_pink.png",
+        purple:base + "macaron_purple.png"
+      }
+    };
+  }
+
+  let ASSETS = buildAssets(ASSET_BASE);
+
+  // 画像が存在するか軽くチェック（GitHub Pagesでも動くように Image で判定）
+  function checkImage(url){
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      // キャッシュで誤判定しないように少しだけバージョンを付ける
+      const u = url + (url.includes("?") ? "&" : "?") + "v=" + Date.now();
+      img.src = u;
+    });
+  }
+
+  // 保存にassetBaseがあればそれを優先し、なければ候補を順に試します
+  async function detectAssetBase(){
+    const tried = [];
+    const saved = save && save.config && save.config.assetBase ? save.config.assetBase : null;
+
+    const cands = [];
+    if(saved) cands.push(saved);
+    ASSET_BASE_CANDIDATES.forEach(b => { if(!cands.includes(b)) cands.push(b); });
+
+    for(const base of cands){
+      if(tried.includes(base)) continue;
+      tried.push(base);
+      const ok = await checkImage(base + "pink_open.png");
+      if(ok){
+        ASSET_BASE = base;
+        ASSETS = buildAssets(base);
+        if(save){
+          if(!save.config) save.config = {};
+          save.config.assetBase = base;
+          saveNow();
+        }
+        return base;
+      }
     }
-  };
+
+    // どれも見つからない場合：とりあえず最初の候補で進める（後で差し替え可）
+    ASSET_BASE = ASSET_BASE_CANDIDATES[0];
+    ASSETS = buildAssets(ASSET_BASE);
+    if(save){
+      if(!save.config) save.config = {};
+      save.config.assetBase = ASSET_BASE;
+      saveNow();
+    }
+    return ASSET_BASE;
+  }
+
 
   const DAY_MS = 24*60*60*1000;
   const LIFE_MS = 3*DAY_MS;
@@ -2219,7 +2277,10 @@ function separationFromScale(sc){
       subline.textContent = save.playerName ? `○○（${save.playerName}）の記録` : "記録だけが残る";
     }
     // 画面遷移：まずは物語の入口（必要なら"つづきから"）
-    renderOnboarding();
+    // アセットの場所を検出してから表示（環境で public/char/ と stage1/ が揺れるため）
+    detectAssetBase().then(() => {
+      renderOnboarding();
+    });
 
     // ボタン
     const pn = $("playerName");
