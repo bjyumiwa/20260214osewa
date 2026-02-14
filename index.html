@@ -137,7 +137,6 @@
       filter:saturate(.6);
     }
 
-    /* キャラクター表示 */
     .stage{
       display:flex; align-items:center; justify-content:center;
       min-height: 420px;
@@ -229,7 +228,6 @@
     .poop:nth-child(3){ left: 86px; top:268px; transform: rotate(6deg) scale(.9); }
     .poop:nth-child(4){ right: 96px; top:276px; transform: rotate(-8deg) scale(.92); }
 
-    /* ハート */
     .hearts{
       display:flex; gap:6px; align-items:center;
       padding:8px 10px; border-radius:14px;
@@ -256,11 +254,9 @@
     .heart.on{ opacity:1; }
     .heart.on::before,.heart.on::after{ background: rgba(251,113,133,.95); }
 
-    /* 画面切り替え */
     .screen{ display:none; }
     .screen.active{ display:block; }
 
-    /* マップ探索 */
     .mapGrid{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
@@ -307,7 +303,6 @@
     }
     .tile.found .foundImg{ opacity:1; transform: translateY(0) scale(1); }
 
-    /* 選択カード */
     .choiceGrid{
       display:grid;
       grid-template-columns: repeat(2, 1fr);
@@ -334,7 +329,6 @@
     .choice .ctext .cname{ font-weight:800; font-size:13px; }
     .choice .ctext .cdesc{ font-size:12px; margin-top:4px; color: var(--muted); line-height:1.55; }
 
-    /* モーダル */
     .overlay{
       position:fixed; inset:0;
       display:none;
@@ -366,7 +360,6 @@
     .modal .mnote{ font-size:12px; color: var(--muted); line-height:1.7; }
     .modal .mbody .btnrow{ margin-top:12px; }
 
-    /* ありがとう画面 */
     .thanks{
       min-height: 520px;
       display:grid;
@@ -388,7 +381,6 @@
       to{ opacity:1; transform: translateY(0); }
     }
 
-    /* ログ */
     .tabs{
       display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;
     }
@@ -490,7 +482,6 @@
       </div>
     </div>
 
-    <!-- イントロ -->
     <div class="screen active" id="scr_intro">
       <div class="grid">
         <div class="card">
@@ -525,7 +516,6 @@
       </div>
     </div>
 
-    <!-- 探索 -->
     <div class="screen" id="scr_search">
       <div class="grid">
         <div class="card">
@@ -549,7 +539,6 @@
       </div>
     </div>
 
-    <!-- マカロン選択 -->
     <div class="screen" id="scr_select">
       <div class="grid">
         <div class="card">
@@ -574,7 +563,6 @@
       </div>
     </div>
 
-    <!-- 到着（卵相当） -->
     <div class="screen" id="scr_arrival">
       <div class="grid">
         <div class="card">
@@ -600,7 +588,6 @@
       </div>
     </div>
 
-    <!-- お世話 -->
     <div class="screen" id="scr_care">
       <div class="grid">
         <div class="card">
@@ -668,7 +655,6 @@
       </div>
     </div>
 
-    <!-- ありがとう -->
     <div class="screen" id="scr_end">
       <div class="card">
         <div class="thanks">
@@ -683,7 +669,6 @@
       </div>
     </div>
 
-    <!-- ログ -->
     <div class="screen" id="scr_logs">
       <div class="grid">
         <div class="card">
@@ -718,7 +703,6 @@
       </div>
     </div>
 
-    <!-- 観察用 -->
     <div class="screen" id="scr_observe">
       <div class="grid">
         <div class="card">
@@ -751,7 +735,6 @@
 
   </div>
 
-  <!-- モーダル -->
   <div class="overlay" id="overlay">
     <div class="modal">
       <div class="mhead">
@@ -766,22 +749,10 @@
   </div>
 
 <script>
-/*
-  3日間のお世話ゲーム（GitHub Pages用 / 外部ライブラリなし）
-  画像差し替えは ASSETS のパスを書き換えるだけでOKです。
-
-  重要
-  ・状態や理由は説明しません（正解も評価もなし）
-  ・ログは「事実」として残します
-  ・寿命のカウントダウンは表示しません（内部でのみ管理）
-  ・シッターON中は時間が止まります（空腹・排泄・寿命も停止）
-*/
-
 (() => {
   const APP_KEY = "care3days_save_v1";
   const SHARE_VERSION = 1;
 
-  // 画像パス（このプロジェクトでは public/ から始めると安定します）
   const ASSETS = {
     char: {
       green: { closed: "public/char/green_closed.png", open: "public/char/green_open.png" },
@@ -790,26 +761,24 @@
       purple:{ closed: "public/char/purple_closed.png",open: "public/char/purple_open.png"}
     },
     macaron: {
-      green: "public/items/macaron_green.png",
-      blue:  "public/items/macaron_blue.png",
-      pink:  "public/items/macaron_pink.png",
-      purple:"public/items/macaron_purple.png"
+      green: "stage1/macaron_green.png",
+      blue:  "stage1/macaron_blue.png",
+      pink:  "stage1/macaron_pink.png",
+      purple:"stage1/macaron_purple.png"
     }
   };
 
   const DAY_MS = 24*60*60*1000;
   const LIFE_MS = 3*DAY_MS;
-  const HATCH_MS = 3*60*1000; // 到着から3分で誕生
+  const HATCH_MS = 3*60*1000;
 
-  // デバッグ用（URLに ?fast=1 をつけると短く動かせます）
   const url = new URL(location.href);
   const FAST = url.searchParams.get("fast") === "1";
   const HATCH_MS_EFF = FAST ? 12*1000 : HATCH_MS;
-  const LIFE_MS_EFF  = FAST ? 90*1000 : LIFE_MS; // fast時は90秒で終了
+  const LIFE_MS_EFF  = FAST ? 90*1000 : LIFE_MS;
 
   const isObserveMode = !!url.searchParams.get("observe") && !!url.searchParams.get("data");
 
-  // DOM
   const $ = (id) => document.getElementById(id);
   const screens = {
     intro: $("scr_intro"),
@@ -831,18 +800,13 @@
   const modalNote = $("modalNote");
   const modalBtns = $("modalBtns");
 
-  // 状態
   let save = null;
   let tickTimer = null;
 
-  // -------------------------
-  // 汎用
-  // -------------------------
   function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
   function rnd(a,b){ return a + Math.random()*(b-a); }
   function nowMs(){ return Date.now(); }
 
-  // シッターを考慮した「有効時刻」
   function effectiveNow(s){
     if(!s) return nowMs();
     const baseNow = nowMs();
@@ -878,9 +842,6 @@
     try{ return JSON.parse(str); }catch(e){ return fallback; }
   }
 
-  // -------------------------
-  // 保存データ
-  // -------------------------
   function newSave(){
     const id = genId();
     const t = nowMs();
@@ -889,8 +850,6 @@
       id,
       playerName: "",
       startedAt: t,
-
-      // ストーリー進行
       story: {
         foundAt: null,
         chosenColor: null,
@@ -898,41 +857,30 @@
         hatchAt: null,
         hatched: false
       },
-
-      // 生存と復活
       life: {
         bornAt: null,
         deathAt: null,
         endedAt: null,
         isEnded: false,
-        // 復活
         revivedUntil: null,
         uncanny: false
       },
-
-      // 生体っぽいパラメータ（数値は見せない）
       stats: {
-        hunger: 30, // 0良い -> 100つらい
+        hunger: 30,
         waste: 20,
-        mood: 70, // 0つらい -> 100良い
+        mood: 70,
         hearts: 55
       },
-
-      // シッター
       sitter: {
         on: false,
         onSince: null,
-        pausedTotal: 0, // ms
-        usedTotal: 0 // ms
+        pausedTotal: 0,
+        usedTotal: 0
       },
-
-      // アイテム
       items: {
         drink: 2,
         macaron: 1
       },
-
-      // ログ（日別まとめ + イベント）
       logs: {
         day: {
           "1": emptyDay(1),
@@ -941,8 +889,6 @@
         },
         events: []
       },
-
-      // 内部用
       _lastEff: t
     };
   }
@@ -982,9 +928,6 @@
     return "p" + Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
   }
 
-  // -------------------------
-  // ログ
-  // -------------------------
   function addEvent(type, detail){
     const t = effectiveNow(save);
     const d = dayIndex(save);
@@ -1036,12 +979,9 @@
     }
   }
 
-  // -------------------------
-  // 共有（観察用）
-  // -------------------------
   function buildSharePayload(s){
     const out = {
-      v: SHARE_VERSION,
+      v: 1,
       id: s.id,
       createdAt: nowMs(),
       chosenColor: s.story.chosenColor,
@@ -1109,9 +1049,6 @@
     document.body.removeChild(ta);
   }
 
-  // -------------------------
-  // 進行（探索）
-  // -------------------------
   function buildMap(){
     const grid = $("mapGrid");
     grid.innerHTML = "";
@@ -1211,9 +1148,6 @@
       `それは静かに置かれた。<br>しばらくすると、ふわりと浮かび上がるらしい。`;
   }
 
-  // -------------------------
-  // 誕生
-  // -------------------------
   function maybeHatch(){
     if(save.story.hatched) return;
     if(!save.story.hatchAt) return;
@@ -1240,9 +1174,6 @@
     }
   }
 
-  // -------------------------
-  // お世話アクション（2択）
-  // -------------------------
   function openChoiceModal(title, note, choices){
     modalTitle.textContent = title;
     modalNote.textContent = note;
@@ -1268,6 +1199,10 @@
     save.stats.mood = clamp(save.stats.mood + mood, 0, moodCap);
     const heartCap = save.life.uncanny ? Math.min(save.stats.hearts, 70) : 100;
     save.stats.hearts = clamp(save.stats.hearts + hearts, 0, heartCap);
+  }
+
+  function blockedByEnd(){
+    return save.life.isEnded;
   }
 
   function actFood(){
@@ -1364,7 +1299,7 @@
     let removed = 0;
     let ended = false;
 
-    function makeBlob(i){
+    function makeBlob(){
       const b = document.createElement("button");
       b.type="button";
       b.style.position="absolute";
@@ -1391,14 +1326,14 @@
     }
 
     for(let i=0;i<poopCount;i++){
-      area.appendChild(makeBlob(i));
+      area.appendChild(makeBlob());
     }
 
     const timer = document.createElement("div");
     timer.className = "tiny";
     timer.style.marginTop = "8px";
     let left = FAST ? 6 : 12;
-    timer.textContent = " ";
+
     const iv = setInterval(() => {
       if(ended) return;
       left--;
@@ -1423,10 +1358,11 @@
       closeModal();
     }
 
-    modalBody.innerHTML = "";
-    modalBody.appendChild(document.createElement("div")).appendChild(status);
-    modalBody.appendChild(area);
-    modalBody.appendChild(timer);
+    const body = $("modalBody");
+    body.innerHTML = "";
+    body.appendChild(status);
+    body.appendChild(area);
+    body.appendChild(timer);
 
     overlay.classList.add("on");
   }
@@ -1475,10 +1411,6 @@
         { label:"やめておく", style:"secondary", onPick: () => {} }
       ]
     );
-  }
-
-  function blockedByEnd(){
-    return save.life.isEnded;
   }
 
   function maybeEnd(){
