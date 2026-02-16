@@ -406,12 +406,12 @@
         <div class="dot"></div>
         <div>
           <div class="title">3日間のお世話ゲーム（2D）</div>
-          <div class="sub" id="subline">ログだけが残ります</div>
+          <div class="sub" id="subline">ログ記録</div>
         </div>
       </div>
 
       <div class="statusRow">
-        <div class="pill" title="関係性の指標（スコアとして強調しません）">
+        <div class="pill" title="関係性の指標">
           <span class="heartIcon" aria-hidden="true"></span>
           <div class="hearts" aria-hidden="true"><i id="heartFill"></i></div>
           <small> </small>
@@ -478,7 +478,7 @@
             <div class="cardHeader">
               <div>
                 <div class="h">お世話</div>
-                <div class="hint">全部2択。正解はありません</div>
+                <div class="hint">好きな方を選んでください</div>
               </div>
             </div>
 
@@ -500,12 +500,12 @@
           <div class="card">
             <div class="cardHeader">
               <div>
-                <div class="h">いま起きたこと</div>
-                <div class="hint">評価せず、事実として残します</div>
+                <div class="h"></div>
+                <div class="hint"></div>
               </div>
             </div>
             <div class="logPane">
-              <div class="mini">表情や動きだけで状態が変わります。ラベルは出ません。</div>
+              <div class="mini">表情や動きだけで状態が変わります。</div>
               <div class="logList" id="liveLog"></div>
             </div>
           </div>
@@ -1378,7 +1378,7 @@
       s.dirt   = clamp(s.dirt   - 6 + (Math.random()*6 - 3), 0, 100);
       s.mood   = clamp(s.mood   + 2 + (Math.random()*6 - 3), 0, 100);
 
-      // 復活はハッピーエンドにしない（ハートが増えないこともある）
+      // 
       applyHeart(s, Math.random() < 0.55 ? -2 : 0);
 
       pushLiveLog(s, "戻ってきた。");
