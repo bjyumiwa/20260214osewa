@@ -3,19 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>3日間のお世話ゲーム（2D / プロトタイプ）</title>
+  <title>3日間のお世話ゲーム（2D / stage1）</title>
   <style>
     :root{
       --bg0:#050816;
       --bg1:#0b1028;
       --card:rgba(255,255,255,.08);
-      --card2:rgba(255,255,255,.12);
       --text:#eef2ff;
       --muted:rgba(238,242,255,.72);
       --line:rgba(255,255,255,.14);
-      --good:#9ae6b4;
-      --warn:#fbd38d;
-      --bad:#feb2b2;
       --accent:#c4b5fd;
       --accent2:#93c5fd;
       --shadow: 0 14px 40px rgba(0,0,0,.35);
@@ -73,7 +69,6 @@
       color: var(--muted);
       margin-top: 2px;
     }
-
     .statusRow{
       display:flex;
       gap: 10px;
@@ -82,7 +77,6 @@
       flex: 1;
       flex-wrap: wrap;
     }
-
     .pill{
       display:flex;
       align-items:center;
@@ -117,7 +111,6 @@
       clip-path: path("M8 14s6-3.3 6-7.2C14 4.6 12.8 3 10.8 3 9.6 3 8.7 3.7 8 4.6 7.3 3.7 6.4 3 5.2 3 3.2 3 2 4.6 2 6.8 2 10.7 8 14 8 14Z");
       opacity:.95;
     }
-
     .toggle{
       display:flex;
       align-items:center;
@@ -156,7 +149,6 @@
       gap: 14px;
       align-items: start;
     }
-
     .card{
       border: 1px solid var(--line);
       background: rgba(255,255,255,.05);
@@ -256,120 +248,71 @@
       50%{transform: translateY(-10px);}
     }
 
-    .egg, .macaron, .drink, .charImg{
-      width: 170px;
-      height: 170px;
+    /* 孵化前（マカロン） */
+    .macaronWrap{
+      width: 240px; height: 240px;
+      display:grid; place-items:center;
+      position: relative;
+    }
+    .macaronImg{
+      width: 200px;
+      height: 200px;
       object-fit: contain;
       filter: drop-shadow(0 18px 26px rgba(0,0,0,.35));
       opacity: .98;
     }
-    .eggWrap{
-      width: 190px; height: 190px;
-      display:grid; place-items:center;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.04));
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
-      position: relative;
-    }
-    .eggWrap::after{
-      content:"";
-      position:absolute; inset:-12px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 50% 50%, rgba(196,181,253,.18), transparent 60%);
-      filter: blur(8px);
-      opacity: .9;
-      pointer-events:none;
-    }
+    /* 浮かび上がって消える演出 */
     .hatchLift{
-      animation: hatchLift 2.2s ease-in-out 1;
+      animation: hatchLift 1.6s ease-in-out 1 forwards;
     }
     @keyframes hatchLift{
       0%{transform: translateY(0) scale(1); opacity: 1;}
-      55%{transform: translateY(-26px) scale(1.02); opacity: 1;}
+      60%{transform: translateY(-26px) scale(1.02); opacity: 1;}
       100%{transform: translateY(-60px) scale(.95); opacity: 0;}
     }
 
-    .char{
-      width: 220px;
-      height: 220px;
-      border-radius: 34px;
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,.06)),
-                  linear-gradient(180deg, rgba(196,181,253,.22), rgba(147,197,253,.12));
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow: 0 18px 30px rgba(0,0,0,.28);
-      position: relative;
-      overflow:hidden;
+    /* 誕生後（キャラ） */
+    .charWrap{
+      width: 240px;
+      height: 240px;
       display:grid;
       place-items:center;
-    }
-
-    .face{
-      width: 190px;
-      height: 190px;
       position: relative;
+      filter: drop-shadow(0 18px 26px rgba(0,0,0,.35));
     }
-    .eye{
-      position:absolute;
-      top: 68px;
-      width: 34px; height: 46px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.86);
-      box-shadow: inset 0 -10px 14px rgba(0,0,0,.08);
-      overflow:hidden;
+    .charImg{
+      width: 220px;
+      height: 220px;
+      object-fit: contain;
+      opacity: .98;
+      transition: filter .18s ease, transform .18s ease, opacity .18s ease;
     }
-    .eye::after{
-      content:"";
-      position:absolute;
-      width: 12px; height: 18px;
-      border-radius: 999px;
-      background: rgba(15,23,42,.85);
-      left: 12px; top: 18px;
-      transition: .18s ease;
+    /* 状態はラベルで出さず、見た目と動きだけで示す */
+    .charWrap.lively .charImg{
+      transform: translateY(-4px) scale(1.01);
     }
-    .eye.left{left: 40px;}
-    .eye.right{right: 40px;}
-    .brow{
-      position:absolute;
-      top: 52px;
-      width: 44px; height: 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.22);
-      filter: blur(.1px);
-      opacity:.9;
-      transform-origin: center;
-      transition: .18s ease;
+    .charWrap.lively{
+      animation: livelyBounce 1.4s ease-in-out infinite;
     }
-    .brow.left{left: 34px;}
-    .brow.right{right: 34px;}
-    .mouth{
-      position:absolute;
-      left:50%;
-      top: 126px;
-      transform: translateX(-50%);
-      width: 70px; height: 36px;
-      border: 3px solid rgba(255,255,255,.52);
-      border-top: 0;
-      border-left-color: rgba(255,255,255,.65);
-      border-right-color: rgba(255,255,255,.65);
-      border-bottom-color: rgba(255,255,255,.72);
-      border-radius: 0 0 999px 999px;
-      opacity:.95;
-      transition: .18s ease;
+    @keyframes livelyBounce{
+      0%,100%{transform: translateY(0) rotate(0deg);}
+      50%{transform: translateY(-7px) rotate(.6deg);}
     }
-    .blush{
-      position:absolute;
-      top: 112px;
-      width: 36px; height: 18px;
-      border-radius: 999px;
-      background: rgba(251,113,133,.16);
-      filter: blur(.2px);
-      opacity:.8;
-      transition:.18s ease;
+    .charWrap.low .charImg{
+      filter: saturate(.75) brightness(.95);
+      transform: translateY(2px);
     }
-    .blush.left{left: 26px;}
-    .blush.right{right: 26px;}
+    .charWrap.cry .charImg{
+      filter: saturate(.65) brightness(.9);
+      animation: cryShake .18s steps(2) infinite;
+    }
+    @keyframes cryShake{
+      0%{transform: translate(0,0);}
+      50%{transform: translate(2px,-1px);}
+      100%{transform: translate(-1px,1px);}
+    }
 
+    /* 泣きの涙オーバーレイ（画像が2種でも泣きが分かるように） */
     .tears{
       position:absolute;
       inset:0;
@@ -377,17 +320,19 @@
       opacity:0;
       transition:.18s ease;
     }
+    .charWrap.cry .tears{opacity:1;}
     .tear{
       position:absolute;
       width: 10px; height: 18px;
       border-radius: 999px;
       background: rgba(147,197,253,.72);
-      left: 62px; top: 116px;
+      left: 86px; top: 124px;
       transform: rotate(10deg);
       animation: tearDrop 1.2s ease-in-out infinite;
+      filter: blur(.1px);
     }
     .tear:nth-child(2){
-      left: 148px; top: 118px;
+      left: 142px; top: 126px;
       transform: rotate(-8deg);
       animation-delay: .22s;
       opacity:.9;
@@ -396,60 +341,6 @@
       0%{transform: translateY(0) scale(1) rotate(10deg); opacity:.0;}
       35%{opacity:.75;}
       100%{transform: translateY(26px) scale(.95) rotate(10deg); opacity:0;}
-    }
-
-    .stateGlow{
-      position:absolute;
-      inset:-30px;
-      background: radial-gradient(circle at 50% 50%, rgba(154,230,180,.16), transparent 60%);
-      filter: blur(10px);
-      opacity: .0;
-      transition: .18s ease;
-      pointer-events:none;
-    }
-
-    .char.lively .stateGlow{opacity:.85;}
-    .char.lively{animation: livelyBounce 1.4s ease-in-out infinite;}
-    @keyframes livelyBounce{
-      0%,100%{transform: translateY(0) rotate(0deg);}
-      50%{transform: translateY(-7px) rotate(.6deg);}
-    }
-
-    .char.low .mouth{
-      width: 62px;
-      height: 24px;
-      border: 3px solid rgba(255,255,255,.45);
-      border-bottom: 0;
-      border-radius: 999px 999px 0 0;
-      top: 136px;
-      opacity:.8;
-    }
-    .char.low .eye::after{top: 22px;}
-    .char.low{filter:saturate(.9);}
-
-    .char.cry .mouth{
-      width: 62px;
-      height: 24px;
-      border: 3px solid rgba(255,255,255,.52);
-      border-bottom: 0;
-      border-radius: 999px 999px 0 0;
-      top: 138px;
-      opacity:.9;
-      transform: translateX(-50%) rotate(0deg);
-    }
-    .char.cry .brow.left{transform: rotate(12deg) translateY(1px);}
-    .char.cry .brow.right{transform: rotate(-12deg) translateY(1px);}
-    .char.cry .tears{opacity:1;}
-    .char.cry{filter:saturate(.85) contrast(1.02);}
-
-    .char.uncanny{
-      animation: uncanny 0.18s steps(2) infinite;
-      filter: saturate(.75) contrast(1.05) hue-rotate(14deg);
-    }
-    @keyframes uncanny{
-      0%{transform: translate(0,0) skewX(0deg);}
-      50%{transform: translate(2px,-1px) skewX(1deg);}
-      100%{transform: translate(-1px,1px) skewX(-1deg);}
     }
 
     .poops{
@@ -482,6 +373,7 @@
       text-align:center;
       opacity:.95;
       line-height: 1.6;
+      white-space: pre-wrap;
     }
 
     .actions{
@@ -529,7 +421,6 @@
       flex-direction:column;
       gap: 14px;
     }
-
     .logPane{
       padding: 12px;
     }
@@ -646,14 +537,10 @@
       opacity:.98;
     }
 
-    .screen{
-      display:none;
-    }
+    .screen{display:none;}
     .screen.show{display:block;}
 
-    .observeWrap{
-      padding: 12px;
-    }
+    .observeWrap{padding: 12px;}
     .observeHeader{
       display:flex;
       gap: 10px;
@@ -730,7 +617,7 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar" id="topbar">
+    <div class="topbar">
       <div class="brand">
         <div class="dot"></div>
         <div>
@@ -743,14 +630,14 @@
         <div class="pill" title="関係性の指標（スコアとして強調しません）">
           <span class="heartIcon" aria-hidden="true"></span>
           <div class="hearts" aria-hidden="true"><i id="heartFill"></i></div>
-          <small id="heartSmall"> </small>
+          <small> </small>
         </div>
 
         <div class="pill">
           <div class="dayDots" aria-hidden="true">
             <span id="d1"></span><span id="d2"></span><span id="d3"></span>
           </div>
-          <small id="daySmall"> </small>
+          <small> </small>
         </div>
 
         <div class="pill toggle" id="sitterToggle" data-on="false" title="シッターONで時間が止まります（寿命・空腹・排泄・状態変化すべて停止）">
@@ -781,24 +668,17 @@
 
             <div class="center">
               <div class="entity">
-                <div id="eggArea" class="eggWrap floaty" style="display:none;">
-                  <img id="eggImg" class="egg" alt="" src="public/assets/egg.png" />
+                <!-- 孵化前：マカロン -->
+                <div id="macaronArea" class="macaronWrap floaty" style="display:none;">
+                  <img id="macaronImg" class="macaronImg" alt="" src="" />
                 </div>
 
-                <div id="charArea" class="char floaty" style="display:none;">
-                  <div class="stateGlow"></div>
-                  <div class="face" aria-hidden="true">
-                    <div class="brow left"></div>
-                    <div class="brow right"></div>
-                    <div class="eye left"></div>
-                    <div class="eye right"></div>
-                    <div class="mouth"></div>
-                    <div class="blush left"></div>
-                    <div class="blush right"></div>
-                    <div class="tears">
-                      <div class="tear"></div>
-                      <div class="tear"></div>
-                    </div>
+                <!-- 誕生後：キャラ -->
+                <div id="charArea" class="charWrap floaty" style="display:none;">
+                  <img id="charImg" class="charImg" alt="" src="" />
+                  <div class="tears" aria-hidden="true">
+                    <div class="tear"></div>
+                    <div class="tear"></div>
                   </div>
                 </div>
               </div>
@@ -837,9 +717,6 @@
                 <button id="btnDrink" class="btnSoft">ドリンク</button>
                 <button id="btnMacaron" class="btnSoft" disabled>マカロン</button>
               </div>
-              <div class="btnRow">
-                <button id="btnSaveHint" class="btnGhost btnSoft">保存について</button>
-              </div>
             </div>
           </div>
 
@@ -851,9 +728,7 @@
               </div>
             </div>
             <div class="logPane">
-              <div class="mini" id="miniText">
-                画面の表情や動きだけで状態が変わります。ラベルは出しません。
-              </div>
+              <div class="mini">表情や動きだけで状態が変わります。ラベルは出しません。</div>
               <div class="logList" id="liveLog"></div>
             </div>
           </div>
@@ -909,17 +784,30 @@
 (() => {
   "use strict";
 
-  const SAVE_KEY = "osewa_save_v1";
-  const ARCHIVE_KEY = "osewa_archives_v1";
+  /*
+    画像フォルダは public/stage1/ を参照します。
+    この中に以下が入っている想定です（大文字小文字も一致させてください）
+
+    macaron_blue.png / macaron_green.png / macaron_pink.png / macaron_purple.png
+    blue_closed.png / blue_open.png
+    green_closed.png / green_open.png
+    pink_closed.png / pink_open.png
+    purple_closed.png / purple_open.png
+  */
+
+  const SAVE_KEY = "osewa_save_stage1_v1";
+  const ARCHIVE_KEY = "osewa_archives_stage1_v1";
 
   const DAY_MS = 24 * 60 * 60 * 1000;
   const LIFE_MS = 3 * DAY_MS;
+
+  // 誕生は3分後（ユーザー操作ではなく時間経過）
   const HATCH_MS_DEFAULT = 3 * 60 * 1000;
 
   // テスト用：URLに ?fast=1 を付けると孵化が短くなります
   const url = new URL(location.href);
   const FAST = url.searchParams.get("fast") === "1";
-  const HATCH_MS = FAST ? 20 * 1000 : HATCH_MS_DEFAULT;
+  const HATCH_MS = FAST ? 18 * 1000 : HATCH_MS_DEFAULT;
 
   // マカロン復活（死後）: どこか違和感のある一時復活
   const MACARON_MS = FAST ? 25 * 1000 : 10 * 60 * 1000;
@@ -929,8 +817,28 @@
   const DRINK_BACK_MS = FAST ? 10 * 1000 : 30 * 60 * 1000;
 
   // 状態変化レート（ざっくり）
-  const HUNGER_PER_MIN = 0.25; // 1分で+0.25
+  const HUNGER_PER_MIN = 0.25;
   const DIRT_PER_MIN   = 0.18;
+
+  // stage1 フォルダ
+  const ASSET_BASE = "public/stage1/";
+
+  // 色とファイル対応
+  const COLORS = ["blue","green","pink","purple"];
+  const FILES = {
+    macaron: {
+      blue:   "macaron_blue.png",
+      green:  "macaron_green.png",
+      pink:   "macaron_pink.png",
+      purple: "macaron_purple.png",
+    },
+    char: {
+      blue:   { closed: "blue_closed.png",   open: "blue_open.png" },
+      green:  { closed: "green_closed.png",  open: "green_open.png" },
+      pink:   { closed: "pink_closed.png",   open: "pink_open.png" },
+      purple: { closed: "purple_closed.png", open: "purple_open.png" },
+    }
+  };
 
   const $ = (q) => document.querySelector(q);
   const el = (id) => document.getElementById(id);
@@ -938,16 +846,18 @@
   const ui = {
     subline: el("subline"),
     heartFill: el("heartFill"),
-    heartSmall: el("heartSmall"),
     d1: el("d1"), d2: el("d2"), d3: el("d3"),
-    daySmall: el("daySmall"),
     sitterToggle: el("sitterToggle"),
 
     stageHint: el("stageHint"),
     stageNote: el("stageNote"),
-    eggArea: el("eggArea"),
-    eggImg: el("eggImg"),
+
+    macaronArea: el("macaronArea"),
+    macaronImg: el("macaronImg"),
+
     charArea: el("charArea"),
+    charImg: el("charImg"),
+
     thanksOverlay: el("thanksOverlay"),
 
     poop1: el("poop1"),
@@ -963,7 +873,6 @@
     btnShare: el("btnShare"),
     btnLogs: el("btnLogs"),
     btnReset: el("btnReset"),
-    btnSaveHint: el("btnSaveHint"),
 
     liveLog: el("liveLog"),
 
@@ -984,7 +893,6 @@
   };
 
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-
   function now(){ return Date.now(); }
 
   function uid(){
@@ -1023,8 +931,8 @@
     localStorage.setItem(ARCHIVE_KEY, JSON.stringify(arr));
   }
 
+  // シッター中は elapsed が進まない（寿命・空腹・排泄・状態変化すべて停止）
   function calcElapsedMs(save, tNow){
-    // シッター中は elapsed が進まない（寿命・空腹・排泄・状態変化が停止）
     const baseNow = save.pausedSince ? save.pausedSince : tNow;
     return Math.max(0, baseNow - save.startedAt - save.totalPausedMs);
   }
@@ -1043,7 +951,6 @@
         heartChange: 0,
         sitterMs: 0,
         items: { drink:0, macaron:0 },
-        startedAt: now(),
         heartStart: save.heart,
         heartEnd: save.heart
       };
@@ -1065,15 +972,35 @@
     return `${hh}:${mm}`;
   }
 
+  function assetPath(file){
+    return ASSET_BASE + file;
+  }
+
+  function pickColorDifferentFrom(c){
+    const pool = COLORS.filter(x => x !== c);
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
   function createNewSave(){
     const t = now();
     const playerId = uid();
+
+    // 孵化前はマカロン（色はランダム）
+    const macaronColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+    // 誕生後のキャラは、マカロンと同色にする（ここは好みで変更できます）
+    const charColor = macaronColor;
+
     const s = {
       version: 1,
       playerId,
       startedAt: t,
       totalPausedMs: 0,
       pausedSince: null,
+
+      // stage1の見た目
+      macaronColor,
+      charColor,
 
       hatched: false,
       hatchAnim: false,
@@ -1084,7 +1011,7 @@
       // 復活系
       macaronActive: false,
       macaronEndsAtElapsed: null, // elapsed基準
-      lifeExtensionMs: 0,         // ドリンクなどで伸ばす
+      lifeExtensionMs: 0,
 
       // 状態
       heart: 50,
@@ -1100,29 +1027,23 @@
       days: {},
       live: []
     };
+
     ensureDay(s, 1);
     pushLiveLog(s, "到着した。");
     return s;
   }
 
   function isAlive(save, elapsed){
-    // 3日経過で終了。ただしドリンクの延長あり。
     const deadline = LIFE_MS + (save.lifeExtensionMs || 0);
-    const notPast = elapsed < deadline;
-    const notEndedFlag = !save.ended;
-    if(save.macaronActive) return true; // 死後の一時復活
-    return notPast && notEndedFlag;
+    if(save.macaronActive) return true;
+    return (elapsed < deadline) && !save.ended;
   }
 
   function canInteract(save, elapsed){
-    if(save.pausedSince) return true; // シッター中でも操作は許可（時間だけ止まる）
+    if(save.pausedSince) return true;           // シッター中でも操作はできる（時間だけ止まる）
     if(save.macaronActive) return true;
     if(save.ended) return false;
-    // 孵化前は一部だけ（ログ/共有などはOK）
-    if(!save.hatched){
-      return false;
-    }
-    // 生存中のみ
+    if(!save.hatched) return false;             // 孵化前はお世話はできない
     return isAlive(save, elapsed);
   }
 
@@ -1130,7 +1051,6 @@
     // 汚れが溜まるほど増える（0〜3）
     const desired = clamp(Math.floor((save.dirt - 50) / 20), 0, 3);
     save.poop = Math.max(save.poop, desired);
-    if(save.poop === 0) return;
   }
 
   function applyTimeSimulation(save, elapsed){
@@ -1146,13 +1066,9 @@
 
     // ムードは、汚れ・空腹・排泄でゆっくり変化
     let moodDelta = 0;
-
     const stress = (save.hunger > 70 ? (save.hunger - 70) / 30 : 0) + (save.dirt > 70 ? (save.dirt - 70) / 30 : 0);
     moodDelta -= minutes * 0.35 * stress;
-
-    if(save.poop > 0){
-      moodDelta -= minutes * 0.12 * save.poop;
-    }
+    if(save.poop > 0) moodDelta -= minutes * 0.12 * save.poop;
 
     // しばらく良い状態なら少し回復
     if(save.hunger < 35 && save.dirt < 35 && save.poop === 0){
@@ -1167,25 +1083,21 @@
     if(!save.currentDay) save.currentDay = d;
 
     if(d !== save.currentDay){
-      // 前日の締め
       const prev = ensureDay(save, save.currentDay);
       prev.heartEnd = save.heart;
-
-      // 新日
       save.currentDay = d;
       const next = ensureDay(save, d);
       next.heartStart = save.heart;
-      pushLiveLog(save, `日が変わった。`);
+      pushLiveLog(save, "日が変わった。");
     }
     ensureDay(save, save.currentDay);
   }
 
   function maybeHatch(save, elapsed){
     if(save.hatched) return;
-
     if(elapsed >= HATCH_MS){
       save.hatchAnim = true;
-      // 演出のため少し遅れて孵化フラグ
+      // 演出のため少し遅れて孵化
       setTimeout(() => {
         const s = loadSave();
         if(!s || s.hatched) return;
@@ -1193,30 +1105,26 @@
         s.hatchAnim = false;
         pushLiveLog(s, "浮かび上がって、誕生した。");
         saveSave(s);
-      }, 900);
+      }, 700);
     }
   }
 
   function maybeEnd(save, elapsed){
     if(save.macaronActive) return;
-
     const deadline = LIFE_MS + (save.lifeExtensionMs || 0);
     if(!save.ended && elapsed >= deadline){
       save.ended = true;
       save.endedAt = now();
       pushLiveLog(save, "いなくなった。");
-      // 終了アーカイブとして保存（観察用の材料）
       archiveRun(save);
     }
   }
 
   function archiveRun(save){
-    // 既に同じplayerIdで入っていれば追加しない
     const arr = loadArchives();
-    const exist = arr.some(x => x && x.playerId === save.playerId && x.startedAt === save.startedAt);
-    if(exist) return;
-
     const exp = exportObservationData(save);
+    const exist = arr.some(x => x && x.playerId === exp.playerId && x.startedAt === exp.startedAt);
+    if(exist) return;
     arr.unshift(exp);
     if(arr.length > 20) arr.length = 20;
     saveArchives(arr);
@@ -1225,11 +1133,9 @@
   function updateMacaronTimer(save, elapsed){
     if(!save.macaronActive) return;
     if(save.macaronEndsAtElapsed == null) return;
-
     if(elapsed >= save.macaronEndsAtElapsed){
       save.macaronActive = false;
       save.macaronEndsAtElapsed = null;
-      // 復活はハッピーエンド扱いにしない。終わりは戻る。
       save.ended = true;
       save.endedAt = now();
       pushLiveLog(save, "どこかズレたまま、また静かになった。");
@@ -1237,25 +1143,22 @@
     }
   }
 
+  // 画像2種（open/closed）を状態に割り当てる
   function stateClass(save){
-    // ラベルは出さず、表情と動きだけ
-    const hungry = save.hunger;
-    const dirty = save.dirt;
-    const mood = save.mood;
-    const poop = save.poop;
-
-    // 泣きに寄せる条件
-    if(mood < 25 || hungry > 85 || dirty > 85 || poop >= 3) return "cry";
-    // 元気がない
-    if(mood < 45 || hungry > 70 || dirty > 70 || poop >= 2) return "low";
-    // 元気
-    if(mood > 70 && hungry < 55 && dirty < 55 && poop === 0) return "lively";
-    return ""; // 普通
+    if(save.mood < 25 || save.hunger > 85 || save.dirt > 85 || save.poop >= 3) return "cry";
+    if(save.mood < 45 || save.hunger > 70 || save.dirt > 70 || save.poop >= 2) return "low";
+    if(save.mood > 70 && save.hunger < 55 && save.dirt < 55 && save.poop === 0) return "lively";
+    return "";
   }
 
   function setInteractable(enabled){
-    const btns = [ui.btnFood, ui.btnOut, ui.btnMini, ui.btnClean, ui.btnDrink];
-    btns.forEach(b => b.disabled = !enabled);
+    [ui.btnFood, ui.btnOut, ui.btnMini, ui.btnClean, ui.btnDrink].forEach(b => b.disabled = !enabled);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[m]));
   }
 
   function render(save){
@@ -1264,46 +1167,32 @@
     const d = dayIndex(elapsed);
 
     ui.heartFill.style.width = clamp(save.heart, 0, 100) + "%";
-    ui.heartSmall.textContent = " ";
 
-    // day dots
     ui.d1.className = (d >= 1) ? "on" : "";
     ui.d2.className = (d >= 2) ? "on" : "";
     ui.d3.className = (d >= 3) ? "on" : "";
-    ui.daySmall.textContent = " ";
 
-    const paused = !!save.pausedSince;
-    ui.sitterToggle.dataset.on = paused ? "true" : "false";
+    ui.sitterToggle.dataset.on = save.pausedSince ? "true" : "false";
 
-    // 孵化前後の表示
+    // 孵化前：マカロン表示
     if(!save.hatched){
-      ui.eggArea.style.display = "grid";
+      ui.macaronArea.style.display = "grid";
       ui.charArea.style.display = "none";
+      ui.stageHint.textContent = save.pausedSince ? "時間が止まっている。" : "しばらくして、浮かび上がる。";
+      ui.stageNote.textContent = save.pausedSince ? "見守れない時間も、記録される。" : "見守るしかない時間。";
 
-      ui.stageHint.textContent = paused ? "時間が止まっている。" : "しばらくして、浮かび上がる。";
-      ui.stageNote.textContent = paused ? "いまは預けている。" : "見守るしかない時間。";
-
-      // 孵化演出
-      ui.eggArea.classList.toggle("hatchLift", !!save.hatchAnim);
+      // 演出
+      ui.macaronArea.classList.toggle("hatchLift", !!save.hatchAnim);
     }else{
-      ui.eggArea.style.display = "none";
+      ui.macaronArea.style.display = "none";
       ui.charArea.style.display = "grid";
+      ui.stageHint.textContent = save.pausedSince ? "時間が止まっている。" : " ";
+      ui.stageNote.textContent = " ";
 
-      // 状態クラス
-      ui.charArea.classList.remove("lively","low","cry","uncanny");
+      // 状態をクラスで表現（ラベルは出さない）
+      ui.charArea.classList.remove("lively","low","cry");
       const sc = stateClass(save);
       if(sc) ui.charArea.classList.add(sc);
-
-      // 復活時の違和感
-      if(save.macaronActive) ui.charArea.classList.add("uncanny");
-
-      if(save.ended && !save.macaronActive){
-        ui.stageHint.textContent = " ";
-        ui.stageNote.textContent = " ";
-      }else{
-        ui.stageHint.textContent = paused ? "時間が止まっている。" : " ";
-        ui.stageNote.textContent = " ";
-      }
     }
 
     // 排泄表示
@@ -1311,21 +1200,16 @@
     ui.poop2.classList.toggle("on", save.poop >= 2);
     ui.poop3.classList.toggle("on", save.poop >= 3);
 
-    // 生存・終了
-    const alive = isAlive(save, elapsed);
     const interact = canInteract(save, elapsed);
+    setInteractable(interact);
 
-    // マカロンは死後に使える（死んでいるとき有効）
+    // マカロン復活は死後のみ
     const canMacaron = save.ended && !save.macaronActive;
     ui.btnMacaron.disabled = !canMacaron;
 
-    // 操作の可否（シッター中でも操作は可能、ただし孵化前は不可）
-    setInteractable(interact);
-
-    // ありがとう
     ui.thanksOverlay.classList.toggle("show", save.ended && !save.macaronActive);
 
-    // ライブログ表示
+    // ライブログ
     ui.liveLog.innerHTML = "";
     const items = (save.live || []).slice(0, 14);
     items.forEach(it => {
@@ -1335,18 +1219,37 @@
       ui.liveLog.appendChild(div);
     });
 
-    // サブライン
-    ui.subline.textContent = (save.ended && !save.macaronActive)
-      ? "操作は停止します"
-      : "ログだけが残ります";
+    ui.subline.textContent = (save.ended && !save.macaronActive) ? "操作は停止します" : "ログだけが残ります";
+
+    // 画像の切替（孵化前：マカロン / 孵化後：状態に応じてopen/closed）
+    applyVisualImages(save, elapsed);
   }
 
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[m]));
+  function applyVisualImages(save, elapsed){
+    // マカロン画像
+    const macaronFile = FILES.macaron[save.macaronColor] || FILES.macaron.blue;
+    const macaronSrc = assetPath(macaronFile);
+    if(ui.macaronImg.src !== location.origin + "/" + macaronSrc && ui.macaronImg.getAttribute("data-src") !== macaronSrc){
+      ui.macaronImg.setAttribute("data-src", macaronSrc);
+      ui.macaronImg.src = macaronSrc;
+    }
+
+    // キャラ画像（open/closed）
+    const cc = FILES.char[save.charColor] || FILES.char.blue;
+    const sc = stateClass(save);
+
+    // livelyはopen、それ以外はclosedを基本にする
+    const wantOpen = (sc === "lively");
+    const charFile = wantOpen ? cc.open : cc.closed;
+    const charSrc = assetPath(charFile);
+
+    if(ui.charImg.getAttribute("data-src") !== charSrc){
+      ui.charImg.setAttribute("data-src", charSrc);
+      ui.charImg.src = charSrc;
+    }
   }
 
+  // モーダル
   function openModal(title, hint, bodyNode, footButtons){
     ui.modalTitle.textContent = title || "";
     ui.modalHint.textContent = hint || "";
@@ -1386,7 +1289,6 @@
   }
 
   function heartDeltaRandom(){
-    // 良い／悪いを明示しない微妙な揺れ
     const r = Math.random();
     if(r < 0.15) return -2;
     if(r < 0.50) return 0;
@@ -1405,13 +1307,10 @@
 
   function addChoice(save, category, choiceLabel){
     const d = ensureDay(save, save.currentDay);
-    d.choices.push({
-      t: now(),
-      category,
-      choice: choiceLabel
-    });
+    d.choices.push({ t: now(), category, choice: choiceLabel });
   }
 
+  // お世話
   function actFood(){
     const save = loadSave();
     if(!save) return;
@@ -1433,29 +1332,23 @@
       ensureDay(s, s.currentDay).careCounts.food++;
       addChoice(s, "食事", label);
 
-      // 影響は小さく、ランダムも混ぜる（正解なし）
       let hungerChange = (label.includes("軽")) ? -18 : -30;
       let moodChange = (label.includes("しっかり")) ? 6 : 3;
 
       s.hunger = clamp(s.hunger + hungerChange + (Math.random()*4 - 2), 0, 100);
       s.mood   = clamp(s.mood + moodChange   + (Math.random()*4 - 2), 0, 100);
 
-      const hd = heartDeltaRandom();
-      applyHeart(s, hd);
-
-      pushLiveLog(s, `食事を選んだ。`);
+      applyHeart(s, heartDeltaRandom());
+      pushLiveLog(s, "食事を選んだ。");
       saveSave(s);
       closeModal();
     };
 
     two.appendChild(mkChoice("軽い食事", "少しだけ、静かに。", () => pick("軽い食事")));
     two.appendChild(mkChoice("しっかりした食事", "長めに、ちゃんと。", () => pick("しっかりした食事")));
-
     body.appendChild(two);
 
-    openModal("食事", "2択", body, [
-      mkBtn("やめる", "btnGhost", closeModal)
-    ]);
+    openModal("食事", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
   }
 
   function actOut(){
@@ -1479,7 +1372,6 @@
       ensureDay(s, s.currentDay).careCounts.out++;
       addChoice(s, "お出かけ", label);
 
-      // 影響は小さく、個体差のように揺れる
       if(label.includes("外")){
         s.mood = clamp(s.mood + 10 + (Math.random()*6 - 3), 0, 100);
         s.dirt = clamp(s.dirt + 6  + (Math.random()*4 - 2), 0, 100);
@@ -1489,19 +1381,16 @@
       }
 
       applyHeart(s, heartDeltaRandom());
-      pushLiveLog(s, `お出かけを選んだ。`);
+      pushLiveLog(s, "お出かけを選んだ。");
       saveSave(s);
       closeModal();
     };
 
     two.appendChild(mkChoice("外に出る", "少し風に触れる。", () => pick("外に出る")));
     two.appendChild(mkChoice("家で過ごす", "近くにいる。", () => pick("家で過ごす")));
-
     body.appendChild(two);
 
-    openModal("お出かけ", "2択", body, [
-      mkBtn("やめる", "btnGhost", closeModal)
-    ]);
+    openModal("お出かけ", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
   }
 
   function actMini(){
@@ -1533,7 +1422,6 @@
       ensureDay(s, s.currentDay).careCounts.mini++;
       addChoice(s, "ミニゲーム", label);
 
-      // 選択はほぼ意味を説明しない。ただ少し揺れる。
       s.mood = clamp(s.mood + 5 + (Math.random()*6 - 3), 0, 100);
       applyHeart(s, heartDeltaRandom());
 
@@ -1544,12 +1432,9 @@
 
     two.appendChild(mkChoice(p[0], " ", () => pick(p[0])));
     two.appendChild(mkChoice(p[1], " ", () => pick(p[1])));
-
     body.appendChild(two);
 
-    openModal("2択ミニゲーム", "2択", body, [
-      mkBtn("やめる", "btnGhost", closeModal)
-    ]);
+    openModal("2択ミニゲーム", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
   }
 
   function actClean(){
@@ -1568,7 +1453,6 @@
     two.className = "two";
 
     const startClean = (modeLabel) => {
-      // クリック掃除パート（ゲームっぽいが、入口は2択）
       const s0 = loadSave(); if(!s0) return;
       const e0 = calcElapsedMs(s0, now());
       if(!canInteract(s0, e0)) return;
@@ -1608,9 +1492,8 @@
         <div style="font-weight:800;font-size:14px">排泄除去</div>
         <div style="font-size:12px;color:rgba(238,242,255,.72);margin-top:4px">タップして消す（残り ${remaining}）</div>
       </div>`;
-      const cancel = mkBtn("やめる", "btnGhost", () => {
-        document.body.removeChild(overlay);
-      });
+
+      const cancel = mkBtn("やめる", "btnGhost", () => { document.body.removeChild(overlay); });
       cancel.style.padding = "8px 10px";
       head.appendChild(cancel);
 
@@ -1631,14 +1514,12 @@
         chip.style.boxShadow = "0 12px 24px rgba(0,0,0,.25)";
         chip.style.cursor = "pointer";
         chip.style.transform = `rotate(${(Math.random()*18-9).toFixed(1)}deg)`;
-        chip.title = " ";
         chip.addEventListener("click", () => {
           chip.style.opacity = ".0";
           chip.style.pointerEvents = "none";
           remaining--;
           head.querySelector("div div:nth-child(2)").textContent = `タップして消す（残り ${Math.max(0, remaining)}）`;
           if(remaining <= 0){
-            // 終了処理
             const s1 = loadSave(); if(!s1) return;
             const e1 = calcElapsedMs(s1, now());
             if(!canInteract(s1, e1)) return;
@@ -1646,7 +1527,6 @@
             ensureDay(s1, s1.currentDay).careCounts.clean++;
             addChoice(s1, "排泄除去", modeLabel);
 
-            // 効果は方法で少し差があるが、理由は言わない
             const careful = modeLabel.includes("ていねい");
             const dirtDown = careful ? 26 : 16;
             const moodUp   = careful ? 10 : 6;
@@ -1665,9 +1545,7 @@
         return chip;
       }
 
-      for(let i=0;i<need;i++){
-        field.appendChild(mkPoopChip());
-      }
+      for(let i=0;i<need;i++) field.appendChild(mkPoopChip());
 
       const note = document.createElement("div");
       note.style.marginTop = "10px";
@@ -1685,22 +1563,15 @@
 
     two.appendChild(mkChoice("ていねいに掃除", "少し時間をかける。", () => startClean("ていねいに掃除")));
     two.appendChild(mkChoice("さっと掃除", "急いで済ませる。", () => startClean("さっと掃除")));
-
     body.appendChild(two);
 
-    openModal("排泄除去", "2択 + 短いタップ", body, [
-      mkBtn("やめる", "btnGhost", closeModal)
-    ]);
+    openModal("排泄除去", "2択 + 短いタップ", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
   }
 
   function actDrink(){
     const save = loadSave();
     if(!save) return;
-
-    const elapsed = calcElapsedMs(save, now());
     if(!save.hatched) return;
-
-    // 生存中のみ
     if(save.ended || save.macaronActive) return;
 
     const body = document.createElement("div");
@@ -1715,28 +1586,21 @@
 
     const use = () => {
       const s = loadSave(); if(!s) return;
-      const e = calcElapsedMs(s, now());
       if(s.ended || s.macaronActive) return;
-      if(!s.hatched) return;
 
       const d = ensureDay(s, s.currentDay);
       d.items.drink++;
       addChoice(s, "ドリンク", "使う");
 
-      // 状態を少し戻す
       s.hunger = clamp(s.hunger - 12 + (Math.random()*4 - 2), 0, 100);
       s.dirt   = clamp(s.dirt   - 10 + (Math.random()*4 - 2), 0, 100);
       s.mood   = clamp(s.mood   +  8 + (Math.random()*4 - 2), 0, 100);
 
-      // 寿命を少し延ばす
       s.lifeExtensionMs = (s.lifeExtensionMs || 0) + DRINK_LIFE_EXTEND_MS;
 
-      // さらに「少し戻す」感：今までの経過を少し巻き戻す
-      // 直接elapsedを戻す代わりに、開始時刻を未来へずらす
-      // これにより内部の寿命・空腹・排泄の進行も少し戻る
+      // 「少し戻る」感：開始時刻を未来へずらして、経過を巻き戻す
       s.startedAt += DRINK_BACK_MS;
 
-      applyHeart(s, 0);
       pushLiveLog(s, "ドリンクを使った。");
       saveSave(s);
       closeModal();
@@ -1747,9 +1611,7 @@
 
     body.appendChild(two);
 
-    openModal("ドリンク", "生存中のみ", body, [
-      mkBtn("閉じる", "btnGhost", closeModal)
-    ]);
+    openModal("ドリンク", "生存中のみ", body, [ mkBtn("閉じる", "btnGhost", closeModal) ]);
   }
 
   function actMacaron(){
@@ -1778,16 +1640,14 @@
       d.items.macaron++;
       addChoice(s, "マカロン", "使う");
 
-      // 一時復活: uncanny
       s.macaronActive = true;
       s.macaronEndsAtElapsed = e + MACARON_MS;
 
-      // 少しだけ戻るが、違和感が残る（完全回復ではない）
+      // 完全回復ではない
       s.ended = false;
       s.hunger = clamp(s.hunger - 8 + (Math.random()*6 - 3), 0, 100);
       s.dirt   = clamp(s.dirt   - 6 + (Math.random()*6 - 3), 0, 100);
       s.mood   = clamp(s.mood   + 2 + (Math.random()*6 - 3), 0, 100);
-      // ハートは強調しないが、揺れとして少し下がることもある
       applyHeart(s, Math.random() < 0.55 ? -2 : 0);
 
       pushLiveLog(s, "戻ってきた。");
@@ -1800,18 +1660,11 @@
 
     body.appendChild(two);
 
-    openModal("マカロン", "死後のみ", body, [
-      mkBtn("閉じる", "btnGhost", closeModal)
-    ]);
+    openModal("マカロン", "死後のみ", body, [ mkBtn("閉じる", "btnGhost", closeModal) ]);
   }
 
-  function showLogs(save){
-    const exp = exportObservationData(save);
-    showObserve(exp, false);
-  }
-
+  // 共有・観察
   function exportObservationData(save){
-    // 観察者に見せるのはログとハート推移だけ
     const days = [];
     for(let i=1;i<=3;i++){
       const d = ensureDay(save, i);
@@ -1850,7 +1703,6 @@
   function makeShareUrl(save){
     const exp = exportObservationData(save);
     const data = toBase64Url(JSON.stringify(exp));
-    // 同じindex.htmlで観察モードにする
     const u = new URL(location.href);
     u.searchParams.set("observe","1");
     u.hash = "data=" + data;
@@ -1862,7 +1714,6 @@
       await navigator.clipboard.writeText(text);
       return true;
     }catch(e){
-      // フォールバック
       const ta = document.createElement("textarea");
       ta.value = text;
       document.body.appendChild(ta);
@@ -1880,13 +1731,11 @@
 
   function showShare(save){
     const shareUrl = makeShareUrl(save);
-
     const body = document.createElement("div");
     body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
       このURLを共有すると、第三者は「観察用ログ画面」だけを閲覧できます。<br>
       操作はできません。見えるのはログとハート推移のみです。
     </div>`;
-
     const box = document.createElement("div");
     box.style.marginTop = "10px";
     box.style.border = "1px solid rgba(255,255,255,.14)";
@@ -1897,7 +1746,6 @@
     box.style.color = "rgba(238,242,255,.9)";
     box.style.wordBreak = "break-all";
     box.textContent = shareUrl;
-
     body.appendChild(box);
 
     const bCopy = mkBtn("コピー", "", async () => {
@@ -1916,55 +1764,6 @@
     ]);
   }
 
-  function showSaveHint(){
-    const body = document.createElement("div");
-    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
-      このプロトタイプは localStorage に保存します。<br>
-      ブラウザを閉じても続きから再開できます。<br>
-      シッターをONにすると、寿命・空腹・排泄・状態変化が止まります（使用時間はログに残ります）。<br>
-      観察用URLは、ログとハート推移のみが見える形でデータをURLに含めます。
-    </div>`;
-    openModal("保存について", " ", body, [
-      mkBtn("閉じる", "btnGhost", closeModal)
-    ]);
-  }
-
-  function confirmReset(){
-    const body = document.createElement("div");
-    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
-      はじめから遊べます。<br>
-      どちらにしても評価や点数は出ません。<br>
-      ログは痕跡として残すか、消すか選べます。
-    </div>`;
-    const two = document.createElement("div");
-    two.className = "two";
-
-    const keep = () => {
-      // いまのセーブはアーカイブに残し、新規セーブに
-      const s = loadSave();
-      if(s) archiveRun(s);
-      const n = createNewSave();
-      saveSave(n);
-      pushLiveLog(n, "始まった。");
-      closeModal();
-    };
-    const wipe = () => {
-      localStorage.removeItem(SAVE_KEY);
-      const n = createNewSave();
-      saveSave(n);
-      pushLiveLog(n, "始まった。");
-      closeModal();
-    };
-
-    two.appendChild(mkChoice("ログを残してはじめる", "過去の痕跡はアーカイブへ。", keep));
-    two.appendChild(mkChoice("ログを消してはじめる", "この端末の記録を消します。", wipe));
-    body.appendChild(two);
-
-    openModal("はじめから", " ", body, [
-      mkBtn("やめる", "btnGhost", closeModal)
-    ]);
-  }
-
   function showObserve(exp, fromUrl){
     ui.screenGame.classList.remove("show");
     ui.screenObserve.classList.add("show");
@@ -1977,7 +1776,6 @@
       ? `${start.toLocaleString()} 〜 ${end.toLocaleString()}`
       : `${start.toLocaleString()} 〜 （進行中）`;
 
-    // 日別カード
     ui.obsDays.innerHTML = "";
     exp.days.forEach(d => {
       const card = document.createElement("div");
@@ -2007,33 +1805,25 @@
     });
 
     drawHeartChart(exp);
-
-    if(fromUrl){
-      ui.btnBackToGame.textContent = "閉じる";
-    }else{
-      ui.btnBackToGame.textContent = "戻る";
-    }
+    ui.btnBackToGame.textContent = fromUrl ? "閉じる" : "戻る";
   }
 
   function drawHeartChart(exp){
     const canvas = ui.heartChart;
     const ctx = canvas.getContext("2d");
 
-    // 高DPI
     const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
     const cssW = canvas.clientWidth || 900;
     const cssH = 160;
     canvas.width = Math.floor(cssW * dpr);
     canvas.height = Math.floor(cssH * dpr);
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
 
     const w = cssW, h = cssH;
     ctx.clearRect(0,0,w,h);
 
-    // 余白
     const padL = 34, padR = 12, padT = 12, padB = 22;
 
-    // 軸
     ctx.lineWidth = 1;
     ctx.strokeStyle = "rgba(255,255,255,.14)";
     ctx.beginPath();
@@ -2042,13 +1832,11 @@
     ctx.lineTo(w - padR, h - padB);
     ctx.stroke();
 
-    // 目盛り
     ctx.fillStyle = "rgba(238,242,255,.65)";
     ctx.font = "12px system-ui, -apple-system, sans-serif";
     ctx.fillText("100", 6, padT + 10);
     ctx.fillText("0", 14, h - padB + 4);
 
-    // データ点（day end）
     const pts = exp.days.map((d, i) => ({
       x: i,
       y: clamp(d.heartEnd ?? 50, 0, 100)
@@ -2061,7 +1849,6 @@
     function pxX(x){ return padL + (x / xSpan) * plotW; }
     function pxY(y){ return padT + (1 - y/100) * plotH; }
 
-    // 線
     ctx.strokeStyle = "rgba(196,181,253,.92)";
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -2073,7 +1860,6 @@
     });
     ctx.stroke();
 
-    // 点
     ctx.fillStyle = "rgba(147,197,253,.92)";
     pts.forEach(p => {
       const x = pxX(p.x);
@@ -2083,7 +1869,6 @@
       ctx.fill();
     });
 
-    // day labels
     ctx.fillStyle = "rgba(238,242,255,.72)";
     exp.days.forEach((d,i) => {
       const x = pxX(i);
@@ -2101,13 +1886,12 @@
       data = location.hash.slice(6);
     }
     if(!data){
-      // dataがない場合、観察画面だけ開く
       const body = document.createElement("div");
       body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
         観察用データが見つかりませんでした。<br>
         共有URLをそのまま開いているか確認してください。
       </div>`;
-      openModal("観察", " ", body, [mkBtn("閉じる", "btnGhost", () => { closeModal(); })]);
+      openModal("観察", " ", body, [mkBtn("閉じる", "btnGhost", closeModal)]);
       return true;
     }
 
@@ -2128,11 +1912,48 @@
     }
   }
 
+  function confirmReset(){
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
+      はじめから遊べます。<br>
+      ログは痕跡として残すか、消すか選べます。
+    </div>`;
+    const two = document.createElement("div");
+    two.className = "two";
+
+    const keep = () => {
+      const s = loadSave();
+      if(s) archiveRun(s);
+      const n = createNewSave();
+      saveSave(n);
+      pushLiveLog(n, "始まった。");
+      saveSave(n);
+      closeModal();
+    };
+    const wipe = () => {
+      localStorage.removeItem(SAVE_KEY);
+      const n = createNewSave();
+      saveSave(n);
+      pushLiveLog(n, "始まった。");
+      saveSave(n);
+      closeModal();
+    };
+
+    two.appendChild(mkChoice("ログを残してはじめる", "過去の痕跡はアーカイブへ。", keep));
+    two.appendChild(mkChoice("ログを消してはじめる", "この端末の記録を消します。", wipe));
+    body.appendChild(two);
+
+    openModal("はじめから", " ", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
+  }
+
+  function showLogs(save){
+    const exp = exportObservationData(save);
+    showObserve(exp, false);
+  }
+
   function boot(){
     // 観察URLなら先に観察画面
-    if(enterObserveFromUrl()){
-      return;
-    }
+    if(enterObserveFromUrl()) return;
 
     let save = loadSave();
     if(!save){
@@ -2142,10 +1963,12 @@
       saveSave(save);
     }
 
-    // 画像が無い場合でも動くように（imgは未使用だが、差し替え用に残す）
-    ui.eggImg.addEventListener("error", () => {
-      // 画像が無いときは何もしない（ラップ背景が卵っぽく見える）
-    });
+    // 画像が見つからない時の診断（画面に出す）
+    function markMissing(src){
+      ui.stageNote.textContent = `画像が見つからないかもしれません\n${src}\npublic/stage1/ の綴りとファイル名を確認してください`;
+    }
+    ui.macaronImg.addEventListener("error", () => { console.log("画像が見つからない:", ui.macaronImg.src); markMissing(ui.macaronImg.src); });
+    ui.charImg.addEventListener("error", () => { console.log("画像が見つからない:", ui.charImg.src); markMissing(ui.charImg.src); });
 
     // UIイベント
     ui.btnFood.addEventListener("click", actFood);
@@ -2155,23 +1978,14 @@
     ui.btnDrink.addEventListener("click", actDrink);
     ui.btnMacaron.addEventListener("click", actMacaron);
 
-    ui.btnShare.addEventListener("click", () => {
-      const s = loadSave(); if(!s) return;
-      showShare(s);
-    });
-    ui.btnLogs.addEventListener("click", () => {
-      const s = loadSave(); if(!s) return;
-      showLogs(s);
-    });
+    ui.btnShare.addEventListener("click", () => { const s = loadSave(); if(s) showShare(s); });
+    ui.btnLogs.addEventListener("click", () => { const s = loadSave(); if(s) showLogs(s); });
     ui.btnReset.addEventListener("click", confirmReset);
-    ui.btnSaveHint.addEventListener("click", showSaveHint);
 
     ui.btnBackToGame.addEventListener("click", () => {
-      // 観察URLから開いている場合は、ゲーム画面に戻らず閉じる感覚に
       const u = new URL(location.href);
       const observe = u.searchParams.get("observe") === "1";
       if(observe){
-        // ハッシュとパラメータを外して同じページを開く
         u.searchParams.delete("observe");
         u.hash = "";
         location.href = u.toString();
@@ -2184,17 +1998,14 @@
     ui.sitterToggle.addEventListener("click", () => {
       const s = loadSave(); if(!s) return;
       if(!s.pausedSince){
-        // ON
         s.pausedSince = now();
         pushLiveLog(s, "預けた。");
         saveSave(s);
       }else{
-        // OFF
         const t = now();
         const pausedDur = t - s.pausedSince;
         s.totalPausedMs += pausedDur;
 
-        // シッター使用時間は当日ログへ（実時間）
         const d = ensureDay(s, s.currentDay);
         d.sitterMs += pausedDur;
 
@@ -2212,26 +2023,12 @@
       const t = now();
       const elapsed = calcElapsedMs(s, t);
 
-      // 日更新
       updateDayBoundary(s, elapsed);
 
-      // 時間シミュレーション
       if(!s.pausedSince){
         applyTimeSimulation(s, elapsed);
-      }
-
-      // 孵化
-      if(!s.pausedSince){
         maybeHatch(s, elapsed);
-      }
-
-      // マカロン復活の終了
-      if(!s.pausedSince){
         updateMacaronTimer(s, elapsed);
-      }
-
-      // 3日終了
-      if(!s.pausedSince){
         maybeEnd(s, elapsed);
       }
 
@@ -2240,7 +2037,6 @@
       render(s);
     }, 650);
 
-    // 初回描画
     render(save);
   }
 
