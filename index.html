@@ -3,2385 +3,2248 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>3日間のお世話ゲーム（プロトタイプ）</title>
+  <title>3日間のお世話ゲーム（2D / プロトタイプ）</title>
   <style>
     :root{
-      --bg:#eef8ff;
-      --card:rgba(255,255,255,.78);
-      --card2:rgba(255,255,255,.62);
-      --text:#0f172a;
-      --muted:#475569;
-      --line:rgba(15,23,42,.12);
-
-      --btn:#2dd4bf;
-      --btnText:#042f2e;
-
-      --btn2:#60a5fa;
-      --danger:#fb7185;
-      --ok:#34d399;
-
-      --shadow: 0 16px 38px rgba(15,23,42,.12);
+      --bg0:#050816;
+      --bg1:#0b1028;
+      --card:rgba(255,255,255,.08);
+      --card2:rgba(255,255,255,.12);
+      --text:#eef2ff;
+      --muted:rgba(238,242,255,.72);
+      --line:rgba(255,255,255,.14);
+      --good:#9ae6b4;
+      --warn:#fbd38d;
+      --bad:#feb2b2;
+      --accent:#c4b5fd;
+      --accent2:#93c5fd;
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
       --radius: 18px;
     }
-    *{ box-sizing:border-box; }
+    *{box-sizing:border-box;}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Yu Gothic", "Meiryo", sans-serif;
       color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 15% 0%, rgba(45,212,191,.26), transparent 55%),
-        radial-gradient(900px 600px at 85% 10%, rgba(96,165,250,.22), transparent 55%),
-        radial-gradient(900px 900px at 45% 110%, rgba(167,243,208,.30), transparent 55%),
-        linear-gradient(180deg, #f6fdff, #eef8ff 35%, #f7fbff);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      background: radial-gradient(1200px 800px at 70% 20%, rgba(147,197,253,.12), transparent 55%),
+                  radial-gradient(900px 700px at 20% 70%, rgba(196,181,253,.12), transparent 55%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
       min-height:100vh;
       overflow-x:hidden;
     }
-    .wrap{ max-width:980px; margin:0 auto; padding:18px; }
-
+    .wrap{
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 18px 14px 40px;
+    }
     .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 14px;
-      background: var(--card2);
-      border:1px solid var(--line);
-      border-radius: 16px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
+      position: sticky;
+      top: 10px;
       backdrop-filter: blur(10px);
+      z-index: 20;
     }
-    .brand{ display:flex; gap:10px; align-items:center; }
-    .dot{
-      width:12px; height:12px; border-radius:999px;
-      background: linear-gradient(135deg, rgba(45,212,191,.95), rgba(96,165,250,.90));
-      box-shadow: 0 0 18px rgba(45,212,191,.28);
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      min-width: 220px;
     }
-    .title{ font-weight:800; letter-spacing:.02em; font-size:14px; color:rgba(15,23,42,.92); }
-    .sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+    .brand .dot{
+      width:12px;height:12px;border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.1)),
+                  linear-gradient(180deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 18px rgba(196,181,253,.35);
+    }
+    .brand .title{
+      font-weight: 700;
+      letter-spacing:.02em;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    .brand .sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .statusRow{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex: 1;
+      flex-wrap: wrap;
+    }
 
     .pill{
-      display:flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.55);
-      border:1px solid var(--line);
-      font-size:12px;
-      color: rgba(15,23,42,.85);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      border-radius: 999px;
+      min-height: 34px;
+    }
+    .pill small{color: var(--muted);}
+    .hearts{
+      width: 140px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      overflow:hidden;
+      position: relative;
+    }
+    .hearts > i{
+      display:block;
+      height:100%;
+      width:50%;
+      background: linear-gradient(90deg, rgba(196,181,253,.95), rgba(147,197,253,.95));
+      box-shadow: 0 0 14px rgba(147,197,253,.25);
+    }
+    .heartIcon{
+      width:16px;height:16px; display:inline-block;
+      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.1)),
+                  linear-gradient(180deg, rgba(251,113,133,.95), rgba(196,181,253,.85));
+      clip-path: path("M8 14s6-3.3 6-7.2C14 4.6 12.8 3 10.8 3 9.6 3 8.7 3.7 8 4.6 7.3 3.7 6.4 3 5.2 3 3.2 3 2 4.6 2 6.8 2 10.7 8 14 8 14Z");
+      opacity:.95;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
       user-select:none;
     }
-    .pill small{ color:var(--muted); }
-
-    .grid{
-      display:grid;
-      gap:14px;
-      grid-template-columns: 1.2fr .8fr;
-      margin-top:14px;
+    .switch{
+      width:42px;height:24px;border-radius:999px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      position: relative;
+      transition: .18s ease;
     }
-    @media (max-width: 880px){
-      .grid{ grid-template-columns: 1fr; }
+    .switch::after{
+      content:"";
+      width:18px;height:18px;border-radius:999px;
+      position:absolute; top:2px; left:2px;
+      background: rgba(255,255,255,.85);
+      box-shadow: 0 8px 14px rgba(0,0,0,.25);
+      transition: .18s ease;
+    }
+    .toggle[data-on="true"] .switch{
+      background: rgba(154,230,180,.18);
+      border-color: rgba(154,230,180,.28);
+    }
+    .toggle[data-on="true"] .switch::after{
+      left: 20px;
+      background: rgba(154,230,180,.95);
+    }
+
+    .main{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 14px;
+      align-items: start;
     }
 
     .card{
-      background: var(--card);
       border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow:hidden;
-      position:relative;
     }
-    .card .inner{ padding:14px; }
-    .card h2{
-      margin:0;
-      font-size:14px;
-      letter-spacing:.02em;
-      color:rgba(15,23,42,.92);
-      font-weight:800;
+    .cardHeader{
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
     }
-    .card p{
-      margin:10px 0 0 0;
-      font-size:13px;
-      line-height:1.75;
-      color: rgba(15,23,42,.80);
+    .cardHeader .h{
+      font-weight: 700;
+      font-size: 14px;
     }
-    .muted{ color:var(--muted); }
-
-    .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    button{
-      border:0;
-      background:none;
-      color:inherit;
-      font:inherit;
-      cursor:pointer;
+    .cardHeader .hint{
+      font-size:12px;color:var(--muted);
     }
-    .btn{
-      padding:10px 12px;
-      border-radius:14px;
-      background: linear-gradient(135deg, rgba(45,212,191,.95), rgba(45,212,191,.78));
-      color: var(--btnText);
-      font-weight:800;
-      box-shadow: 0 12px 24px rgba(45,212,191,.14);
-      border:1px solid rgba(15,23,42,.10);
-      transition: transform .08s ease, filter .12s ease;
-    }
-    .btn:hover{ filter:brightness(1.03); }
-    .btn:active{ transform: translateY(1px) scale(.99); }
-
-    .btn.secondary{
-      background: rgba(255,255,255,.55);
-      color: rgba(15,23,42,.90);
-      border:1px solid var(--line);
-      box-shadow:none;
-      font-weight:750;
-    }
-    .btn.blue{
-      background: linear-gradient(135deg, rgba(96,165,250,.92), rgba(96,165,250,.72));
-      color:#071223;
-      box-shadow: 0 12px 24px rgba(96,165,250,.14);
-    }
-    .btn.danger{
-      background: linear-gradient(135deg, rgba(251,113,133,.92), rgba(251,113,133,.72));
-      color:#2a0b10;
-      box-shadow: 0 12px 24px rgba(251,113,133,.14);
-    }
-    .btn:disabled{
-      opacity:.50;
-      cursor:not-allowed;
-      filter:saturate(.7);
-    }
-
-    .screen{ display:none; }
-    .screen.active{ display:block; }
 
     .stage{
-      display:flex; align-items:center; justify-content:center;
-      min-height: 420px;
-      position:relative;
-      padding:10px;
+      position: relative;
+      min-height: 520px;
+      padding: 14px;
     }
-    .charWrap{
-      width: min(420px, 100%); height: 320px;
-      display:grid; place-items:center;
-      position:relative;
-      user-select:none;
-    }
-    .charImg{
-      width: 300px;
-      height: 300px;
-      object-fit:contain;
-      filter: drop-shadow(0 20px 30px rgba(15,23,42,.18));
-      transform-origin: 50% 80%;
-    }
-    /* ここから：誕生後は2人で並ぶ（小さく生まれ、3日かけて成長） */
-    .charPair{
+    .sky{
       position:absolute; inset:0;
-      --growA: .50;
-      --growB: .36;
-      --sep: 96px;
+      background:
+        radial-gradient(1200px 700px at 60% 10%, rgba(196,181,253,.10), transparent 60%),
+        radial-gradient(900px 600px at 15% 80%, rgba(147,197,253,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,0));
       pointer-events:none;
     }
-    .charTwin{
+    .stars{
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.55;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,.8) 0 1px, transparent 2px),
+        radial-gradient(circle at 40% 70%, rgba(255,255,255,.7) 0 1px, transparent 2px),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,.7) 0 1px, transparent 2px),
+        radial-gradient(circle at 85% 75%, rgba(255,255,255,.7) 0 1px, transparent 2px),
+        radial-gradient(circle at 25% 50%, rgba(255,255,255,.55) 0 1px, transparent 2px);
+      background-size: 420px 260px;
+      filter: blur(.2px);
+      animation: drift 18s linear infinite;
+    }
+    @keyframes drift{
+      0%{transform: translate3d(0,0,0);}
+      100%{transform: translate3d(-80px, 50px, 0);}
+    }
+
+    .center{
       position:absolute;
-      bottom: 0;
-      left: 50%;
-      width: 280px;
-      height: 280px;
-      object-fit:contain;
-      transform-origin: 50% 85%;
-      filter: drop-shadow(0 20px 30px rgba(15,23,42,.18));
-          transition: transform 650ms cubic-bezier(.2,.8,.2,1);
-    }
-    .charTwin.left{ transform: translateX(calc(-50% - var(--sep))) scale(var(--growA)) rotate(-3deg); }
-    .charTwin.right{ transform: translateX(calc(-50% + var(--sep))) scale(var(--growB)) rotate(3deg); }
-
-    /* 状態に合わせた動き（ラベルは出さない） */
-    .charPair.k-happy{ animation: bop 1.2s ease-in-out infinite; }
-    .charPair.k-ok{ animation: floaty 3.6s ease-in-out infinite; }
-    .charPair.k-sad{ animation: droop 2.6s ease-in-out infinite; }
-    .charPair.k-ended{ animation: droop 3.2s ease-in-out infinite; }
-    .charPair.k-cry{ animation: crymix 1.0s ease-in-out infinite; }
-    @keyframes crymix{
-      0%,100%{ transform: translateY(8px) rotate(0deg); }
-      25%{ transform: translateY(10px) rotate(-.8deg) translateX(-2px); }
-      75%{ transform: translateY(10px) rotate(.8deg) translateX(2px); }
+      left:50%;
+      top: 55%;
+      transform: translate(-50%,-50%);
+      width: 100%;
+      max-width: 540px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 12px;
+      padding: 12px;
     }
 
-    /* 復活の違和感：色味だけ少しズレる（動きは邪魔しない） */
-    .charPair.uncanny .charTwin{
-      filter:
-        drop-shadow(0 20px 30px rgba(15,23,42,.18))
-        hue-rotate(14deg)
-        saturate(1.15)
-        contrast(1.08);
+    .dayDots{
+      display:flex; gap:8px; align-items:center; justify-content:center;
+      opacity:.85;
+    }
+    .dayDots span{
+      width:10px;height:10px;border-radius:999px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+    }
+    .dayDots span.on{
+      background: linear-gradient(180deg, rgba(196,181,253,.95), rgba(147,197,253,.95));
+      box-shadow: 0 0 12px rgba(147,197,253,.25);
+      border-color: rgba(147,197,253,.32);
     }
 
-    /* 終了：灰色寄り */
-    .charPair.k-ended .charTwin{
-      filter: grayscale(.9) brightness(.88) drop-shadow(0 20px 30px rgba(15,23,42,.18));
+    .entity{
+      width: 260px;
+      height: 260px;
+      display:grid;
+      place-items:center;
+      position: relative;
     }
-    /* ここまで：2人表示 */
-
-    .floaty{ animation: floaty 3.6s ease-in-out infinite; }
+    .floaty{
+      animation: floaty 2.6s ease-in-out infinite;
+    }
     @keyframes floaty{
-      0%,100%{ transform: translateY(0); }
-      50%{ transform: translateY(-10px); }
+      0%,100%{transform: translateY(0);}
+      50%{transform: translateY(-10px);}
     }
-    .bop{ animation: bop 1.2s ease-in-out infinite; }
-    @keyframes bop{
-      0%,100%{ transform: translateY(0) scale(1); }
-      50%{ transform: translateY(-8px) scale(1.01); }
+
+    .egg, .macaron, .drink, .charImg{
+      width: 170px;
+      height: 170px;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 26px rgba(0,0,0,.35));
+      opacity: .98;
     }
-    .droop{ animation: droop 2.6s ease-in-out infinite; }
-    @keyframes droop{
-      0%,100%{ transform: translateY(0) rotate(0deg) scale(.995); filter: brightness(.98) contrast(1.02) drop-shadow(0 20px 30px rgba(15,23,42,.18)); }
-      50%{ transform: translateY(10px) rotate(-1.5deg) scale(.985); filter: brightness(.86) contrast(1.02) drop-shadow(0 20px 30px rgba(15,23,42,.18)); }
+    .eggWrap{
+      width: 190px; height: 190px;
+      display:grid; place-items:center;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+      position: relative;
     }
-    .shake{ animation: shake .6s ease-in-out infinite; }
-    @keyframes shake{
-      0%,100%{ transform: translateX(0) rotate(0deg); }
-      25%{ transform: translateX(-3px) rotate(-.8deg); }
-      75%{ transform: translateX(3px) rotate(.8deg); }
+    .eggWrap::after{
+      content:"";
+      position:absolute; inset:-12px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% 50%, rgba(196,181,253,.18), transparent 60%);
+      filter: blur(8px);
+      opacity: .9;
+      pointer-events:none;
     }
-    .glitch{
-      filter:
-        drop-shadow(0 20px 30px rgba(15,23,42,.18))
-        hue-rotate(14deg)
-        saturate(1.15)
-        contrast(1.08);
-      animation: glitch 1.2s steps(2) infinite;
+    .hatchLift{
+      animation: hatchLift 2.2s ease-in-out 1;
     }
-    @keyframes glitch{
-      0%,100%{ transform: translate(0,0) scale(1); }
-      20%{ transform: translate(-1px, 1px) scale(1.001); }
-      40%{ transform: translate(2px, -1px) scale(.999); }
-      60%{ transform: translate(-2px, -1px) scale(1.002); }
-      80%{ transform: translate(1px, 2px) scale(1); }
+    @keyframes hatchLift{
+      0%{transform: translateY(0) scale(1); opacity: 1;}
+      55%{transform: translateY(-26px) scale(1.02); opacity: 1;}
+      100%{transform: translateY(-60px) scale(.95); opacity: 0;}
+    }
+
+    .char{
+      width: 220px;
+      height: 220px;
+      border-radius: 34px;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,.06)),
+                  linear-gradient(180deg, rgba(196,181,253,.22), rgba(147,197,253,.12));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 18px 30px rgba(0,0,0,.28);
+      position: relative;
+      overflow:hidden;
+      display:grid;
+      place-items:center;
+    }
+
+    .face{
+      width: 190px;
+      height: 190px;
+      position: relative;
+    }
+    .eye{
+      position:absolute;
+      top: 68px;
+      width: 34px; height: 46px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.86);
+      box-shadow: inset 0 -10px 14px rgba(0,0,0,.08);
+      overflow:hidden;
+    }
+    .eye::after{
+      content:"";
+      position:absolute;
+      width: 12px; height: 18px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.85);
+      left: 12px; top: 18px;
+      transition: .18s ease;
+    }
+    .eye.left{left: 40px;}
+    .eye.right{right: 40px;}
+    .brow{
+      position:absolute;
+      top: 52px;
+      width: 44px; height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.22);
+      filter: blur(.1px);
+      opacity:.9;
+      transform-origin: center;
+      transition: .18s ease;
+    }
+    .brow.left{left: 34px;}
+    .brow.right{right: 34px;}
+    .mouth{
+      position:absolute;
+      left:50%;
+      top: 126px;
+      transform: translateX(-50%);
+      width: 70px; height: 36px;
+      border: 3px solid rgba(255,255,255,.52);
+      border-top: 0;
+      border-left-color: rgba(255,255,255,.65);
+      border-right-color: rgba(255,255,255,.65);
+      border-bottom-color: rgba(255,255,255,.72);
+      border-radius: 0 0 999px 999px;
+      opacity:.95;
+      transition: .18s ease;
+    }
+    .blush{
+      position:absolute;
+      top: 112px;
+      width: 36px; height: 18px;
+      border-radius: 999px;
+      background: rgba(251,113,133,.16);
+      filter: blur(.2px);
+      opacity:.8;
+      transition:.18s ease;
+    }
+    .blush.left{left: 26px;}
+    .blush.right{right: 26px;}
+
+    .tears{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition:.18s ease;
     }
     .tear{
       position:absolute;
-      left:50%;
-      top:74px;
-      width: 22px; height: 22px;
+      width: 10px; height: 18px;
       border-radius: 999px;
-      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), rgba(96,165,250,.85) 35%, rgba(96,165,250,.18) 70%, transparent 75%);
-      filter: blur(.1px);
-      opacity:0;
-      transform: translate(-110px, 18px) rotate(18deg);
-      animation: tear 1.4s ease-in-out infinite;
+      background: rgba(147,197,253,.72);
+      left: 62px; top: 116px;
+      transform: rotate(10deg);
+      animation: tearDrop 1.2s ease-in-out infinite;
+    }
+    .tear:nth-child(2){
+      left: 148px; top: 118px;
+      transform: rotate(-8deg);
+      animation-delay: .22s;
+      opacity:.9;
+    }
+    @keyframes tearDrop{
+      0%{transform: translateY(0) scale(1) rotate(10deg); opacity:.0;}
+      35%{opacity:.75;}
+      100%{transform: translateY(26px) scale(.95) rotate(10deg); opacity:0;}
+    }
+
+    .stateGlow{
+      position:absolute;
+      inset:-30px;
+      background: radial-gradient(circle at 50% 50%, rgba(154,230,180,.16), transparent 60%);
+      filter: blur(10px);
+      opacity: .0;
+      transition: .18s ease;
       pointer-events:none;
     }
-    @keyframes tear{
-      0%{ opacity:0; transform: translate(-110px, 18px) rotate(18deg) scale(.8); }
-      20%{ opacity:.9; }
-      80%{ opacity:.05; transform: translate(-104px, 56px) rotate(18deg) scale(1); }
-      100%{ opacity:0; transform: translate(-104px, 56px) rotate(18deg) scale(1); }
-    }
-    .tear.on{ opacity:1; }
 
-    .poop{
+    .char.lively .stateGlow{opacity:.85;}
+    .char.lively{animation: livelyBounce 1.4s ease-in-out infinite;}
+    @keyframes livelyBounce{
+      0%,100%{transform: translateY(0) rotate(0deg);}
+      50%{transform: translateY(-7px) rotate(.6deg);}
+    }
+
+    .char.low .mouth{
+      width: 62px;
+      height: 24px;
+      border: 3px solid rgba(255,255,255,.45);
+      border-bottom: 0;
+      border-radius: 999px 999px 0 0;
+      top: 136px;
+      opacity:.8;
+    }
+    .char.low .eye::after{top: 22px;}
+    .char.low{filter:saturate(.9);}
+
+    .char.cry .mouth{
+      width: 62px;
+      height: 24px;
+      border: 3px solid rgba(255,255,255,.52);
+      border-bottom: 0;
+      border-radius: 999px 999px 0 0;
+      top: 138px;
+      opacity:.9;
+      transform: translateX(-50%) rotate(0deg);
+    }
+    .char.cry .brow.left{transform: rotate(12deg) translateY(1px);}
+    .char.cry .brow.right{transform: rotate(-12deg) translateY(1px);}
+    .char.cry .tears{opacity:1;}
+    .char.cry{filter:saturate(.85) contrast(1.02);}
+
+    .char.uncanny{
+      animation: uncanny 0.18s steps(2) infinite;
+      filter: saturate(.75) contrast(1.05) hue-rotate(14deg);
+    }
+    @keyframes uncanny{
+      0%{transform: translate(0,0) skewX(0deg);}
+      50%{transform: translate(2px,-1px) skewX(1deg);}
+      100%{transform: translate(-1px,1px) skewX(-1deg);}
+    }
+
+    .poops{
       position:absolute;
-      width: 20px; height: 16px;
-      border-radius: 8px 8px 12px 12px;
-      background: linear-gradient(180deg, rgba(15,23,42,.10), rgba(15,23,42,.28));
-      border:1px solid rgba(15,23,42,.14);
-      opacity:0;
-      transform: translate(0,0) scale(.95);
-      filter: blur(.1px);
-      pointer-events:none;
-    }
-    .poop.on{ opacity:.70; }
-    .poop#po1{ left:36px; top:230px; transform: rotate(-10deg); }
-    .poop#po2{ right:42px; top:246px; transform: rotate(12deg); }
-    .poop#po3{ left: 86px; top:268px; transform: rotate(6deg) scale(.9); }
-    .poop#po4{ right: 96px; top:276px; transform: rotate(-8deg) scale(.92); }
-
-    .hearts{
-      display:flex; gap:6px; align-items:center;
-      padding:8px 10px; border-radius:14px;
-      background: rgba(255,255,255,.55);
-      border:1px solid var(--line);
-      width: fit-content;
-    }
-    .heart{
-      width: 14px; height: 14px;
-      transform: rotate(45deg);
-      position:relative;
-      opacity:.30;
-      filter: drop-shadow(0 2px 6px rgba(251,113,133,.20));
-    }
-    .heart::before,.heart::after{
-      content:"";
-      position:absolute;
-      width: 14px; height: 14px;
-      border-radius: 50%;
-      background: rgba(251,113,133,.85);
-      left:0; top:0;
-    }
-    .heart::after{ left:-7px; }
-    .heart.on{ opacity:1; }
-    .heart.on::before,.heart.on::after{ background: rgba(251,113,133,.95); }
-
-    .choiceGrid{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap:12px;
-      margin-top:12px;
-    }
-    @media (max-width:520px){ .choiceGrid{ grid-template-columns:1fr; } }
-    .choice{
-      border:1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(255,255,255,.55);
-      padding:12px;
+      left: 18px;
+      bottom: 18px;
       display:flex;
-      gap:12px;
+      gap: 8px;
       align-items:center;
-      transition: transform .12s ease, background .2s ease;
-    }
-    .choice:hover{ transform: translateY(-1px); background: rgba(255,255,255,.72); }
-    .choice.selected{ border-color: rgba(45,212,191,.55); background: rgba(45,212,191,.14); }
-    .choice.selected .tiny{ opacity: .95; }
-    .choice img{
-      width:72px; height:72px; object-fit:contain;
-      filter: drop-shadow(0 12px 16px rgba(15,23,42,.14));
-    }
-    .choice .ctext{ flex:1; }
-    .choice .ctext .cname{ font-weight:900; font-size:13px; }
-    .choice .ctext .cdesc{ font-size:12px; margin-top:4px; color: var(--muted); line-height:1.55; }
-
-    .mapGrid{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:10px;
-      margin-top:12px;
-    }
-    .tile{
-      height:84px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.50);
-      position:relative;
-      overflow:hidden;
-      display:grid;
-      place-items:center;
-      transition: transform .12s ease, background .2s ease;
-    }
-    .tile:hover{ transform: translateY(-1px); background: rgba(255,255,255,.68); }
-    .tile.revealed{ background: rgba(45,212,191,.14); }
-    .spark{
-      position:absolute; inset:-40%;
-      background:
-        radial-gradient(circle at 30% 40%, rgba(45,212,191,.18), transparent 45%),
-        radial-gradient(circle at 70% 60%, rgba(96,165,250,.14), transparent 45%);
-      opacity:0;
-      transform: rotate(12deg);
-    }
-    .tile.revealed .spark{ opacity:1; animation: spin 3.6s linear infinite; }
-    @keyframes spin{
-      from{ transform: rotate(0deg); }
-      to{ transform: rotate(360deg); }
-    }
-    .tile span{
-      font-size:12px;
-      color: rgba(15,23,42,.72);
-      opacity:.85;
-    }
-    .foundImg{
-      width:60px; height:60px; object-fit:contain;
-      filter: drop-shadow(0 10px 16px rgba(15,23,42,.16));
-      opacity:.0;
-      transform: translateY(6px) scale(.98);
-      transition: opacity .25s ease, transform .25s ease;
-    }
-    .tile.found .foundImg{ opacity:1; transform: translateY(0) scale(1); }
-
-    .overlay{
-      position:fixed; inset:0;
-      display:none;
-      place-items:center;
-      background: rgba(15,23,42,.45);
-      backdrop-filter: blur(6px);
-      z-index: 50;
-      padding:18px;
-    }
-    .overlay.on{ display:grid; }
-    .modal{
-      width:min(720px, 96vw);
-      background: rgba(255,255,255,.88);
-      border:1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .modal .mhead{
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .modal .mhead .mtitle{ font-weight:900; font-size:13px; letter-spacing:.02em; }
-    .modal .mbody{ padding:14px; }
-    .modal .mnote{ font-size:12px; color: var(--muted); line-height:1.7; }
-
-    .thanks{
-      min-height: 520px;
-      display:grid;
-      place-items:center;
-      text-align:center;
-    }
-    .thanks .word{
-      font-size: 34px;
-      font-weight: 900;
-      letter-spacing:.08em;
-      color: rgba(15,23,42,.92);
-      text-shadow: 0 18px 42px rgba(15,23,42,.12);
-    }
-    .fade{ animation: fadeIn 1.2s ease both; }
-    @keyframes fadeIn{
-      from{ opacity:0; transform: translateY(6px); }
-      to{ opacity:1; transform: translateY(0); }
-    }
-
-    .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-    .tab{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.55);
-      font-size:12px;
-      color: rgba(15,23,42,.88);
       opacity:.95;
     }
-    .tab.active{ background: rgba(96,165,250,.14); border-color: rgba(96,165,250,.28); }
-    .logBox{
-      margin-top:12px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background: rgba(255,255,255,.55);
-      padding:12px;
-      overflow:auto;
-      max-height: 360px;
+    .poop{
+      width: 18px; height: 18px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(251,146,60,.92), rgba(234,179,8,.82));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 10px 16px rgba(0,0,0,.25);
+      transform: rotate(-8deg);
+      opacity:.0;
+      transition: .18s ease;
     }
-    .logLine{
-      font-size:12px;
-      line-height:1.8;
-      color: rgba(15,23,42,.82);
-      border-bottom:1px dashed rgba(15,23,42,.14);
-      padding:6px 0;
+    .poop.on{opacity:.95;}
+    .poop:nth-child(2){transform: rotate(9deg) translateY(-2px);}
+    .poop:nth-child(3){transform: rotate(-4deg) translateY(1px);}
+
+    .stageNote{
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align:center;
+      opacity:.95;
+      line-height: 1.6;
     }
-    .logLine:last-child{ border-bottom:0; }
-    canvas{ max-width:100%; }
 
-    .tiny{ font-size:12px; color: var(--muted); }
-
-    .linkBox{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.55);
+    .actions{
+      padding: 12px;
       display:flex;
-      gap:10px;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    button{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 10px;
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing:.01em;
+      box-shadow: 0 12px 26px rgba(0,0,0,.22);
+      transition: transform .08s ease, background .18s ease, border-color .18s ease, opacity .18s ease;
+    }
+    button:hover{transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.22);}
+    button:active{transform: translateY(0px) scale(.99);}
+    button[disabled]{opacity:.45; cursor:not-allowed; transform:none;}
+    .btnRow{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btnSoft{
+      flex: 1;
+      min-width: 140px;
+    }
+    .btnGhost{
+      background: rgba(255,255,255,.03);
+    }
+
+    .rightPane{
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+
+    .logPane{
+      padding: 12px;
+    }
+    .logPane .mini{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .logList{
+      margin-top: 10px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      max-height: 290px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+    .logItem{
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      border-radius: 14px;
+      padding: 10px 10px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .logItem b{font-size:12px;}
+    .logItem .t{color: var(--muted); margin-top: 2px; font-size: 11px;}
+
+    .modalBack{
+      position: fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      place-items:center;
+      z-index: 99;
+      padding: 18px;
+    }
+    .modalBack.show{display:grid;}
+    .modal{
+      width: min(560px, 96vw);
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(16,18,34,.88);
+      border-radius: 18px;
+      box-shadow: 0 22px 60px rgba(0,0,0,.45);
+      overflow:hidden;
+      backdrop-filter: blur(12px);
+    }
+    .modalHead{
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      display:flex;
       align-items:center;
       justify-content:space-between;
-      flex-wrap:wrap;
+      gap: 10px;
     }
-    .linkBox input{
-      flex:1;
-      min-width: 240px;
-      padding:10px 10px;
-      border-radius:12px;
-      background: rgba(255,255,255,.78);
-      border:1px solid rgba(15,23,42,.14);
-      color: rgba(15,23,42,.92);
-      outline:none;
-      font-size:12px;
+    .modalHead .h{
+      font-weight: 750;
+      font-size: 14px;
+      letter-spacing:.02em;
+    }
+    .modalBody{
+      padding: 12px;
+    }
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .choice{
+      text-align:left;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+      transition: .18s ease;
+      min-height: 96px;
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      justify-content:center;
+    }
+    .choice:hover{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.22);
+      transform: translateY(-1px);
+    }
+    .choice .cTitle{font-weight: 750; font-size: 13px;}
+    .choice .cSub{font-size: 12px; color: var(--muted); line-height:1.5;}
+    .modalFoot{
+      padding: 10px 12px 12px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      gap: 10px;
+      justify-content:flex-end;
+      flex-wrap: wrap;
     }
 
-    select.sel{
-      flex:1;
-      min-width: 240px;
-      padding:10px 10px;
-      border-radius:12px;
-      background: rgba(255,255,255,.78);
-      border:1px solid rgba(15,23,42,.14);
-      color: rgba(15,23,42,.92);
-      outline:none;
-      font-size:12px;
-      appearance:none;
-    }
-
-    .cornerHint{
+    .centerOverlay{
       position:absolute;
-      top:10px; right:10px;
-      font-size:12px;
-      color: rgba(15,23,42,.70);
-      opacity:.90;
-      display:flex; align-items:center; gap:8px;
+      inset:0;
+      display:none;
+      place-items:center;
+      z-index: 10;
+      pointer-events: none;
     }
-    .toggle{
-      width:42px; height:22px; border-radius:999px;
-      background: rgba(15,23,42,.08);
-      border:1px solid var(--line);
-      position:relative;
-      flex: 0 0 auto;
+    .centerOverlay.show{display:grid;}
+    .thanks{
+      font-weight: 800;
+      font-size: 44px;
+      letter-spacing: .06em;
+      text-shadow: 0 18px 48px rgba(0,0,0,.45);
+      opacity:.98;
     }
-    .toggle::after{
-      content:"";
-      width:18px; height:18px; border-radius:999px;
-      position:absolute; top:1px; left:1px;
-      background: rgba(15,23,42,.45);
-      transition: left .18s ease, background .18s ease;
+
+    .screen{
+      display:none;
     }
-    .toggle.on{ background: rgba(45,212,191,.22); border-color: rgba(45,212,191,.28); }
-    .toggle.on::after{ left:21px; background: rgba(45,212,191,.92); }
+    .screen.show{display:block;}
+
+    .observeWrap{
+      padding: 12px;
+    }
+    .observeHeader{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap: wrap;
+    }
+    .observeHeader .h{
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing:.02em;
+    }
+    .observeHeader .p{
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.6;
+    }
+    .chartBox{
+      margin-top: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 10px;
+    }
+    canvas{width:100%; height:160px; display:block;}
+    .days{
+      margin-top: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .dayCard{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 10px;
+    }
+    .dayCard .dh{
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      align-items:center;
+      margin-bottom: 8px;
+    }
+    .dayCard .dh b{font-size: 13px;}
+    .dayCard .dh small{color: var(--muted);}
+    .kvs{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 10px;
+      font-size: 12px;
+      color: rgba(238,242,255,.88);
+      line-height:1.6;
+    }
+    .kvs span{color: var(--muted);}
+    .choices{
+      margin-top: 8px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      padding-top: 8px;
+      font-size: 12px;
+      color: rgba(238,242,255,.88);
+      line-height:1.7;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 860px){
+      .main{grid-template-columns: 1fr;}
+      .brand{min-width: auto;}
+      .hearts{width: 120px;}
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important; transition:none !important;}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar">
+    <div class="topbar" id="topbar">
       <div class="brand">
         <div class="dot"></div>
         <div>
-          <div class="title">3日間のお世話ゲーム</div>
-          <div class="sub" id="subline">記録だけが残る</div>
+          <div class="title">3日間のお世話ゲーム（2D）</div>
+          <div class="sub" id="subline">ログだけが残ります</div>
         </div>
       </div>
-      <div class="pill" id="modePill">
-        <span id="modeLabel">プレイ</span>
-        <small id="modeMeta">ローカル保存</small>
+
+      <div class="statusRow">
+        <div class="pill" title="関係性の指標（スコアとして強調しません）">
+          <span class="heartIcon" aria-hidden="true"></span>
+          <div class="hearts" aria-hidden="true"><i id="heartFill"></i></div>
+          <small id="heartSmall"> </small>
+        </div>
+
+        <div class="pill">
+          <div class="dayDots" aria-hidden="true">
+            <span id="d1"></span><span id="d2"></span><span id="d3"></span>
+          </div>
+          <small id="daySmall"> </small>
+        </div>
+
+        <div class="pill toggle" id="sitterToggle" data-on="false" title="シッターONで時間が止まります（寿命・空腹・排泄・状態変化すべて停止）">
+          <small>シッター</small>
+          <div class="switch" aria-hidden="true"></div>
+        </div>
       </div>
     </div>
 
-    <div class="screen active" id="scr_intro">
-      <div class="grid">
+    <div id="screenGame" class="screen show">
+      <div class="main">
         <div class="card">
-          <div class="inner">
-            <h2>はじめに</h2>
-            <p class="fade">
-              ある日、あなたのもとに一通のメッセージが届く。<br>
-              「なくしたものを探しています。見つけた人に、3日間だけ預けます。」<br>
-              地図だけが添えられている。
-            </p>
+          <div class="cardHeader">
+            <div>
+              <div class="h">ステージ</div>
+              <div class="hint" id="stageHint"> </div>
+            </div>
+            <div class="btnRow">
+              <button class="btnGhost" id="btnShare">観察用URL</button>
+              <button class="btnGhost" id="btnLogs">ログ</button>
+              <button class="btnGhost" id="btnReset">はじめから</button>
+            </div>
+          </div>
 
-            <p class="muted">
-              最初に、あなたの相棒と、呼ばれたい名前を決める。<br>
-              それから、マカロンの形をした「探しもの」を探しに行く。
-            </p>
+          <div class="stage" id="stage">
+            <div class="sky"></div>
+            <div class="stars"></div>
 
-            <div style="margin-top:12px;">
-              <div class="tiny" style="margin-bottom:6px;">呼ばれたい名前</div>
-              <div class="btnrow" style="margin-top:0;">
-                <input id="playerName" placeholder="○○（あなたの呼ばれ方）">
-                <button class="btn blue" id="btn_start" disabled>はじめる</button>
-                <button class="btn secondary" id="btn_new_reset" title="保存を消します">最初から</button>
-              </div>
-              <p class="tiny" style="margin-top:8px;">名前と選択はこの端末の中だけに保存されます。</p>
-
-              <div style="margin-top:12px;">
-                <div class="tiny" style="margin-bottom:6px;">時間設定</div>
-                <div class="btnrow" style="margin-top:0;">
-                  <select id="timeMode" class="sel">
-                    <option value="normal">通常（誕生3分／寿命3日）</option>
-                    <option value="fast">テスト（誕生約12秒／寿命約90秒）</option>
-                  </select>
+            <div class="center">
+              <div class="entity">
+                <div id="eggArea" class="eggWrap floaty" style="display:none;">
+                  <img id="eggImg" class="egg" alt="" src="public/assets/egg.png" />
                 </div>
-                <p class="tiny" id="timeModeNote" style="margin-top:6px;"></p>
-              </div>
 
-              <div class="linkBox" id="resumeBox" style="display:none; margin-top:12px;">
-                <div class="tiny">記録が残っています</div>
-                <div class="btnrow" style="margin-top:8px;">
-                  <button class="btn" id="btn_resume">つづきから</button>
+                <div id="charArea" class="char floaty" style="display:none;">
+                  <div class="stateGlow"></div>
+                  <div class="face" aria-hidden="true">
+                    <div class="brow left"></div>
+                    <div class="brow right"></div>
+                    <div class="eye left"></div>
+                    <div class="eye right"></div>
+                    <div class="mouth"></div>
+                    <div class="blush left"></div>
+                    <div class="blush right"></div>
+                    <div class="tears">
+                      <div class="tear"></div>
+                      <div class="tear"></div>
+                    </div>
+                  </div>
                 </div>
-                <p class="tiny" id="resumeMeta" style="margin-top:6px;"></p>
+              </div>
+
+              <div class="poops" aria-hidden="true">
+                <div class="poop" id="poop1"></div>
+                <div class="poop" id="poop2"></div>
+                <div class="poop" id="poop3"></div>
+              </div>
+
+              <div class="stageNote" id="stageNote"></div>
+            </div>
+
+            <div class="centerOverlay" id="thanksOverlay" aria-hidden="true">
+              <div class="thanks">ありがとう</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rightPane">
+          <div class="card">
+            <div class="cardHeader">
+              <div>
+                <div class="h">お世話</div>
+                <div class="hint">全部2択。正解はありません</div>
               </div>
             </div>
-
-            <p class="tiny" id="introNeed" style="margin-top:6px;"></p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="stage">
-            <div class="charWrap">
-              <img id="charPreview" class="charImg floaty" alt="character preview" />
+            <div class="actions">
+              <div class="grid">
+                <button id="btnFood">食事</button>
+                <button id="btnOut">お出かけ</button>
+                <button id="btnMini">2択ミニゲーム</button>
+                <button id="btnClean">排泄除去</button>
+              </div>
+              <div class="grid">
+                <button id="btnDrink" class="btnSoft">ドリンク</button>
+                <button id="btnMacaron" class="btnSoft" disabled>マカロン</button>
+              </div>
+              <div class="btnRow">
+                <button id="btnSaveHint" class="btnGhost btnSoft">保存について</button>
+              </div>
             </div>
           </div>
-          <div class="inner">
-            <h2>相棒</h2>
-            <p class="muted">正解はない。あなたが「この子」と思ったもの。</p>
-            <div class="choiceGrid" id="charChoices"></div>
-            <p class="tiny" id="introPickHint" style="margin-top:10px;">相棒を選ぶと、右の姿が少し変わります。</p>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="screen" id="scr_search">
-      <div class="grid">
-        <div class="card">
-          <div class="inner">
-            <h2>探す</h2>
-            <p>現実と少しだけずれた空間。光の粒がゆっくり漂っている。</p>
-            <p class="muted">どこかに、マカロンの形をしたものがある。</p>
-            <div class="mapGrid" id="mapGrid"></div>
-            <div class="btnrow">
-              <button class="btn secondary" id="btn_back_intro">設定へ戻る</button>
-              <button class="btn" id="btn_hint">少しだけ目を慣らす</button>
+          <div class="card">
+            <div class="cardHeader">
+              <div>
+                <div class="h">いま起きたこと</div>
+                <div class="hint">評価せず、事実として残します</div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="inner">
-            <h2>気配</h2>
-            <p class="muted" id="searchNote">まだ、何も見つからない。</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="screen" id="scr_arrival">
-      <div class="grid">
-        <div class="card">
-          <div class="inner">
-            <h2>到着</h2>
-            <p id="arrivalText">
-              見つけたマカロンを持ち帰った。<br>
-              しばらくすると、ふわりと浮かび上がるらしい。
-            </p>
-            <p class="muted">誕生は、あなたの操作では起きない。</p>
-            <div class="btnrow">
-              <button class="btn secondary" id="btn_back_search">もう一度探す</button>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="stage">
-            <div class="charWrap">
-              <img id="arrivalImg" class="charImg floaty" alt="macaron" />
+            <div class="logPane">
+              <div class="mini" id="miniText">
+                画面の表情や動きだけで状態が変わります。ラベルは出しません。
+              </div>
+              <div class="logList" id="liveLog"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="screen" id="scr_care">
-      <div class="grid">
-        <div class="card">
-          <div class="inner">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-              <h2 id="careTitle">いま</h2>
-              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-                <div class="hearts" title="関係の雰囲気">
-                  <div class="heart" id="h1"></div>
-                  <div class="heart" id="h2"></div>
-                  <div class="heart" id="h3"></div>
-                  <div class="heart" id="h4"></div>
-                  <div class="heart" id="h5"></div>
-                </div>
-                <div class="tiny" id="timeCounter" title="3日間の時間"></div>
-              </div>
-            </div>
-
-            <p class="muted" id="careHint">言葉ではわからない。表情と動きだけが変わる。</p>
-
-            <div class="btnrow" style="margin-top:10px;">
-              <button class="btn" id="btn_food">食事</button>
-              <button class="btn" id="btn_outing">お出かけ</button>
-              <button class="btn" id="btn_mini">つまらないゲーム</button>
-              <button class="btn" id="btn_clean">排泄除去</button>
-              <button class="btn blue" id="btn_drink">ドリンク</button>
-              <button class="btn danger" id="btn_macaron">マカロン</button>
-              <button class="btn secondary" id="btn_logs">ログ</button>
-            </div>
-
-            <div class="linkBox" style="margin-top:12px;">
-              <div class="tiny">シッター</div>
-              <div style="display:flex; align-items:center; gap:10px;">
-                <div class="toggle" id="toggle_sitter" role="switch" aria-checked="false" tabindex="0"></div>
-                <div class="tiny" id="sitterNote">時間は止まる</div>
-              </div>
-            </div>
-
-            <p class="tiny" id="endNote" style="margin-top:10px; display:none;">
-              ここから先は、操作できない。記録だけが残る。
-            </p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="stage">
-            <div class="charWrap" id="charWrap">
-              <div class="charPair k-ok" id="charPair" aria-hidden="true">
-                <img id="charImg" class="charTwin left" alt="character left" />
-                <img id="charImg2" class="charTwin right" alt="character right" />
-              </div>
-              <div class="tear" id="tear"></div>
-              <div class="poop" id="po1"></div>
-              <div class="poop" id="po2"></div>
-              <div class="poop" id="po3"></div>
-              <div class="poop" id="po4"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="screen" id="scr_end">
+    <div id="screenObserve" class="screen">
       <div class="card">
-        <div class="thanks">
+        <div class="cardHeader">
           <div>
-            <div class="word fade">ありがとう</div>
-            <div class="btnrow" style="justify-content:center; margin-top:16px;">
-              <button class="btn secondary" id="btn_end_logs">ログを見る</button>
+            <div class="h">観察用ログ</div>
+            <div class="hint">操作はできません（ログとハート推移のみ）</div>
+          </div>
+          <div class="btnRow">
+            <button id="btnBackToGame" class="btnGhost">戻る</button>
+          </div>
+        </div>
+
+        <div class="observeWrap">
+          <div class="observeHeader">
+            <div>
+              <div class="h" id="obsTitle"> </div>
+              <div class="p" id="obsSub"> </div>
             </div>
           </div>
+
+          <div class="chartBox">
+            <canvas id="heartChart" width="900" height="220"></canvas>
+          </div>
+
+          <div class="days" id="obsDays"></div>
         </div>
       </div>
     </div>
-
-    <div class="screen" id="scr_logs">
-      <div class="grid">
-        <div class="card">
-          <div class="inner">
-            <h2>ログ</h2>
-            <p class="muted">評価はしない。起きたことだけ。</p>
-
-            <canvas id="heartChart" width="640" height="180" style="margin-top:10px; border:1px solid var(--line); border-radius:16px; background: rgba(255,255,255,.70);"></canvas>
-
-            <div class="tabs" id="dayTabs"></div>
-
-            <div class="logBox" id="logBox"></div>
-
-            <div class="btnrow">
-              <button class="btn secondary" id="btn_back_care">戻る</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 
-  <div class="overlay" id="overlay">
+  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal">
-      <div class="mhead">
-        <div class="mtitle" id="modalTitle">選ぶ</div>
-        <button class="btn secondary" id="btn_close_modal">閉じる</button>
+      <div class="modalHead">
+        <div>
+          <div class="h" id="modalTitle"> </div>
+          <div class="hint" id="modalHint"> </div>
+        </div>
+        <button id="modalX" class="btnGhost" style="padding:8px 10px;">閉じる</button>
       </div>
-      <div class="mbody" id="modalBody">
-        <div class="mnote" id="modalNote"></div>
-        <div class="btnrow" id="modalBtns"></div>
-      </div>
+      <div class="modalBody" id="modalBody"></div>
+      <div class="modalFoot" id="modalFoot"></div>
     </div>
   </div>
 
 <script>
 (() => {
-  const APP_KEY = "care3days_save_stage1_v2";
+  "use strict";
 
+  const SAVE_KEY = "osewa_save_v1";
+  const ARCHIVE_KEY = "osewa_archives_v1";
 
-  // 画像アセットの置き場所は、環境によって揺れやすいので自動検出します
-  // 優先順位：public/char/ → stage1/（過去互換）
-  const ASSET_BASE_CANDIDATES = ["public/char/", "stage1/"];
-  let ASSET_BASE = ASSET_BASE_CANDIDATES[0];
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const LIFE_MS = 3 * DAY_MS;
+  const HATCH_MS_DEFAULT = 3 * 60 * 1000;
 
-  function buildAssets(base){
-    return {
-      char: {
-        green: { closed: base + "green_closed.png", open: base + "green_open.png" },
-        blue:  { closed: base + "blue_closed.png",  open: base + "blue_open.png"  },
-        pink:  { closed: base + "pink_closed.png",  open: base + "pink_open.png"  },
-        purple:{ closed: base + "purple_closed.png",open: base + "purple_open.png"}
-      },
-      macaron: {
-        green: base + "macaron_green.png",
-        blue:  base + "macaron_blue.png",
-        pink:  base + "macaron_pink.png",
-        purple:base + "macaron_purple.png"
-      }
-    };
-  }
+  // テスト用：URLに ?fast=1 を付けると孵化が短くなります
+  const url = new URL(location.href);
+  const FAST = url.searchParams.get("fast") === "1";
+  const HATCH_MS = FAST ? 20 * 1000 : HATCH_MS_DEFAULT;
 
-  let ASSETS = buildAssets(ASSET_BASE);
+  // マカロン復活（死後）: どこか違和感のある一時復活
+  const MACARON_MS = FAST ? 25 * 1000 : 10 * 60 * 1000;
 
-  // 画像が存在するか軽くチェック（GitHub Pagesでも動くように Image で判定）
-  function checkImage(url){
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      // キャッシュで誤判定しないように少しだけバージョンを付ける
-      const u = url + (url.includes("?") ? "&" : "?") + "v=" + Date.now();
-      img.src = u;
-    });
-  }
+  // ドリンク（生存中）: 少し戻す／延ばす
+  const DRINK_LIFE_EXTEND_MS = FAST ? 25 * 1000 : 60 * 60 * 1000;
+  const DRINK_BACK_MS = FAST ? 10 * 1000 : 30 * 60 * 1000;
 
-  // 保存にassetBaseがあればそれを優先し、なければ候補を順に試します
-  async function detectAssetBase(){
-    const tried = [];
-    const saved = save && save.config && save.config.assetBase ? save.config.assetBase : null;
+  // 状態変化レート（ざっくり）
+  const HUNGER_PER_MIN = 0.25; // 1分で+0.25
+  const DIRT_PER_MIN   = 0.18;
 
-    const cands = [];
-    if(saved) cands.push(saved);
-    ASSET_BASE_CANDIDATES.forEach(b => { if(!cands.includes(b)) cands.push(b); });
+  const $ = (q) => document.querySelector(q);
+  const el = (id) => document.getElementById(id);
 
-    for(const base of cands){
-      if(tried.includes(base)) continue;
-      tried.push(base);
-      const ok = await checkImage(base + "pink_open.png");
-      if(ok){
-        ASSET_BASE = base;
-        ASSETS = buildAssets(base);
-        if(save){
-          if(!save.config) save.config = {};
-          save.config.assetBase = base;
-          saveNow();
-        }
-        return base;
-      }
-    }
+  const ui = {
+    subline: el("subline"),
+    heartFill: el("heartFill"),
+    heartSmall: el("heartSmall"),
+    d1: el("d1"), d2: el("d2"), d3: el("d3"),
+    daySmall: el("daySmall"),
+    sitterToggle: el("sitterToggle"),
 
-    // どれも見つからない場合：とりあえず最初の候補で進める（後で差し替え可）
-    ASSET_BASE = ASSET_BASE_CANDIDATES[0];
-    ASSETS = buildAssets(ASSET_BASE);
-    if(save){
-      if(!save.config) save.config = {};
-      save.config.assetBase = ASSET_BASE;
-      saveNow();
-    }
-    return ASSET_BASE;
-  }
+    stageHint: el("stageHint"),
+    stageNote: el("stageNote"),
+    eggArea: el("eggArea"),
+    eggImg: el("eggImg"),
+    charArea: el("charArea"),
+    thanksOverlay: el("thanksOverlay"),
 
+    poop1: el("poop1"),
+    poop2: el("poop2"),
+    poop3: el("poop3"),
 
-  const DAY_MS = 24*60*60*1000;
-  const LIFE_MS = 3*DAY_MS;
+    btnFood: el("btnFood"),
+    btnOut: el("btnOut"),
+    btnMini: el("btnMini"),
+    btnClean: el("btnClean"),
+    btnDrink: el("btnDrink"),
+    btnMacaron: el("btnMacaron"),
+    btnShare: el("btnShare"),
+    btnLogs: el("btnLogs"),
+    btnReset: el("btnReset"),
+    btnSaveHint: el("btnSaveHint"),
 
-  // 誕生は時間経過で起こす（3分）
-  const HATCH_MS = 3*60*1000;
+    liveLog: el("liveLog"),
 
-  // 時間設定（テスト用に短縮もできる）
-// URLに ?fast=1 を付けると一時的にテストモードになります
-const url = new URL(location.href);
-// 共有URL（観察用）は廃止したので、古いURLパラメータは静かに取り除く
-if(url.searchParams.get("observe") || url.searchParams.get("data")){
-  url.searchParams.delete("observe");
-  url.searchParams.delete("data");
-  try{ history.replaceState({}, "", url.toString()); }catch(e){}
-}
-const TIME_MODE_KEY = "care3days_timeMode";
-const baseMode = (url.searchParams.get("fast") === "1") ? "fast" : ((localStorage.getItem(TIME_MODE_KEY) === "fast") ? "fast" : "normal");
+    modalBack: el("modalBack"),
+    modalTitle: el("modalTitle"),
+    modalHint: el("modalHint"),
+    modalBody: el("modalBody"),
+    modalFoot: el("modalFoot"),
+    modalX: el("modalX"),
 
-function inferFastFromSave(s){
-  try{
-    if(s && s.life && s.life.bornAt && s.life.deathAt){
-      const d = s.life.deathAt - s.life.bornAt;
-      if(d > 0 && d < 10*60*1000) return true;
-    }
-    if(s && s.story && s.story.hatchAt && s.story.arrivalAt){
-      const d = s.story.hatchAt - s.story.arrivalAt;
-      if(d > 0 && d < 60*1000) return true;
-    }
-  }catch(e){}
-  return baseMode === "fast";
-}
-
-function isFast(s){
-  const obj = s || save;
-  if(obj && obj.config && typeof obj.config.fast === "boolean") return obj.config.fast;
-  return baseMode === "fast";
-}
-function hatchMsEff(s){ return isFast(s) ? 12*1000 : HATCH_MS; }
-function lifeMsEff(s){ return isFast(s) ? 90*1000 : LIFE_MS; }
-function dayMsEff(s){ return lifeMsEff(s) / 3; }
-
-  const $ = (id) => document.getElementById(id);
-  const screens = {
-    intro: $("scr_intro"),
-    search: $("scr_search"),
-    arrival: $("scr_arrival"),
-    care: $("scr_care"),
-    end: $("scr_end"),
-    logs: $("scr_logs")
+    screenGame: el("screenGame"),
+    screenObserve: el("screenObserve"),
+    obsTitle: el("obsTitle"),
+    obsSub: el("obsSub"),
+    obsDays: el("obsDays"),
+    btnBackToGame: el("btnBackToGame"),
+    heartChart: el("heartChart"),
   };
 
-  const modeLabel = $("modeLabel");
-  const modeMeta = $("modeMeta");
-  const subline = $("subline");
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
 
-  const overlay = $("overlay");
-  const modalTitle = $("modalTitle");
-  const modalNote = $("modalNote");
-  const modalBtns = $("modalBtns");
+  function now(){ return Date.now(); }
 
-  let save = null;
-  let tickTimer = null;
-
-  function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-  function rnd(a,b){ return a + Math.random()*(b-a); }
-  function nowMs(){ return Date.now(); }
-
-  // シッター中は時間が停止する（内部時間だけ止める）
-  function effectiveNow(s){
-    if(!s) return nowMs();
-    const baseNow = nowMs();
-    const pauseExtra = s.sitter.on ? (baseNow - s.sitter.onSince) : 0;
-    return baseNow - s.sitter.pausedTotal - pauseExtra;
-  }
-
-  function dayIndex(s){
-    if(!s || !s.life.bornAt) return 0;
-    const t = effectiveNow(s) - s.life.bornAt;
-    const d = Math.floor(t / dayMsEff(s)) + 1;
-    return clamp(d, 1, 3);
-  }
-
-  // 3日間の残り時間（シッター停止分は差し引かれる）
-  function remainingMs(s){
-    if(!s || !s.life || !s.life.bornAt) return null;
-    const t = effectiveNow(s);
-    if(s.life.revivedUntil){
-      return Math.max(0, s.life.revivedUntil - t);
+  function uid(){
+    try{
+      const a = new Uint32Array(4);
+      crypto.getRandomValues(a);
+      return [...a].map(x => x.toString(16).padStart(8,"0")).join("");
+    }catch(e){
+      return "id_" + Math.random().toString(16).slice(2) + "_" + now().toString(16);
     }
-    if(s.life.isEnded) return 0;
-    return Math.max(0, s.life.deathAt - t);
   }
 
-  // 数値で追い詰めないために、秒は基本出さない（テストモードだけ秒表示）
-  function formatRemainingMs(ms){
-    if(ms == null) return "";
-    if(ms <= 0) return "残り 0分";
-
-    // テスト用：短いので秒まで出す
-    if(isFast(save)){
-      const sec = Math.ceil(ms/1000);
-      if(sec < 60) return `残り ${sec}s`;
-      const m = Math.floor(sec/60);
-      const s = sec % 60;
-      return `残り ${m}m${String(s).padStart(2,"0")}s`;
-    }
-
-    const mins = Math.ceil(ms/60000);
-    const days = Math.floor(mins/(60*24));
-    const hrs = Math.floor((mins - days*24*60)/60);
-    const m = mins % 60;
-
-    if(days > 0) return `残り ${days}日${hrs}時間`;
-    if(hrs > 0) return `残り ${hrs}時間${m}分`;
-    return `残り ${m}分`;
-  }
-
-  function showScreen(name){
-    Object.values(screens).filter(Boolean).forEach(el => el.classList.remove("active"));
-    (screens[name] || null) && screens[name].classList.add("active");
-  }
-
-  function setModePill(){
-    modeLabel.textContent = "プレイ";
-    modeMeta.textContent = "ローカル保存";
-    subline.textContent = "記録だけが残る";
-  }
-
-  function safeJSONParse(str, fallback){
-    try{ return JSON.parse(str); }catch(e){ return fallback; }
-  }
-
-  function emptyDay(d){
-    return {
-      day: d,
-      heartStart: null,
-      heartEnd: null,
-      sitterMs: 0,
-      careCounts: { food:0, outing:0, mini:0, clean:0, drink:0, macaron:0 },
-      choices: { food:[], outing:[], mini:[], clean:[] }
-    };
-  }
-
-  function genId(){
-    return "p" + Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
-  }
-
-  function newSave(){
-    const id = genId();
-    const t = nowMs();
-    return {
-      v: 2,
-      config: { fast: (baseMode === 'fast'), timeMode: (baseMode === 'fast' ? 'fast' : 'normal') },
-      id,
-      playerName: "",
-      startedAt: t,
-      story: {
-        chosenColor: null,
-      twinColor: null,
-        foundAt: null,
-        arrivalAt: null,
-        hatchAt: null,
-        hatched: false,
-        _targetTile: null,
-        _revealed: []
-      },
-      life: {
-        bornAt: null,
-        deathAt: null,
-        endedAt: null,
-        isEnded: false,
-        revivedUntil: null,
-        uncanny: false,
-        _handledEnd: false
-      },
-      stats: {
-        hunger: 30,
-        waste: 20,
-        mood: 70,
-        hearts: 55,
-        boringPlays: 0,
-        boringMilestone: 0
-      },
-      sitter: {
-        on: false,
-        onSince: null,
-        pausedTotal: 0,
-        usedTotal: 0
-      },
-      items: {
-        drink: 2,
-        macaron: 1
-      },
-      logs: {
-        day: { "1": emptyDay(1), "2": emptyDay(2), "3": emptyDay(3) },
-        events: []
-      },
-      _lastEff: t,
-      _prevDay: 0
-    };
+  function safeJsonParse(s){
+    try{ return JSON.parse(s); }catch(e){ return null; }
   }
 
   function loadSave(){
-    const raw = localStorage.getItem(APP_KEY);
-    if(raw){
-      const parsed = safeJSONParse(raw, null);
-      if(parsed && (parsed.v === 2)) return parsed;
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const obj = safeJsonParse(raw);
+    if(!obj || obj.version !== 1) return null;
+    return obj;
+  }
+
+  function saveSave(obj){
+    localStorage.setItem(SAVE_KEY, JSON.stringify(obj));
+  }
+
+  function loadArchives(){
+    const raw = localStorage.getItem(ARCHIVE_KEY);
+    const arr = raw ? safeJsonParse(raw) : null;
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  function saveArchives(arr){
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(arr));
+  }
+
+  function calcElapsedMs(save, tNow){
+    // シッター中は elapsed が進まない（寿命・空腹・排泄・状態変化が停止）
+    const baseNow = save.pausedSince ? save.pausedSince : tNow;
+    return Math.max(0, baseNow - save.startedAt - save.totalPausedMs);
+  }
+
+  function dayIndex(elapsed){
+    return clamp(Math.floor(elapsed / DAY_MS) + 1, 1, 3);
+  }
+
+  function ensureDay(save, d){
+    if(!save.days) save.days = {};
+    if(!save.days[d]){
+      save.days[d] = {
+        day: d,
+        careCounts: { food:0, out:0, mini:0, clean:0 },
+        choices: [],
+        heartChange: 0,
+        sitterMs: 0,
+        items: { drink:0, macaron:0 },
+        startedAt: now(),
+        heartStart: save.heart,
+        heartEnd: save.heart
+      };
     }
-    return newSave();
+    return save.days[d];
   }
 
-  function saveNow(){
-    localStorage.setItem(APP_KEY, JSON.stringify(save));
+  function pushLiveLog(save, text){
+    if(!save.live) save.live = [];
+    const stamp = now();
+    save.live.unshift({ t: stamp, text });
+    if(save.live.length > 30) save.live.length = 30;
   }
 
-  function resetAll(){
-    localStorage.removeItem(APP_KEY);
-    save = newSave();
-    saveNow();
-  }
-
-  function addEvent(type, detail){
-    const t = effectiveNow(save);
-    const d = dayIndex(save) || 1;
-    save.logs.events.push({ t, day:d, type, detail });
-
-    const dayObj = save.logs.day[String(d)] || null;
-    if(dayObj){
-      if(type === "food"){ dayObj.careCounts.food++; dayObj.choices.food.push(detail.choice); }
-      if(type === "outing"){ dayObj.careCounts.outing++; dayObj.choices.outing.push(detail.choice); }
-      if(type === "mini"){ dayObj.careCounts.mini++; dayObj.choices.mini.push(detail.choice); }
-      if(type === "clean"){ dayObj.careCounts.clean++; dayObj.choices.clean.push(detail.choice); }
-      if(type === "drink"){ dayObj.careCounts.drink++; }
-      if(type === "macaron"){ dayObj.careCounts.macaron++; }
-      if(type === "sitterOn" || type === "sitterOff"){
-        // sitterMs は切り替え時に更新
-      }
-    }
-  }
-
-  function formatTime(ms){
-    const dt = new Date(ms);
-    const hh = String(dt.getHours()).padStart(2,"0");
-    const mm = String(dt.getMinutes()).padStart(2,"0");
+  function formatClock(t){
+    const d = new Date(t);
+    const hh = String(d.getHours()).padStart(2,"0");
+    const mm = String(d.getMinutes()).padStart(2,"0");
     return `${hh}:${mm}`;
   }
 
-  function ensureDayHearts(){
-    if(!save.life.bornAt) return;
-    const d = dayIndex(save);
-    const dayObj = save.logs.day[String(d)];
-    if(dayObj && dayObj.heartStart == null){
-      dayObj.heartStart = save.stats.hearts;
+  function createNewSave(){
+    const t = now();
+    const playerId = uid();
+    const s = {
+      version: 1,
+      playerId,
+      startedAt: t,
+      totalPausedMs: 0,
+      pausedSince: null,
+
+      hatched: false,
+      hatchAnim: false,
+
+      ended: false,
+      endedAt: null,
+
+      // 復活系
+      macaronActive: false,
+      macaronEndsAtElapsed: null, // elapsed基準
+      lifeExtensionMs: 0,         // ドリンクなどで伸ばす
+
+      // 状態
+      heart: 50,
+      hunger: 20,
+      dirt: 10,
+      mood: 70,
+      poop: 0,
+
+      // シミュレーション用
+      lastSimElapsed: 0,
+      currentDay: 1,
+
+      days: {},
+      live: []
+    };
+    ensureDay(s, 1);
+    pushLiveLog(s, "到着した。");
+    return s;
+  }
+
+  function isAlive(save, elapsed){
+    // 3日経過で終了。ただしドリンクの延長あり。
+    const deadline = LIFE_MS + (save.lifeExtensionMs || 0);
+    const notPast = elapsed < deadline;
+    const notEndedFlag = !save.ended;
+    if(save.macaronActive) return true; // 死後の一時復活
+    return notPast && notEndedFlag;
+  }
+
+  function canInteract(save, elapsed){
+    if(save.pausedSince) return true; // シッター中でも操作は許可（時間だけ止まる）
+    if(save.macaronActive) return true;
+    if(save.ended) return false;
+    // 孵化前は一部だけ（ログ/共有などはOK）
+    if(!save.hatched){
+      return false;
+    }
+    // 生存中のみ
+    return isAlive(save, elapsed);
+  }
+
+  function updatePoop(save){
+    // 汚れが溜まるほど増える（0〜3）
+    const desired = clamp(Math.floor((save.dirt - 50) / 20), 0, 3);
+    save.poop = Math.max(save.poop, desired);
+    if(save.poop === 0) return;
+  }
+
+  function applyTimeSimulation(save, elapsed){
+    const prev = save.lastSimElapsed || 0;
+    const deltaMs = Math.max(0, elapsed - prev);
+    if(deltaMs <= 0) return;
+
+    const minutes = deltaMs / 60000;
+    save.hunger = clamp(save.hunger + minutes * HUNGER_PER_MIN, 0, 100);
+    save.dirt   = clamp(save.dirt   + minutes * DIRT_PER_MIN,   0, 100);
+
+    updatePoop(save);
+
+    // ムードは、汚れ・空腹・排泄でゆっくり変化
+    let moodDelta = 0;
+
+    const stress = (save.hunger > 70 ? (save.hunger - 70) / 30 : 0) + (save.dirt > 70 ? (save.dirt - 70) / 30 : 0);
+    moodDelta -= minutes * 0.35 * stress;
+
+    if(save.poop > 0){
+      moodDelta -= minutes * 0.12 * save.poop;
+    }
+
+    // しばらく良い状態なら少し回復
+    if(save.hunger < 35 && save.dirt < 35 && save.poop === 0){
+      moodDelta += minutes * 0.10;
+    }
+
+    save.mood = clamp(save.mood + moodDelta, 0, 100);
+  }
+
+  function updateDayBoundary(save, elapsed){
+    const d = dayIndex(elapsed);
+    if(!save.currentDay) save.currentDay = d;
+
+    if(d !== save.currentDay){
+      // 前日の締め
+      const prev = ensureDay(save, save.currentDay);
+      prev.heartEnd = save.heart;
+
+      // 新日
+      save.currentDay = d;
+      const next = ensureDay(save, d);
+      next.heartStart = save.heart;
+      pushLiveLog(save, `日が変わった。`);
+    }
+    ensureDay(save, save.currentDay);
+  }
+
+  function maybeHatch(save, elapsed){
+    if(save.hatched) return;
+
+    if(elapsed >= HATCH_MS){
+      save.hatchAnim = true;
+      // 演出のため少し遅れて孵化フラグ
+      setTimeout(() => {
+        const s = loadSave();
+        if(!s || s.hatched) return;
+        s.hatched = true;
+        s.hatchAnim = false;
+        pushLiveLog(s, "浮かび上がって、誕生した。");
+        saveSave(s);
+      }, 900);
     }
   }
 
-  function finalizeDayIfNeeded(prevDay, nextDay){
-    if(prevDay === 0 || prevDay === nextDay) return;
-    const prevObj = save.logs.day[String(prevDay)];
-    if(prevObj && prevObj.heartEnd == null){
-      prevObj.heartEnd = save.stats.hearts;
-    }
-    const nextObj = save.logs.day[String(nextDay)];
-    if(nextObj && nextObj.heartStart == null){
-      nextObj.heartStart = save.stats.hearts;
-    }
-  }
+  function maybeEnd(save, elapsed){
+    if(save.macaronActive) return;
 
-  function finalizeAllDaysAtEnd(){
-    for(let d=1; d<=3; d++){
-      const obj = save.logs.day[String(d)];
-      if(obj.heartStart == null && d===1) obj.heartStart = save.stats.hearts;
-      if(obj.heartEnd == null) obj.heartEnd = save.stats.hearts;
+    const deadline = LIFE_MS + (save.lifeExtensionMs || 0);
+    if(!save.ended && elapsed >= deadline){
+      save.ended = true;
+      save.endedAt = now();
+      pushLiveLog(save, "いなくなった。");
+      // 終了アーカイブとして保存（観察用の材料）
+      archiveRun(save);
     }
   }
 
-  function prettyColor(c){
-    if(c==="green") return "みどり";
-    if(c==="blue") return "あお";
-    if(c==="pink") return "もも";
-    if(c==="purple") return "むらさき";
-    return c;
+  function archiveRun(save){
+    // 既に同じplayerIdで入っていれば追加しない
+    const arr = loadArchives();
+    const exist = arr.some(x => x && x.playerId === save.playerId && x.startedAt === save.startedAt);
+    if(exist) return;
+
+    const exp = exportObservationData(save);
+    arr.unshift(exp);
+    if(arr.length > 20) arr.length = 20;
+    saveArchives(arr);
   }
 
-  function pickTwinColor(primary){
-    const colors = ["green","blue","pink","purple"];
-    const opts = colors.filter(x => x !== primary);
-    return opts[Math.floor(Math.random()*opts.length)] || "blue";
-  }
+  function updateMacaronTimer(save, elapsed){
+    if(!save.macaronActive) return;
+    if(save.macaronEndsAtElapsed == null) return;
 
-  function ensureTwinColors(){
-    if(!save || !save.story || !save.story.chosenColor) return;
-    const a = save.story.chosenColor;
-    if(!save.story.twinColor || save.story.twinColor === a){
-      save.story.twinColor = pickTwinColor(a);
-      saveNow();
+    if(elapsed >= save.macaronEndsAtElapsed){
+      save.macaronActive = false;
+      save.macaronEndsAtElapsed = null;
+      // 復活はハッピーエンド扱いにしない。終わりは戻る。
+      save.ended = true;
+      save.endedAt = now();
+      pushLiveLog(save, "どこかズレたまま、また静かになった。");
+      archiveRun(save);
     }
-
-  // ログからミニゲーム回数を推定（古い保存データの救済用）
-  function estimateMiniPlaysFromLogs(s){
-    try{
-      if(!s || !s.logs || !s.logs.day) return 0;
-      let n = 0;
-      for(let d=1; d<=3; d++){
-        const obj = s.logs.day[String(d)];
-        if(obj && obj.careCounts && typeof obj.careCounts.mini === "number") n += obj.careCounts.mini;
-      }
-      return n;
-    }catch(e){ return 0; }
   }
 
+  function stateClass(save){
+    // ラベルは出さず、表情と動きだけ
+    const hungry = save.hunger;
+    const dirty = save.dirt;
+    const mood = save.mood;
+    const poop = save.poop;
+
+    // 泣きに寄せる条件
+    if(mood < 25 || hungry > 85 || dirty > 85 || poop >= 3) return "cry";
+    // 元気がない
+    if(mood < 45 || hungry > 70 || dirty > 70 || poop >= 2) return "low";
+    // 元気
+    if(mood > 70 && hungry < 55 && dirty < 55 && poop === 0) return "lively";
+    return ""; // 普通
   }
 
-function normalizeSaveConfig(){
-  if(!save) return;
-  if(!save.config) save.config = {};
-  if(typeof save.config.fast !== "boolean") save.config.fast = inferFastFromSave(save);
-  if(!save.config.timeMode) save.config.timeMode = save.config.fast ? "fast" : "normal";
-  // 古い保存データでも2体が同色にならないように
-  ensureTwinColors();
-  // 設定の既定値を端末側にも残す（次回の初期値）
-    // 古い保存データ用：統計フィールドの補完
-  if(!save.stats) save.stats = { hunger:30, waste:20, mood:70, hearts:55 };
-  if(typeof save.stats.boringPlays !== "number"){
-    // 既存ログから推定（なければ0）
-    save.stats.boringPlays = estimateMiniPlaysFromLogs(save);
+  function setInteractable(enabled){
+    const btns = [ui.btnFood, ui.btnOut, ui.btnMini, ui.btnClean, ui.btnDrink];
+    btns.forEach(b => b.disabled = !enabled);
   }
-  if(typeof save.stats.boringMilestone !== "number"){
-    save.stats.boringMilestone = Math.floor((save.stats.boringPlays||0)/20);
-  }
-try{ localStorage.setItem(TIME_MODE_KEY, save.config.fast ? "fast" : "normal"); }catch(e){}
-}
 
-  function wireTimeModeSelect(){
-  const sel = $('timeMode');
-  const note = $('timeModeNote');
-  if(!sel || !note) return;
+  function render(save){
+    const tNow = now();
+    const elapsed = calcElapsedMs(save, tNow);
+    const d = dayIndex(elapsed);
 
-  // 進行している場合は、途中で切り替えると時刻がずれるので無効化
-  const progressed = !!(save && (save.story.foundAt || save.story.arrivalAt || save.life.bornAt || save.life.isEnded));
-  sel.disabled = progressed;
+    ui.heartFill.style.width = clamp(save.heart, 0, 100) + "%";
+    ui.heartSmall.textContent = " ";
 
-  const curMode = (save && save.config && save.config.fast) ? 'fast' : 'normal';
-  sel.value = curMode;
+    // day dots
+    ui.d1.className = (d >= 1) ? "on" : "";
+    ui.d2.className = (d >= 2) ? "on" : "";
+    ui.d3.className = (d >= 3) ? "on" : "";
+    ui.daySmall.textContent = " ";
 
-  const setNote = (mode) => {
-    if(progressed){
-      note.textContent = '途中からは変えられません。新しく始めるときに設定できます。';
+    const paused = !!save.pausedSince;
+    ui.sitterToggle.dataset.on = paused ? "true" : "false";
+
+    // 孵化前後の表示
+    if(!save.hatched){
+      ui.eggArea.style.display = "grid";
+      ui.charArea.style.display = "none";
+
+      ui.stageHint.textContent = paused ? "時間が止まっている。" : "しばらくして、浮かび上がる。";
+      ui.stageNote.textContent = paused ? "いまは預けている。" : "見守るしかない時間。";
+
+      // 孵化演出
+      ui.eggArea.classList.toggle("hatchLift", !!save.hatchAnim);
     }else{
-      note.textContent = (mode==='fast') ? 'テスト用：誕生と3日間が短く進みます。' : '通常：誕生は3分、寿命は3日です。';
+      ui.eggArea.style.display = "none";
+      ui.charArea.style.display = "grid";
+
+      // 状態クラス
+      ui.charArea.classList.remove("lively","low","cry","uncanny");
+      const sc = stateClass(save);
+      if(sc) ui.charArea.classList.add(sc);
+
+      // 復活時の違和感
+      if(save.macaronActive) ui.charArea.classList.add("uncanny");
+
+      if(save.ended && !save.macaronActive){
+        ui.stageHint.textContent = " ";
+        ui.stageNote.textContent = " ";
+      }else{
+        ui.stageHint.textContent = paused ? "時間が止まっている。" : " ";
+        ui.stageNote.textContent = " ";
+      }
     }
-  };
-  setNote(sel.value);
 
-  sel.onchange = () => {
-    const mode = sel.value;
-    try{ localStorage.setItem(TIME_MODE_KEY, mode); }catch(e){}
-    if(save && !progressed){
-      if(!save.config) save.config = {};
-      save.config.fast = (mode === 'fast');
-      save.config.timeMode = mode;
-      saveNow();
-    }
-    setNote(mode);
-  };
-}
+    // 排泄表示
+    ui.poop1.classList.toggle("on", save.poop >= 1);
+    ui.poop2.classList.toggle("on", save.poop >= 2);
+    ui.poop3.classList.toggle("on", save.poop >= 3);
 
-function renderOnboarding(){
-    showScreen("intro");
+    // 生存・終了
+    const alive = isAlive(save, elapsed);
+    const interact = canInteract(save, elapsed);
 
-    const box = $("charChoices");
-    const preview = $("charPreview");
-    if(!box || !preview) return;
+    // マカロンは死後に使える（死んでいるとき有効）
+    const canMacaron = save.ended && !save.macaronActive;
+    ui.btnMacaron.disabled = !canMacaron;
 
-    box.innerHTML = "";
-    const colors = ["green","blue","pink","purple"];
-    const desc = {
-      green: "風が通るみたいに、軽い。",
-      blue: "静かな場所で、目が合う。",
-      pink: "少しだけ、あたたかい。",
-      purple: "夢の端っこに触れる。"
+    // 操作の可否（シッター中でも操作は可能、ただし孵化前は不可）
+    setInteractable(interact);
+
+    // ありがとう
+    ui.thanksOverlay.classList.toggle("show", save.ended && !save.macaronActive);
+
+    // ライブログ表示
+    ui.liveLog.innerHTML = "";
+    const items = (save.live || []).slice(0, 14);
+    items.forEach(it => {
+      const div = document.createElement("div");
+      div.className = "logItem";
+      div.innerHTML = `<b>${escapeHtml(it.text)}</b><div class="t">${formatClock(it.t)}</div>`;
+      ui.liveLog.appendChild(div);
+    });
+
+    // サブライン
+    ui.subline.textContent = (save.ended && !save.macaronActive)
+      ? "操作は停止します"
+      : "ログだけが残ります";
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[m]));
+  }
+
+  function openModal(title, hint, bodyNode, footButtons){
+    ui.modalTitle.textContent = title || "";
+    ui.modalHint.textContent = hint || "";
+    ui.modalBody.innerHTML = "";
+    ui.modalBody.appendChild(bodyNode);
+
+    ui.modalFoot.innerHTML = "";
+    footButtons.forEach(btn => ui.modalFoot.appendChild(btn));
+
+    ui.modalBack.classList.add("show");
+    ui.modalBack.setAttribute("aria-hidden","false");
+  }
+
+  function closeModal(){
+    ui.modalBack.classList.remove("show");
+    ui.modalBack.setAttribute("aria-hidden","true");
+  }
+
+  ui.modalX.addEventListener("click", closeModal);
+  ui.modalBack.addEventListener("click", (e) => { if(e.target === ui.modalBack) closeModal(); });
+  window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+
+  function mkBtn(text, cls, onClick){
+    const b = document.createElement("button");
+    b.textContent = text;
+    if(cls) b.className = cls;
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  function mkChoice(title, sub, onPick){
+    const div = document.createElement("div");
+    div.className = "choice";
+    div.innerHTML = `<div class="cTitle">${escapeHtml(title)}</div><div class="cSub">${escapeHtml(sub)}</div>`;
+    div.addEventListener("click", onPick);
+    return div;
+  }
+
+  function heartDeltaRandom(){
+    // 良い／悪いを明示しない微妙な揺れ
+    const r = Math.random();
+    if(r < 0.15) return -2;
+    if(r < 0.50) return 0;
+    if(r < 0.85) return 2;
+    return 3;
+  }
+
+  function applyHeart(save, delta){
+    const d = ensureDay(save, save.currentDay);
+    const before = save.heart;
+    save.heart = clamp(save.heart + delta, 0, 100);
+    const realDelta = save.heart - before;
+    d.heartChange += realDelta;
+    d.heartEnd = save.heart;
+  }
+
+  function addChoice(save, category, choiceLabel){
+    const d = ensureDay(save, save.currentDay);
+    d.choices.push({
+      t: now(),
+      category,
+      choice: choiceLabel
+    });
+  }
+
+  function actFood(){
+    const save = loadSave();
+    if(!save) return;
+    const elapsed = calcElapsedMs(save, now());
+    if(!canInteract(save, elapsed)) return;
+
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
+      どっちにする？<br>理由は説明しません。痕跡だけ残ります。
+    </div>`;
+    const two = document.createElement("div");
+    two.className = "two";
+
+    const pick = (label) => {
+      const s = loadSave(); if(!s) return;
+      const e = calcElapsedMs(s, now());
+      if(!canInteract(s, e)) return;
+
+      ensureDay(s, s.currentDay).careCounts.food++;
+      addChoice(s, "食事", label);
+
+      // 影響は小さく、ランダムも混ぜる（正解なし）
+      let hungerChange = (label.includes("軽")) ? -18 : -30;
+      let moodChange = (label.includes("しっかり")) ? 6 : 3;
+
+      s.hunger = clamp(s.hunger + hungerChange + (Math.random()*4 - 2), 0, 100);
+      s.mood   = clamp(s.mood + moodChange   + (Math.random()*4 - 2), 0, 100);
+
+      const hd = heartDeltaRandom();
+      applyHeart(s, hd);
+
+      pushLiveLog(s, `食事を選んだ。`);
+      saveSave(s);
+      closeModal();
     };
 
-    const selected = save.story.chosenColor || "";
-    const fallback = selected || "green";
-    preview.src = ASSETS.char[fallback].open;
+    two.appendChild(mkChoice("軽い食事", "少しだけ、静かに。", () => pick("軽い食事")));
+    two.appendChild(mkChoice("しっかりした食事", "長めに、ちゃんと。", () => pick("しっかりした食事")));
 
-    colors.forEach(c => {
-      const btn = document.createElement("button");
-      btn.className = "choice" + (c === selected ? " selected" : "");
-      btn.type="button";
-      btn.innerHTML = `
-        <img src="${ASSETS.char[c].open}" alt="${c}">
-        <div class="ctext">
-          <div class="cname">${prettyColor(c)}</div>
-          <div class="cdesc">${desc[c]}</div>
-        </div>
-        <div class="tiny">選ぶ</div>
-      `;
+    body.appendChild(two);
 
-      btn.addEventListener("mouseenter", () => { preview.src = ASSETS.char[c].open; });
-      btn.addEventListener("mouseleave", () => {
-        const cur = save.story.chosenColor || fallback;
-        preview.src = ASSETS.char[cur].open;
-      });
-
-      btn.addEventListener("click", () => {
-        save.story.chosenColor = c;
-        saveNow();
-
-        // 見た目だけ更新（全部作り直さずに選択状態だけ更新）
-        [...box.querySelectorAll(".choice")].forEach(el => el.classList.remove("selected"));
-        btn.classList.add("selected");
-        preview.src = ASSETS.char[c].open;
-        updateStartButton();
-      });
-
-      box.appendChild(btn);
-    });
-
-    // 既に名前があるなら入力欄に反映
-    const pn = $("playerName");
-    if(pn && save.playerName && !pn.value) pn.value = save.playerName;
-
-    wireTimeModeSelect();
-
-    updateResumeBox();
-    updateStartButton();
+    openModal("食事", "2択", body, [
+      mkBtn("やめる", "btnGhost", closeModal)
+    ]);
   }
 
-  function updateStartButton(){
-    const name = (($("playerName") && $("playerName").value) || "").trim();
-    const hasName = name.length > 0;
-    const hasChar = !!save.story.chosenColor;
+  function actOut(){
+    const save = loadSave();
+    if(!save) return;
+    const elapsed = calcElapsedMs(save, now());
+    if(!canInteract(save, elapsed)) return;
 
-    const btn = $("btn_start");
-    if(btn) btn.disabled = !(hasName && hasChar);
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
+      どっちの時間にする？
+    </div>`;
+    const two = document.createElement("div");
+    two.className = "two";
 
-    const tip = $("introNeed");
-    if(!tip) return;
+    const pick = (label) => {
+      const s = loadSave(); if(!s) return;
+      const e = calcElapsedMs(s, now());
+      if(!canInteract(s, e)) return;
 
-    if(hasName && hasChar) tip.textContent = "";
-    else if(!hasName && !hasChar) tip.textContent = "名前と相棒を決めると、はじめられます。";
-    else if(!hasName) tip.textContent = "呼ばれたい名前を入れると、はじめられます。";
-    else tip.textContent = "相棒を選ぶと、はじめられます。";
-  }
+      ensureDay(s, s.currentDay).careCounts.out++;
+      addChoice(s, "お出かけ", label);
 
-
-  function updateResumeBox(){
-    const box = $("resumeBox");
-    const meta = $("resumeMeta");
-    const btn = $("btn_resume");
-    if(!box || !meta || !btn) return;
-
-    const hasProgress = !!(save && (save.life.isEnded || save.life.bornAt || save.story.arrivalAt || save.story.foundAt));
-    const ready = !!(save && save.playerName && save.story.chosenColor && hasProgress);
-
-    box.style.display = ready ? "block" : "none";
-    if(!ready) return;
-
-    let label = "";
-    if(save.life.isEnded) label = "3日間が終わっています";
-    else if(save.life.bornAt) label = `いまは Day ${dayIndex(save)}`;
-    else if(save.story.arrivalAt) label = "マカロンが到着している";
-    else label = "探している途中";
-    meta.textContent = label;
-
-    btn.onclick = () => { resumeToProgress(); };
-  }
-
-  function startFromOnboarding(){
-    const name = (($('playerName') && $('playerName').value) || '').trim();
-    const chosen = save.story.chosenColor;
-    const modeSel = ($('timeMode') && $('timeMode').value) ? $('timeMode').value : (save.config && save.config.fast ? 'fast' : 'normal');
-
-    if(!name || !chosen) return;
-
-    // 一度きれいにしてから、名前と相棒だけ残す
-    resetAll();
-    // 時間設定を反映（新しく始めるときだけ）
-    if(!save.config) save.config = {};
-    save.config.fast = (modeSel === "fast");
-    save.config.timeMode = modeSel;
-    try{ localStorage.setItem(TIME_MODE_KEY, modeSel); }catch(e){}
-
-    save.playerName = name;
-    save.story.chosenColor = chosen;
-    save.story.twinColor = pickTwinColor(chosen);
-
-    // 探しもの探しへ
-    resetSearch();
-    buildMap();
-
-    subline.textContent = name ? `○○（${name}）の記録` : "記録だけが残る";
-    saveNow();
-    showScreen("search");
-  }
-
-  function resetSearch(){
-    save.story.foundAt = null;
-    save.story.arrivalAt = null;
-    save.story.hatchAt = null;
-    save.story.hatched = false;
-    save.story._targetTile = null;
-    save.story._revealed = [];
-    saveNow();
-  }
-
-  function buildMap(){
-    const grid = $("mapGrid");
-    grid.innerHTML = "";
-    const N = 12;
-
-    if(!save.story._targetTile){
-      save.story._targetTile = Math.floor(Math.random()*N);
-      save.story._revealed = [];
-      saveNow();
-    }
-
-    const chosen = save.story.chosenColor || "blue";
-    const macImg = ASSETS.macaron[chosen];
-
-    for(let i=0;i<N;i++){
-      const tile = document.createElement("button");
-      tile.className = "tile";
-      tile.type="button";
-      tile.innerHTML = `<div class="spark"></div><span>……</span><img class="foundImg" alt="macaron">`;
-      const img = tile.querySelector(".foundImg");
-      img.src = macImg;
-
-      if(save.story._revealed.includes(i)){
-        tile.classList.add("revealed");
-        tile.querySelector("span").textContent = " ";
-        if(i === save.story._targetTile){
-          tile.classList.add("found");
-        }
+      // 影響は小さく、個体差のように揺れる
+      if(label.includes("外")){
+        s.mood = clamp(s.mood + 10 + (Math.random()*6 - 3), 0, 100);
+        s.dirt = clamp(s.dirt + 6  + (Math.random()*4 - 2), 0, 100);
+      }else{
+        s.mood = clamp(s.mood + 4  + (Math.random()*6 - 3), 0, 100);
+        s.dirt = clamp(s.dirt - 4  + (Math.random()*4 - 2), 0, 100);
       }
 
-      tile.addEventListener("click", () => {
-        if(save.story.foundAt) return;
+      applyHeart(s, heartDeltaRandom());
+      pushLiveLog(s, `お出かけを選んだ。`);
+      saveSave(s);
+      closeModal();
+    };
 
-        if(!save.story._revealed.includes(i)) save.story._revealed.push(i);
-        tile.classList.add("revealed");
-        tile.querySelector("span").textContent = " ";
+    two.appendChild(mkChoice("外に出る", "少し風に触れる。", () => pick("外に出る")));
+    two.appendChild(mkChoice("家で過ごす", "近くにいる。", () => pick("家で過ごす")));
 
-        if(i === save.story._targetTile){
-          tile.classList.add("found");
-          save.story.foundAt = nowMs();
+    body.appendChild(two);
 
-          // 見つけた瞬間に「到着」させる（誕生はそこから3分後）
-          save.story.arrivalAt = effectiveNow(save);
-          save.story.hatchAt = save.story.arrivalAt + hatchMsEff(save);
-          save.story.hatched = false;
-
-          $("searchNote").textContent = "見つかった。近づくと、温かい。";
-          addEvent("found", { where: i, colorA: save.story.chosenColor, colorB: save.story.twinColor });
-          saveNow();
-
-          setTimeout(() => showArrival(), 650);
-        }else{
-          $("searchNote").textContent = "そこには、光の粒だけが残っている。";
-          saveNow();
-        }
-      });
-
-      grid.appendChild(tile);
-    }
-  }
-
-  function showArrival(){
-    showScreen("arrival");
-    const c = save.story.chosenColor || "green";
-    $("arrivalImg").src = ASSETS.macaron[c];
-  }
-
-  function maybeHatch(){
-    if(save.story.hatched) return;
-    if(!save.story.hatchAt) return;
-
-    const t = effectiveNow(save);
-    if(t >= save.story.hatchAt){
-      save.story.hatched = true;
-
-      const bornAt = save.story.hatchAt;
-      save.life.bornAt = bornAt;
-      save.life.deathAt = bornAt + lifeMsEff(save);
-      save.life.isEnded = false;
-      save.life.endedAt = null;
-      save.life.revivedUntil = null;
-      save.life.uncanny = false;
-      save.life._handledEnd = false;
-
-      save.logs.day["1"] = emptyDay(1);
-      save.logs.day["2"] = emptyDay(2);
-      save.logs.day["3"] = emptyDay(3);
-      save.logs.events = [];
-      save.logs.day["1"].heartStart = save.stats.hearts;
-
-      addEvent("hatch", { colorA: save.story.chosenColor, colorB: save.story.twinColor });
-      saveNow();
-      showCare();
-    }
-  }
-
-  function openChoiceModal(title, note, choices){
-    modalTitle.textContent = title;
-    modalNote.textContent = note;
-    modalBtns.innerHTML = "";
-    choices.forEach(ch => {
-      const b = document.createElement("button");
-      b.className = "btn " + (ch.style || "");
-      b.textContent = ch.label;
-      b.addEventListener("click", () => {
-        closeModal();
-        ch.onPick();
-      });
-      modalBtns.appendChild(b);
-    });
-    overlay.classList.add("on");
-  }
-  function closeModal(){ overlay.classList.remove("on"); }
-
-  function applySoftImpact({ hunger=0, waste=0, mood=0, hearts=0 }){
-    save.stats.hunger = clamp(save.stats.hunger + hunger, 0, 100);
-    save.stats.waste  = clamp(save.stats.waste  + waste, 0, 100);
-
-    const moodCap = save.life.uncanny ? 60 : 100;
-    save.stats.mood = clamp(save.stats.mood + mood, 0, moodCap);
-
-    const heartCap = save.life.uncanny ? Math.min(save.stats.hearts, 70) : 100;
-    save.stats.hearts = clamp(save.stats.hearts + hearts, 0, heartCap);
-  }
-
-  function blockedByEnd(){ return save.life.isEnded; }
-
-  // お世話（2択）
-  function actFood(){
-    if(blockedByEnd()) return;
-    openChoiceModal(
-      "食事",
-      "軽くするか、しっかりにするか。理由は表示されない。",
-      [
-        { label:"軽い食事", style:"secondary", onPick: () => {
-          applySoftImpact({ hunger: -18 + rnd(-2,2), waste: +10 + rnd(-2,2), mood: +4 + rnd(-1,1), hearts: +1 });
-          addEvent("food", { choice: "light" });
-          saveNow();
-        }},
-        { label:"しっかりした食事", onPick: () => {
-          applySoftImpact({ hunger: -30 + rnd(-3,3), waste: +16 + rnd(-3,3), mood: +2 + rnd(-2,2), hearts: +1 });
-          addEvent("food", { choice: "hearty" });
-          saveNow();
-        }}
-      ]
-    );
-  }
-
-  function actOuting(){
-    if(blockedByEnd()) return;
-    openChoiceModal(
-      "お出かけ",
-      "外へ出るか、家で過ごすか。",
-      [
-        { label:"外に出る", onPick: () => {
-          applySoftImpact({ hunger: +8 + rnd(-2,2), waste: +8 + rnd(-2,2), mood: +10 + rnd(-2,2), hearts: +2 });
-          addEvent("outing", { choice: "outside" });
-          saveNow();
-        }},
-        { label:"家で過ごす", style:"secondary", onPick: () => {
-          applySoftImpact({ hunger: +4 + rnd(-2,2), waste: +4 + rnd(-2,2), mood: +6 + rnd(-2,2), hearts: +1 });
-          addEvent("outing", { choice: "home" });
-          saveNow();
-        }}
-      ]
-    );
-  }
-
-  
-  // つまらないゲーム100（2択の集まり）
-  const BORING_TOTAL = 100;
-  const BORING_GAMES = buildBoringGames();
-
-  function buildBoringGames(){
-    // 10×10＝100個。内容は「意味があるようで、ない」くらいの温度。
-    const nouns = ["ホコリ","影","余白","点","線","光","音","匂い","角","記憶"];
-    const pairs = [
-      ["数える","数えない"],
-      ["なでる","見送る"],
-      ["拾う","拾わない"],
-      ["揃える","崩す"],
-      ["近づく","離れる"],
-      ["止まる","進む"],
-      ["黙る","小さく言う"],
-      ["揺らす","揺らさない"],
-      ["隠す","出す"],
-      ["待つ","急ぐ"]
-    ];
-    const templates = [
-      "{N}をどうする？「{A}」/「{B}」",
-      "{N}に、{A}？ それとも{B}？",
-      "{A}ほうの{N} / {B}ほうの{N}",
-      "{N}を、いったん{A} / そのまま{B}",
-      "{N}は… {A} / {B}",
-      "{N}と、{A} / {B}",
-      "{A}してから{B} / {B}してから{A}",
-      "きょうの{N}：{A} / {B}",
-      "{N}を選ぶ：{A} / {B}",
-      "{N}に対して：{A} / {B}"
-    ];
-
-    const list = [];
-    let id = 1;
-    for(let i=0;i<nouns.length;i++){
-      for(let j=0;j<pairs.length;j++){
-        const n = nouns[i];
-        const a = pairs[j][0];
-        const b = pairs[j][1];
-        const t = templates[(i*3 + j) % templates.length];
-        const q = t.replaceAll("{N}", n).replaceAll("{A}", a).replaceAll("{B}", b);
-        list.push({ id, q, a, b });
-        id++;
-      }
-    }
-    return list.slice(0, BORING_TOTAL);
-  }
-
-  function miniChoiceKey(id, side){ return `g${id}${side}`; }
-  function parseMiniChoiceKey(k){
-    const m = /^g(\d{1,3})([AB])$/.exec(String(k||""));
-    if(!m) return null;
-    const id = parseInt(m[1],10);
-    const side = m[2];
-    if(!Number.isFinite(id) || id<1 || id> BORING_TOTAL) return null;
-    return { id, side };
-  }
-
-  function bumpBoringPlay(){
-    if(!save.stats) save.stats = { hunger:30, waste:20, mood:70, hearts:55 };
-    save.stats.boringPlays = (save.stats.boringPlays || 0) + 1;
-
-    // 20回ごとに「少し大きくなる」段階（数値は控えめに）
-    const step = Math.floor(save.stats.boringPlays / 20);
-    if(typeof save.stats.boringMilestone !== "number") save.stats.boringMilestone = 0;
-    if(step > save.stats.boringMilestone){
-      save.stats.boringMilestone = step;
-      // 出来事として残したいなら、ここで addEvent("grow", { step }) も可能
-    }
+    openModal("お出かけ", "2択", body, [
+      mkBtn("やめる", "btnGhost", closeModal)
+    ]);
   }
 
   function actMini(){
-    if(blockedByEnd()) return;
+    const save = loadSave();
+    if(!save) return;
+    const elapsed = calcElapsedMs(save, now());
+    if(!canInteract(save, elapsed)) return;
 
-    const g = BORING_GAMES[Math.floor(Math.random()*BORING_GAMES.length)];
-    openChoiceModal(
-      "つまらないゲーム",
-      `No.${g.id}/${BORING_TOTAL}  ${g.q}`,
-      [
-        { label: g.a, onPick: () => {
-          bumpBoringPlay();
-          applySoftImpact({ mood: +5 + rnd(-3,3), hearts: +1 });
-          addEvent("mini", { gid: g.id, side: "A", choice: miniChoiceKey(g.id,"A") });
-          saveNow();
-          if(screens.care.classList.contains("active")) renderCare();
-        }},
-        { label: g.b, style:"secondary", onPick: () => {
-          bumpBoringPlay();
-          applySoftImpact({ mood: +5 + rnd(-3,3), hearts: +1 });
-          addEvent("mini", { gid: g.id, side: "B", choice: miniChoiceKey(g.id,"B") });
-          saveNow();
-          if(screens.care.classList.contains("active")) renderCare();
-        }}
-      ]
-    );
+    const prompts = [
+      ["左の星", "右の星", "どっちが気になる？"],
+      ["丸い音", "角ばった音", "どっちが合いそう？"],
+      ["明るい影", "暗い影", "どっちを置く？"],
+      ["近い", "遠い", "どっちに寄る？"]
+    ];
+    const p = prompts[Math.floor(Math.random()*prompts.length)];
+
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
+      ${escapeHtml(p[2])}<br>短い2択。すぐ終わります。
+    </div>`;
+    const two = document.createElement("div");
+    two.className = "two";
+
+    const pick = (label) => {
+      const s = loadSave(); if(!s) return;
+      const e = calcElapsedMs(s, now());
+      if(!canInteract(s, e)) return;
+
+      ensureDay(s, s.currentDay).careCounts.mini++;
+      addChoice(s, "ミニゲーム", label);
+
+      // 選択はほぼ意味を説明しない。ただ少し揺れる。
+      s.mood = clamp(s.mood + 5 + (Math.random()*6 - 3), 0, 100);
+      applyHeart(s, heartDeltaRandom());
+
+      pushLiveLog(s, "短い遊びをした。");
+      saveSave(s);
+      closeModal();
+    };
+
+    two.appendChild(mkChoice(p[0], " ", () => pick(p[0])));
+    two.appendChild(mkChoice(p[1], " ", () => pick(p[1])));
+
+    body.appendChild(two);
+
+    openModal("2択ミニゲーム", "2択", body, [
+      mkBtn("やめる", "btnGhost", closeModal)
+    ]);
   }
 
   function actClean(){
-    if(blockedByEnd()) return;
-    openCleanMini();
-  }
+    const save = loadSave();
+    if(!save) return;
+    const elapsed = calcElapsedMs(save, now());
+    if(!canInteract(save, elapsed)) return;
 
-  // 排泄除去の小さなミニゲーム（クリックで消す）
-  function openCleanMini(){
-    modalTitle.textContent = "排泄除去";
-    modalNote.textContent = "画面の中に出る汚れをクリックして消す。成功しても評価は出ない。";
-    modalBtns.innerHTML = "";
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
+      まずやり方を選んで、出ているものをタップして消します。<br>
+      放置すると、ゆっくり状態が悪化します。
+    </div>`;
 
-    const area = document.createElement("div");
-    area.style.position = "relative";
-    area.style.height = "220px";
-    area.style.borderRadius = "16px";
-    area.style.border = "1px solid rgba(15,23,42,.14)";
-    area.style.background = "rgba(255,255,255,.75)";
-    area.style.overflow = "hidden";
-    area.style.marginTop = "12px";
+    const two = document.createElement("div");
+    two.className = "two";
 
-    const status = document.createElement("div");
-    status.className = "tiny";
-    status.style.marginTop = "10px";
-    status.textContent = " ";
+    const startClean = (modeLabel) => {
+      // クリック掃除パート（ゲームっぽいが、入口は2択）
+      const s0 = loadSave(); if(!s0) return;
+      const e0 = calcElapsedMs(s0, now());
+      if(!canInteract(s0, e0)) return;
 
-    const poopCount = 7;
-    let removed = 0;
-    let ended = false;
-
-    function makeBlob(){
-      const b = document.createElement("button");
-      b.type="button";
-      b.style.position="absolute";
-      b.style.width = (18 + Math.random()*22) + "px";
-      b.style.height = (14 + Math.random()*16) + "px";
-      b.style.borderRadius = "12px";
-      b.style.border = "1px solid rgba(15,23,42,.16)";
-      b.style.background = "linear-gradient(180deg, rgba(15,23,42,.12), rgba(15,23,42,.28))";
-      b.style.left = (8 + Math.random()*84) + "%";
-      b.style.top = (8 + Math.random()*74) + "%";
-      b.style.transform = `rotate(${Math.random()*22-11}deg)`;
-      b.style.cursor = "pointer";
-      b.style.boxShadow = "0 10px 18px rgba(15,23,42,.10)";
-      b.addEventListener("click", () => {
-        if(ended) return;
-        b.remove();
-        removed++;
-        if(removed >= poopCount){
-          finish(true);
-        }
-      });
-      return b;
-    }
-
-    for(let i=0;i<poopCount;i++){
-      area.appendChild(makeBlob());
-    }
-
-    const timer = document.createElement("div");
-    timer.className = "tiny";
-    timer.style.marginTop = "8px";
-    let left = isFast(save) ? 6 : 12;
-
-    const iv = setInterval(() => {
-      if(ended) return;
-      left--;
-      if(left<=0){
-        finish(false);
-      }
-    }, 1000);
-
-    function finish(success){
-      if(ended) return;
-      ended = true;
-      clearInterval(iv);
-
-      if(success){
-        applySoftImpact({ waste: -28 + rnd(-4,4), mood: +6 + rnd(-2,2), hearts: +1 });
-        addEvent("clean", { choice: "done" });
-      }else{
-        applySoftImpact({ waste: -12 + rnd(-3,3), mood: +1 + rnd(-2,2), hearts: 0 });
-        addEvent("clean", { choice: "partial" });
-      }
-      saveNow();
       closeModal();
-    }
 
-    const body = $("modalBody");
-    body.innerHTML = "";
-    body.appendChild(status);
-    body.appendChild(area);
-    body.appendChild(timer);
+      const s = loadSave();
+      if(!s) return;
 
-    overlay.classList.add("on");
+      const need = Math.max(1, s.poop);
+      let remaining = need;
+
+      const overlay = document.createElement("div");
+      overlay.style.position = "fixed";
+      overlay.style.inset = "0";
+      overlay.style.background = "rgba(0,0,0,.55)";
+      overlay.style.zIndex = "120";
+      overlay.style.display = "grid";
+      overlay.style.placeItems = "center";
+      overlay.style.padding = "18px";
+
+      const box = document.createElement("div");
+      box.style.width = "min(560px, 96vw)";
+      box.style.border = "1px solid rgba(255,255,255,.16)";
+      box.style.background = "rgba(16,18,34,.88)";
+      box.style.borderRadius = "18px";
+      box.style.boxShadow = "0 22px 60px rgba(0,0,0,.45)";
+      box.style.padding = "12px";
+      box.style.backdropFilter = "blur(12px)";
+
+      const head = document.createElement("div");
+      head.style.display = "flex";
+      head.style.justifyContent = "space-between";
+      head.style.gap = "10px";
+      head.style.alignItems = "center";
+      head.innerHTML = `<div>
+        <div style="font-weight:800;font-size:14px">排泄除去</div>
+        <div style="font-size:12px;color:rgba(238,242,255,.72);margin-top:4px">タップして消す（残り ${remaining}）</div>
+      </div>`;
+      const cancel = mkBtn("やめる", "btnGhost", () => {
+        document.body.removeChild(overlay);
+      });
+      cancel.style.padding = "8px 10px";
+      head.appendChild(cancel);
+
+      const field = document.createElement("div");
+      field.style.marginTop = "10px";
+      field.style.display = "flex";
+      field.style.flexWrap = "wrap";
+      field.style.gap = "10px";
+      field.style.justifyContent = "center";
+
+      function mkPoopChip(){
+        const chip = document.createElement("div");
+        chip.style.width = "64px";
+        chip.style.height = "64px";
+        chip.style.borderRadius = "18px";
+        chip.style.border = "1px solid rgba(255,255,255,.12)";
+        chip.style.background = "linear-gradient(180deg, rgba(251,146,60,.92), rgba(234,179,8,.82))";
+        chip.style.boxShadow = "0 12px 24px rgba(0,0,0,.25)";
+        chip.style.cursor = "pointer";
+        chip.style.transform = `rotate(${(Math.random()*18-9).toFixed(1)}deg)`;
+        chip.title = " ";
+        chip.addEventListener("click", () => {
+          chip.style.opacity = ".0";
+          chip.style.pointerEvents = "none";
+          remaining--;
+          head.querySelector("div div:nth-child(2)").textContent = `タップして消す（残り ${Math.max(0, remaining)}）`;
+          if(remaining <= 0){
+            // 終了処理
+            const s1 = loadSave(); if(!s1) return;
+            const e1 = calcElapsedMs(s1, now());
+            if(!canInteract(s1, e1)) return;
+
+            ensureDay(s1, s1.currentDay).careCounts.clean++;
+            addChoice(s1, "排泄除去", modeLabel);
+
+            // 効果は方法で少し差があるが、理由は言わない
+            const careful = modeLabel.includes("ていねい");
+            const dirtDown = careful ? 26 : 16;
+            const moodUp   = careful ? 10 : 6;
+
+            s1.poop = 0;
+            s1.dirt = clamp(s1.dirt - dirtDown + (Math.random()*4 - 2), 0, 100);
+            s1.mood = clamp(s1.mood + moodUp   + (Math.random()*4 - 2), 0, 100);
+
+            applyHeart(s1, heartDeltaRandom());
+            pushLiveLog(s1, "きれいにした。");
+            saveSave(s1);
+
+            document.body.removeChild(overlay);
+          }
+        });
+        return chip;
+      }
+
+      for(let i=0;i<need;i++){
+        field.appendChild(mkPoopChip());
+      }
+
+      const note = document.createElement("div");
+      note.style.marginTop = "10px";
+      note.style.fontSize = "12px";
+      note.style.color = "rgba(238,242,255,.72)";
+      note.style.lineHeight = "1.7";
+      note.textContent = "終わったら自動で戻ります。";
+
+      box.appendChild(head);
+      box.appendChild(field);
+      box.appendChild(note);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+    };
+
+    two.appendChild(mkChoice("ていねいに掃除", "少し時間をかける。", () => startClean("ていねいに掃除")));
+    two.appendChild(mkChoice("さっと掃除", "急いで済ませる。", () => startClean("さっと掃除")));
+
+    body.appendChild(two);
+
+    openModal("排泄除去", "2択 + 短いタップ", body, [
+      mkBtn("やめる", "btnGhost", closeModal)
+    ]);
   }
 
-  // 生存中アイテム
   function actDrink(){
-    if(blockedByEnd()) return;
-    if(save.items.drink <= 0) return;
-    openChoiceModal(
-      "ドリンク",
-      "生存中に使える。少しだけ戻る感じがする。理由は説明されない。",
-      [
-        { label:"飲ませる", onPick: () => {
-          save.items.drink--;
-          applySoftImpact({ hunger: -16 + rnd(-3,3), waste: -10 + rnd(-3,3), mood: +8 + rnd(-2,2), hearts: +1 });
+    const save = loadSave();
+    if(!save) return;
 
-          // 少しだけ寿命を延ばす（内部時間の調整）
-          save.life.deathAt += (isFast(save) ? 6*1000 : 2*60*60*1000);
+    const elapsed = calcElapsedMs(save, now());
+    if(!save.hatched) return;
 
-          addEvent("drink", {});
-          saveNow();
-        }},
-        { label:"やめておく", style:"secondary", onPick: () => {} }
-      ]
-    );
+    // 生存中のみ
+    if(save.ended || save.macaronActive) return;
+
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
+      ドリンクを使う？<br>
+      少しだけ時間や状態が戻る／延びることがあります。理由は説明しません。<br>
+      使用はログに残ります。
+    </div>`;
+
+    const two = document.createElement("div");
+    two.className = "two";
+
+    const use = () => {
+      const s = loadSave(); if(!s) return;
+      const e = calcElapsedMs(s, now());
+      if(s.ended || s.macaronActive) return;
+      if(!s.hatched) return;
+
+      const d = ensureDay(s, s.currentDay);
+      d.items.drink++;
+      addChoice(s, "ドリンク", "使う");
+
+      // 状態を少し戻す
+      s.hunger = clamp(s.hunger - 12 + (Math.random()*4 - 2), 0, 100);
+      s.dirt   = clamp(s.dirt   - 10 + (Math.random()*4 - 2), 0, 100);
+      s.mood   = clamp(s.mood   +  8 + (Math.random()*4 - 2), 0, 100);
+
+      // 寿命を少し延ばす
+      s.lifeExtensionMs = (s.lifeExtensionMs || 0) + DRINK_LIFE_EXTEND_MS;
+
+      // さらに「少し戻す」感：今までの経過を少し巻き戻す
+      // 直接elapsedを戻す代わりに、開始時刻を未来へずらす
+      // これにより内部の寿命・空腹・排泄の進行も少し戻る
+      s.startedAt += DRINK_BACK_MS;
+
+      applyHeart(s, 0);
+      pushLiveLog(s, "ドリンクを使った。");
+      saveSave(s);
+      closeModal();
+    };
+
+    two.appendChild(mkChoice("使う", "ほんの少し。", use));
+    two.appendChild(mkChoice("使わない", "今回は見送る。", () => { addChoice(save, "ドリンク", "やめる"); closeModal(); }));
+
+    body.appendChild(two);
+
+    openModal("ドリンク", "生存中のみ", body, [
+      mkBtn("閉じる", "btnGhost", closeModal)
+    ]);
   }
 
-  // 死後アイテム
   function actMacaron(){
-    if(!save.life.isEnded) return;
-    if(save.items.macaron <= 0) return;
+    const save = loadSave();
+    if(!save) return;
 
-    openChoiceModal(
-      "マカロン",
-      "死後に使える。一時的に戻るが、完全には戻らない。",
-      [
-        { label:"使う", onPick: () => {
-          save.items.macaron--;
-          const t = effectiveNow(save);
-          save.life.isEnded = false;
-          save.life.endedAt = null;
-          save.life.revivedUntil = t + (isFast(save) ? 22*1000 : 12*60*60*1000);
-          save.life.uncanny = true;
+    // 死後のみ
+    if(!save.ended || save.macaronActive) return;
 
-          // どこか違和感のある復活
-          save.stats.hunger = clamp(save.stats.hunger, 35, 85);
-          save.stats.waste = clamp(save.stats.waste, 25, 90);
-          save.stats.mood = clamp(save.stats.mood, 25, 55);
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
+      マカロンを使う？<br>
+      一時的に戻るかもしれませんが、完全ではありません。<br>
+      使用はログに残ります。
+    </div>`;
 
-          addEvent("macaron", {});
-          saveNow();
-          showCare();
-        }},
-        { label:"やめておく", style:"secondary", onPick: () => {} }
-      ]
-    );
+    const two = document.createElement("div");
+    two.className = "two";
+
+    const use = () => {
+      const s = loadSave(); if(!s) return;
+      if(!s.ended || s.macaronActive) return;
+
+      const e = calcElapsedMs(s, now());
+      const d = ensureDay(s, s.currentDay);
+      d.items.macaron++;
+      addChoice(s, "マカロン", "使う");
+
+      // 一時復活: uncanny
+      s.macaronActive = true;
+      s.macaronEndsAtElapsed = e + MACARON_MS;
+
+      // 少しだけ戻るが、違和感が残る（完全回復ではない）
+      s.ended = false;
+      s.hunger = clamp(s.hunger - 8 + (Math.random()*6 - 3), 0, 100);
+      s.dirt   = clamp(s.dirt   - 6 + (Math.random()*6 - 3), 0, 100);
+      s.mood   = clamp(s.mood   + 2 + (Math.random()*6 - 3), 0, 100);
+      // ハートは強調しないが、揺れとして少し下がることもある
+      applyHeart(s, Math.random() < 0.55 ? -2 : 0);
+
+      pushLiveLog(s, "戻ってきた。");
+      saveSave(s);
+      closeModal();
+    };
+
+    two.appendChild(mkChoice("使う", "一時的に。", use));
+    two.appendChild(mkChoice("使わない", "見送る。", () => { addChoice(save, "マカロン", "やめる"); closeModal(); }));
+
+    body.appendChild(two);
+
+    openModal("マカロン", "死後のみ", body, [
+      mkBtn("閉じる", "btnGhost", closeModal)
+    ]);
   }
 
-  function maybeEnd(){
-    if(!save.life.bornAt) return;
+  function showLogs(save){
+    const exp = exportObservationData(save);
+    showObserve(exp, false);
+  }
 
-    const t = effectiveNow(save);
-
-    if(save.life.revivedUntil && t >= save.life.revivedUntil){
-      save.life.revivedUntil = null;
-      save.life.isEnded = true;
-      save.life.endedAt = t;
+  function exportObservationData(save){
+    // 観察者に見せるのはログとハート推移だけ
+    const days = [];
+    for(let i=1;i<=3;i++){
+      const d = ensureDay(save, i);
+      const lines = (d.choices || []).map(c => `・${formatClock(c.t)} ${c.category}：${c.choice}`).join("\n");
+      days.push({
+        day: i,
+        careCounts: d.careCounts,
+        heartChange: d.heartChange,
+        sitterMs: d.sitterMs,
+        items: d.items,
+        choicesText: lines,
+        heartStart: d.heartStart,
+        heartEnd: d.heartEnd
+      });
     }
+    return {
+      version: 1,
+      playerId: save.playerId,
+      startedAt: save.startedAt,
+      endedAt: save.endedAt || null,
+      days
+    };
+  }
 
-    if(!save.life.revivedUntil && !save.life.isEnded){
-      if(t >= save.life.deathAt){
-        save.life.isEnded = true;
-        save.life.endedAt = t;
+  function toBase64Url(str){
+    const b64 = btoa(unescape(encodeURIComponent(str)));
+    return b64.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  }
+  function fromBase64Url(b64url){
+    const b64 = b64url.replace(/-/g,"+").replace(/_/g,"/");
+    const pad = b64.length % 4 ? "=".repeat(4 - (b64.length % 4)) : "";
+    const s = atob(b64 + pad);
+    return decodeURIComponent(escape(s));
+  }
+
+  function makeShareUrl(save){
+    const exp = exportObservationData(save);
+    const data = toBase64Url(JSON.stringify(exp));
+    // 同じindex.htmlで観察モードにする
+    const u = new URL(location.href);
+    u.searchParams.set("observe","1");
+    u.hash = "data=" + data;
+    return u.toString();
+  }
+
+  async function copyText(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      return true;
+    }catch(e){
+      // フォールバック
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try{
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        return true;
+      }catch(err){
+        document.body.removeChild(ta);
+        return false;
       }
     }
-
-    if(save.life.isEnded && !save.life._handledEnd){
-      save.life._handledEnd = true;
-      finalizeAllDaysAtEnd();
-      addEvent("end", {});
-      saveNow();
-      showEnd();
-    }
   }
 
-  // 時間経過による状態変化（表示はしない）
-  function stepByTime(dtMs){
-    const dt = dtMs / 1000;
+  function showShare(save){
+    const shareUrl = makeShareUrl(save);
 
-    const hungerRate = 100 / (isFast(save) ? 35 : (12*60*60));
-    const wasteRate  = 100 / (isFast(save) ? 25 : (8*60*60));
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
+      このURLを共有すると、第三者は「観察用ログ画面」だけを閲覧できます。<br>
+      操作はできません。見えるのはログとハート推移のみです。
+    </div>`;
 
-    let hungerAdd = dt * hungerRate;
-    let wasteAdd  = dt * wasteRate;
+    const box = document.createElement("div");
+    box.style.marginTop = "10px";
+    box.style.border = "1px solid rgba(255,255,255,.14)";
+    box.style.background = "rgba(255,255,255,.04)";
+    box.style.borderRadius = "14px";
+    box.style.padding = "10px";
+    box.style.fontSize = "12px";
+    box.style.color = "rgba(238,242,255,.9)";
+    box.style.wordBreak = "break-all";
+    box.textContent = shareUrl;
 
-    if(save.life.uncanny){
-      hungerAdd *= 1.25;
-      wasteAdd  *= 1.25;
-    }
+    body.appendChild(box);
 
-    save.stats.hunger = clamp(save.stats.hunger + hungerAdd, 0, 100);
-    save.stats.waste  = clamp(save.stats.waste  + wasteAdd, 0, 100);
-
-    let moodDrop = 0;
-    if(save.stats.hunger > 70) moodDrop += (dt * 0.020);
-    if(save.stats.waste > 70) moodDrop += (dt * 0.024);
-    if(save.stats.hunger > 85) moodDrop += (dt * 0.028);
-    if(save.stats.waste > 85) moodDrop += (dt * 0.032);
-
-    let moodRise = 0;
-    if(save.stats.hunger < 45 && save.stats.waste < 45){
-      moodRise += dt * 0.010;
-    }
-
-    const moodCap = save.life.uncanny ? 60 : 100;
-    save.stats.mood = clamp(save.stats.mood - moodDrop + moodRise, 0, moodCap);
-
-    if(save.stats.hunger > 85 || save.stats.waste > 85){
-      save.stats.hearts = clamp(save.stats.hearts - dt*0.0012, 0, save.life.uncanny ? Math.min(save.stats.hearts,70) : 100);
-    }else if(save.stats.mood > 75 && save.stats.hunger < 55 && save.stats.waste < 55){
-      save.stats.hearts = clamp(save.stats.hearts + dt*0.0006, 0, save.life.uncanny ? Math.min(save.stats.hearts,70) : 100);
-    }
-  }
-
-  // 状態はラベル表示しない。表情と動きだけで見せる
-  function stateKind(){
-    const { hunger, waste, mood } = save.stats;
-    const bad = (hunger > 80) + (waste > 80);
-    if(save.life.isEnded) return "ended";
-    if(bad >= 2 || mood < 22) return "cry";
-    if(bad >= 1 || mood < 45) return "sad";
-    if(mood > 72 && hunger < 60 && waste < 60) return "happy";
-    return "ok";
-  }
-
-
-  // 生まれた直後は小さく、3日で少しずつ大きくなる（カウントダウン表示はしない）
-// 左＝ユーザーが選んだ子、右＝生まれてきた子（最初は右が少し小さい）
-function growthScalesLive(){
-  if(!save.life.bornAt) return { a:0.50, b:0.36, p:0, bonus:0 };
-  const eff = effectiveNow(save);
-
-  // 終了後は、その時点で止める
-  const endT = save.life.isEnded ? (save.life.endedAt || save.life.deathAt) : save.life.deathAt;
-  const denom = Math.max(1, endT - save.life.bornAt);
-  const t = clamp(eff - save.life.bornAt, 0, denom);
-  const p = t / denom;
-
-  const aMin = 0.50;
-  const aMax = 1.05;
-  const bMin = 0.36;
-  const bMax = 1.05;
-
-  const baseA = aMin + (aMax - aMin) * p;
-  const baseB = bMin + (bMax - bMin) * p;
-
-  // つまらないゲーム：20回ごとに、少しだけ大きくなる（控えめ、上限あり）
-  const plays = (save.stats && typeof save.stats.boringPlays === "number") ? save.stats.boringPlays : 0;
-  const step = Math.floor(plays / 20);
-  const bonus = clamp(step * 0.03, 0, 0.15);
-
-  return {
-    a: clamp(baseA + bonus, 0.20, 1.25),
-    b: clamp(baseB + bonus, 0.20, 1.25),
-    p,
-    bonus
-  };
-}
-
-function separationFromScale(sc){
-    // 小さいほど離れて見え、大きいほど少し寄り添う
-    const p = clamp((sc-0.50)/(1.05-0.50), 0, 1);
-    const sep = 96 - 38*p; // px
-    return `${sep.toFixed(1)}px`;
-  }
-
-  // 状態はラベル表示しない。表情と動きだけで見せる
-  function renderCare(){
-    ensureTwinColors();
-    const a = save.story.chosenColor || "green";
-    const b = save.story.twinColor || pickTwinColor(a);
-
-    $("btn_drink").disabled = save.life.isEnded || save.items.drink<=0;
-    $("btn_macaron").disabled = (!save.life.isEnded) || save.items.macaron<=0;
-
-    const kind = stateKind();
-
-    const pair = $("charPair");
-    const imgA = $("charImg");
-    const imgB = $("charImg2");
-    const tear = $("tear");
-    const poops = [ $("po1"), $("po2"), $("po3"), $("po4") ];
-    const useOpenA = (kind === "happy") || (kind === "cry" && (a==="blue" || a==="pink"));
-    const useOpenB = (kind === "happy") || (kind === "cry" && (b==="blue" || b==="pink"));
-    const srcA = useOpenA ? ASSETS.char[a].open : ASSETS.char[a].closed;
-    const srcB = useOpenB ? ASSETS.char[b].open : ASSETS.char[b].closed;
-    imgA.src = srcA;
-    imgB.src = srcB;
-
-    // 成長反映
-    const gs = growthScalesLive();
-    pair.style.setProperty("--growA", gs.a.toFixed(3));
-    pair.style.setProperty("--growB", gs.b.toFixed(3));
-    const scMean = (gs.a + gs.b) / 2;
-    pair.style.setProperty("--sep", separationFromScale(scMean));
-
-    // クラス整理
-    pair.classList.remove("k-ok","k-happy","k-sad","k-cry","k-ended","uncanny");
-    tear.classList.remove("on");
-
-    if(kind === "happy"){
-      pair.classList.add("k-happy");
-    }else if(kind === "ok"){
-      pair.classList.add("k-ok");
-    }else if(kind === "sad"){
-      pair.classList.add("k-sad");
-      tear.classList.add("on");
-    }else if(kind === "cry"){
-      pair.classList.add("k-cry");
-      tear.classList.add("on");
-    }else if(kind === "ended"){
-      pair.classList.add("k-ended");
-    }
-
-    if(save.life.uncanny && !save.life.isEnded){
-      pair.classList.add("uncanny");
-    }
-
-    const dirty = save.stats.waste > 70;
-    poops.forEach(p => p.classList.toggle("on", dirty));
-
-    const h = save.stats.hearts;
-    const level = Math.round(clamp(h,0,100)/20);
-    [ $("h1"),$("h2"),$("h3"),$("h4"),$("h5") ].forEach((el,i)=>{
-      el.classList.toggle("on", i < level);
+    const bCopy = mkBtn("コピー", "", async () => {
+      const ok = await copyText(shareUrl);
+      const s = loadSave();
+      if(s){
+        pushLiveLog(s, ok ? "URLをコピーした。" : "URLを表示した。");
+        saveSave(s);
+      }
+      closeModal();
     });
 
-    const tgl = $("toggle_sitter");
-    tgl.classList.toggle("on", save.sitter.on);
-    tgl.setAttribute("aria-checked", save.sitter.on ? "true":"false");
-    $("sitterNote").textContent = save.sitter.on ? "止まっている" : "時間は止まる";
+    openModal("観察用URL", "共有するとログだけ見られます", body, [
+      mkBtn("閉じる", "btnGhost", closeModal),
+      bCopy
+    ]);
+  }
 
-    $("endNote").style.display = save.life.isEnded ? "block" : "none";
+  function showSaveHint(){
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
+      このプロトタイプは localStorage に保存します。<br>
+      ブラウザを閉じても続きから再開できます。<br>
+      シッターをONにすると、寿命・空腹・排泄・状態変化が止まります（使用時間はログに残ります）。<br>
+      観察用URLは、ログとハート推移のみが見える形でデータをURLに含めます。
+    </div>`;
+    openModal("保存について", " ", body, [
+      mkBtn("閉じる", "btnGhost", closeModal)
+    ]);
+  }
 
-    // 残り時間（数値の評価ではなく、目安として表示）
-    const tc = $("timeCounter");
-    if(tc){
-      tc.textContent = formatRemainingMs(remainingMs(save));
-    }
+  function confirmReset(){
+    const body = document.createElement("div");
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
+      はじめから遊べます。<br>
+      どちらにしても評価や点数は出ません。<br>
+      ログは痕跡として残すか、消すか選べます。
+    </div>`;
+    const two = document.createElement("div");
+    two.className = "two";
 
-    const hint = $("careHint");
-    if(save.life.uncanny && !save.life.isEnded){
-      hint.textContent = "戻ってきた。でも、どこか違う気がする。";
+    const keep = () => {
+      // いまのセーブはアーカイブに残し、新規セーブに
+      const s = loadSave();
+      if(s) archiveRun(s);
+      const n = createNewSave();
+      saveSave(n);
+      pushLiveLog(n, "始まった。");
+      closeModal();
+    };
+    const wipe = () => {
+      localStorage.removeItem(SAVE_KEY);
+      const n = createNewSave();
+      saveSave(n);
+      pushLiveLog(n, "始まった。");
+      closeModal();
+    };
+
+    two.appendChild(mkChoice("ログを残してはじめる", "過去の痕跡はアーカイブへ。", keep));
+    two.appendChild(mkChoice("ログを消してはじめる", "この端末の記録を消します。", wipe));
+    body.appendChild(two);
+
+    openModal("はじめから", " ", body, [
+      mkBtn("やめる", "btnGhost", closeModal)
+    ]);
+  }
+
+  function showObserve(exp, fromUrl){
+    ui.screenGame.classList.remove("show");
+    ui.screenObserve.classList.add("show");
+
+    const start = new Date(exp.startedAt);
+    const end = exp.endedAt ? new Date(exp.endedAt) : null;
+
+    ui.obsTitle.textContent = `観察ID：${exp.playerId.slice(0,8)}`;
+    ui.obsSub.textContent = end
+      ? `${start.toLocaleString()} 〜 ${end.toLocaleString()}`
+      : `${start.toLocaleString()} 〜 （進行中）`;
+
+    // 日別カード
+    ui.obsDays.innerHTML = "";
+    exp.days.forEach(d => {
+      const card = document.createElement("div");
+      card.className = "dayCard";
+      const sitterMin = Math.round((d.sitterMs || 0) / 60000);
+      const c = d.careCounts || {food:0,out:0,mini:0,clean:0};
+      const it = d.items || {drink:0,macaron:0};
+
+      card.innerHTML = `
+        <div class="dh">
+          <b>Day ${d.day}</b>
+          <small> </small>
+        </div>
+        <div class="kvs">
+          <div><span>食事</span> ${c.food}</div>
+          <div><span>お出かけ</span> ${c.out}</div>
+          <div><span>ミニゲーム</span> ${c.mini}</div>
+          <div><span>排泄除去</span> ${c.clean}</div>
+          <div><span>ハートの変化</span> ${d.heartChange}</div>
+          <div><span>シッター</span> ${sitterMin} 分</div>
+          <div><span>ドリンク</span> ${it.drink}</div>
+          <div><span>マカロン</span> ${it.macaron}</div>
+        </div>
+        <div class="choices">${escapeHtml(d.choicesText || "（記録なし）")}</div>
+      `;
+      ui.obsDays.appendChild(card);
+    });
+
+    drawHeartChart(exp);
+
+    if(fromUrl){
+      ui.btnBackToGame.textContent = "閉じる";
     }else{
-      hint.textContent = "言葉ではわからない。表情と動きだけが変わる。";
-    }
-  }
-  function showCare(){
-    ensureTwinColors();
-    showScreen("care");
-    renderCare();
-  }
-
-  function showEnd(){
-    showScreen("end");
-  }
-
-  function resumeToProgress(){
-    if(!save.playerName || !save.story.chosenColor){
-      renderOnboarding();
-      return;
-    }
-    if(save.life.isEnded){
-      showEnd();
-    }else if(save.life.bornAt){
-      showCare();
-    }else if(save.story.arrivalAt){
-      showArrival();
-    }else{
-      buildMap();
-      showScreen("search");
+      ui.btnBackToGame.textContent = "戻る";
     }
   }
 
-  function msToHuman(ms){
-    if(!ms || ms<=0) return "0分";
-    const m = Math.round(ms/60000);
-    if(m < 60) return `${m}分`;
-    const h = Math.floor(m/60);
-    const mm = m%60;
-    return `${h}時間${mm}分`;
-  }
-
-  function summarizeChoices(choices){
-    const out = [];
-    const mapCount = (arr) => arr.reduce((acc,x)=>{ acc[x]=(acc[x]||0)+1; return acc; }, {});
-    const tFood = mapCount(choices.food || []);
-    const tOut = mapCount(choices.outing || []);
-    const tMini = mapCount(choices.mini || []);
-    const tClean = mapCount(choices.clean || []);
-
-    if(Object.keys(tFood).length){
-      out.push(`食事の選択: ${Object.entries(tFood).map(([k,v])=>`${foodLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tOut).length){
-      out.push(`お出かけの選択: ${Object.entries(tOut).map(([k,v])=>`${outingLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tMini).length){
-      out.push(`つまらないゲームの選択: ${Object.entries(tMini).map(([k,v])=>`${miniLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(Object.keys(tClean).length){
-      out.push(`排泄除去: ${Object.entries(tClean).map(([k,v])=>`${cleanLabel(k)}×${v}`).join(" / ")}`);
-    }
-    if(!out.length) out.push("選択: （記録なし）");
-    return out;
-  }
-  function foodLabel(k){ return k==="light" ? "軽い" : (k==="hearty" ? "しっかり" : k); }
-  function outingLabel(k){ return k==="outside" ? "外" : (k==="home" ? "家" : k); }
-  function miniLabel(k){
-    const parsed = (typeof parseMiniChoiceKey === "function") ? parseMiniChoiceKey(k) : null;
-    if(parsed){
-      const g = (typeof BORING_GAMES !== "undefined") ? (BORING_GAMES[parsed.id-1] || null) : null;
-      if(g){
-        const lab = (parsed.side === "A") ? g.a : g.b;
-        return `#${parsed.id} ${lab}`;
-      }
-      return `#${parsed.id}`;
-    }
-    // 旧ミニゲーム互換
-    const m = { collect:"集める", watch:"眺める", near:"近づく", far:"離れる", touch:"触れる", watch2:"見守る" };
-    return m[k] || k;
-  }
-  function cleanLabel(k){ return k==="done" ? "完了" : (k==="partial" ? "途中" : k); }
-
-  function eventToText(e){
-    const t = e.type;
-    if(t==="chooseChar") return `キャラ選択（${prettyColor(e.detail.color)}）`;
-    if(t==="found") return "見つけた";
-    if(t==="hatch") return "誕生した";
-    if(t==="food") return `食事（${foodLabel(e.detail.choice)}）`;
-    if(t==="outing") return `お出かけ（${outingLabel(e.detail.choice)}）`;
-    if(t==="mini"){
-      const c = (e.detail && e.detail.choice!=null) ? e.detail.choice : ((e.detail && e.detail.gid) ? miniChoiceKey(e.detail.gid, e.detail.side||"A") : "");
-      return `つまらない（${miniLabel(c)}）`;
-    }
-    if(t==="clean") return `排泄除去（${cleanLabel(e.detail.choice)}）`;
-    if(t==="drink") return "ドリンク";
-    if(t==="macaron") return "マカロン";
-    if(t==="sitterOn") return "シッターON";
-    if(t==="sitterOff") return "シッターOFF";
-    if(t==="end") return "終わった";
-    return t;
-  }
-
-  function buildHeartSeriesFromSave(s){
-    const arr = [];
-    for(let d=1; d<=3; d++){
-      const obj = s.logs.day[String(d)];
-      const start = (obj && obj.heartStart!=null) ? obj.heartStart : null;
-      const end = (obj && obj.heartEnd!=null) ? obj.heartEnd : ((d===dayIndex(s)) ? s.stats.hearts : null);
-      if(end!=null) arr.push({ x:d, y:end });
-      else if(start!=null) arr.push({ x:d, y:start });
-      else arr.push({ x:d, y:null });
-    }
-    return arr;
-  }
-
-  function drawHeartChart(canvas, series){
+  function drawHeartChart(exp){
+    const canvas = ui.heartChart;
     const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0,0,W,H);
 
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = "rgba(15,23,42,.18)";
+    // 高DPI
+    const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+    const cssW = canvas.clientWidth || 900;
+    const cssH = 160;
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    ctx.scale(dpr, dpr);
+
+    const w = cssW, h = cssH;
+    ctx.clearRect(0,0,w,h);
+
+    // 余白
+    const padL = 34, padR = 12, padT = 12, padB = 22;
+
+    // 軸
     ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(255,255,255,.14)";
     ctx.beginPath();
-    ctx.moveTo(36, 18);
-    ctx.lineTo(36, H-28);
-    ctx.lineTo(W-14, H-28);
+    ctx.moveTo(padL, padT);
+    ctx.lineTo(padL, h - padB);
+    ctx.lineTo(w - padR, h - padB);
     ctx.stroke();
 
-    ctx.fillStyle = "rgba(15,23,42,.70)";
-    ctx.font = "12px system-ui, sans-serif";
-    for(let d=1; d<=3; d++){
-      const x = mapX(d);
-      ctx.fillText("D"+d, x-8, H-10);
-    }
+    // 目盛り
+    ctx.fillStyle = "rgba(238,242,255,.65)";
+    ctx.font = "12px system-ui, -apple-system, sans-serif";
+    ctx.fillText("100", 6, padT + 10);
+    ctx.fillText("0", 14, h - padB + 4);
 
-    const pts = series.filter(p => p.y!=null).map(p => ({ x:mapX(p.x), y:mapY(p.y) }));
-    if(pts.length>=2){
-      ctx.strokeStyle = "rgba(251,113,133,.88)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y);
-      ctx.stroke();
-    }
+    // データ点（day end）
+    const pts = exp.days.map((d, i) => ({
+      x: i,
+      y: clamp(d.heartEnd ?? 50, 0, 100)
+    }));
+
+    const xSpan = Math.max(1, pts.length - 1);
+    const plotW = (w - padL - padR);
+    const plotH = (h - padT - padB);
+
+    function pxX(x){ return padL + (x / xSpan) * plotW; }
+    function pxY(y){ return padT + (1 - y/100) * plotH; }
+
+    // 線
+    ctx.strokeStyle = "rgba(196,181,253,.92)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = pxX(p.x);
+      const y = pxY(p.y);
+      if(i === 0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    // 点
+    ctx.fillStyle = "rgba(147,197,253,.92)";
     pts.forEach(p => {
-      ctx.fillStyle = "rgba(251,113,133,.92)";
+      const x = pxX(p.x);
+      const y = pxY(p.y);
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+      ctx.arc(x,y, 3.5, 0, Math.PI*2);
       ctx.fill();
     });
 
-    function mapX(day){
-      const left = 36, right = W-14;
-      return left + (right-left)*( (day-1)/2 );
+    // day labels
+    ctx.fillStyle = "rgba(238,242,255,.72)";
+    exp.days.forEach((d,i) => {
+      const x = pxX(i);
+      ctx.fillText("D" + d.day, x - 8, h - 6);
+    });
+  }
+
+  function enterObserveFromUrl(){
+    const u = new URL(location.href);
+    const observe = u.searchParams.get("observe") === "1";
+    if(!observe) return false;
+
+    let data = "";
+    if(location.hash && location.hash.startsWith("#data=")){
+      data = location.hash.slice(6);
     }
-    function mapY(val){
-      const top = 18, bottom = H-28;
-      const y = clamp(val,0,100);
-      return bottom - (bottom-top)*(y/100);
+    if(!data){
+      // dataがない場合、観察画面だけ開く
+      const body = document.createElement("div");
+      body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
+        観察用データが見つかりませんでした。<br>
+        共有URLをそのまま開いているか確認してください。
+      </div>`;
+      openModal("観察", " ", body, [mkBtn("閉じる", "btnGhost", () => { closeModal(); })]);
+      return true;
+    }
+
+    try{
+      const json = fromBase64Url(data);
+      const exp = JSON.parse(json);
+      if(!exp || exp.version !== 1) throw new Error("bad");
+      showObserve(exp, true);
+      return true;
+    }catch(e){
+      const body = document.createElement("div");
+      body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
+        観察用データの読み込みに失敗しました。<br>
+        URLが途中で切れている可能性があります。
+      </div>`;
+      openModal("観察", " ", body, [mkBtn("閉じる", "btnGhost", closeModal)]);
+      return true;
     }
   }
 
-  function showLogs(){
-    showScreen("logs");
-    const tabs = $("dayTabs");
-    const box = $("logBox");
-    tabs.innerHTML = "";
-    box.innerHTML = "";
-
-    for(let d=1; d<=3; d++){
-      const b = document.createElement("button");
-      b.className = "tab";
-      b.type="button";
-      b.textContent = `Day ${d}`;
-      b.addEventListener("click", () => renderDay(d));
-      tabs.appendChild(b);
+  function boot(){
+    // 観察URLなら先に観察画面
+    if(enterObserveFromUrl()){
+      return;
     }
-    renderDay(dayIndex(save) || 1);
 
-    drawHeartChart($("heartChart"), buildHeartSeriesFromSave(save));
+    let save = loadSave();
+    if(!save){
+      save = createNewSave();
+      saveSave(save);
+      pushLiveLog(save, "始まった。");
+      saveSave(save);
+    }
 
-    function renderDay(d){
-      [...tabs.children].forEach((t,i)=>t.classList.toggle("active", i===d-1));
-      box.innerHTML = "";
+    // 画像が無い場合でも動くように（imgは未使用だが、差し替え用に残す）
+    ui.eggImg.addEventListener("error", () => {
+      // 画像が無いときは何もしない（ラップ背景が卵っぽく見える）
+    });
 
-      const obj = save.logs.day[String(d)] || emptyDay(d);
-      const heartStart = obj.heartStart;
-      const heartEnd = (obj.heartEnd != null) ? obj.heartEnd : ((d===dayIndex(save)) ? save.stats.hearts : null);
-      const delta = (heartStart!=null && heartEnd!=null) ? (heartEnd-heartStart) : null;
+    // UIイベント
+    ui.btnFood.addEventListener("click", actFood);
+    ui.btnOut.addEventListener("click", actOut);
+    ui.btnMini.addEventListener("click", actMini);
+    ui.btnClean.addEventListener("click", actClean);
+    ui.btnDrink.addEventListener("click", actDrink);
+    ui.btnMacaron.addEventListener("click", actMacaron);
 
-      const lines = [];
-      lines.push(`Day ${d}`);
-      if(heartStart!=null && heartEnd!=null){
-        const sign = delta>=0 ? "+" : "";
-        lines.push(`ハートの変化: ${sign}${Math.round(delta)}`);
+    ui.btnShare.addEventListener("click", () => {
+      const s = loadSave(); if(!s) return;
+      showShare(s);
+    });
+    ui.btnLogs.addEventListener("click", () => {
+      const s = loadSave(); if(!s) return;
+      showLogs(s);
+    });
+    ui.btnReset.addEventListener("click", confirmReset);
+    ui.btnSaveHint.addEventListener("click", showSaveHint);
+
+    ui.btnBackToGame.addEventListener("click", () => {
+      // 観察URLから開いている場合は、ゲーム画面に戻らず閉じる感覚に
+      const u = new URL(location.href);
+      const observe = u.searchParams.get("observe") === "1";
+      if(observe){
+        // ハッシュとパラメータを外して同じページを開く
+        u.searchParams.delete("observe");
+        u.hash = "";
+        location.href = u.toString();
+        return;
+      }
+      ui.screenObserve.classList.remove("show");
+      ui.screenGame.classList.add("show");
+    });
+
+    ui.sitterToggle.addEventListener("click", () => {
+      const s = loadSave(); if(!s) return;
+      if(!s.pausedSince){
+        // ON
+        s.pausedSince = now();
+        pushLiveLog(s, "預けた。");
+        saveSave(s);
       }else{
-        lines.push(`ハートの変化: （未確定）`);
+        // OFF
+        const t = now();
+        const pausedDur = t - s.pausedSince;
+        s.totalPausedMs += pausedDur;
+
+        // シッター使用時間は当日ログへ（実時間）
+        const d = ensureDay(s, s.currentDay);
+        d.sitterMs += pausedDur;
+
+        s.pausedSince = null;
+        pushLiveLog(s, "戻った。");
+        saveSave(s);
+      }
+    });
+
+    // ループ
+    setInterval(() => {
+      const s = loadSave();
+      if(!s) return;
+
+      const t = now();
+      const elapsed = calcElapsedMs(s, t);
+
+      // 日更新
+      updateDayBoundary(s, elapsed);
+
+      // 時間シミュレーション
+      if(!s.pausedSince){
+        applyTimeSimulation(s, elapsed);
       }
 
-      lines.push(`お世話: 食事${obj.careCounts.food} / お出かけ${obj.careCounts.outing} / つまらない${obj.careCounts.mini} / 排泄除去${obj.careCounts.clean}`);
-      lines.push(`アイテム: ドリンク${obj.careCounts.drink} / マカロン${obj.careCounts.macaron}`);
-      lines.push(`シッター: ${msToHuman(obj.sitterMs)}`);
-
-      const cLines = summarizeChoices(obj.choices);
-      cLines.forEach(s => lines.push(s));
-
-      const evs = save.logs.events.filter(e => e.day===d);
-      if(evs.length){
-        lines.push(`出来事:`);
-        evs.slice(0,120).forEach(e => {
-          lines.push(`  ${formatTime(e.t)}  ${eventToText(e)}`);
-        });
-      }else{
-        lines.push(`出来事: （なし）`);
+      // 孵化
+      if(!s.pausedSince){
+        maybeHatch(s, elapsed);
       }
 
-      lines.forEach(s => {
-        const div = document.createElement("div");
-        div.className = "logLine";
-        div.textContent = s;
-        box.appendChild(div);
-      });
-    }
+      // マカロン復活の終了
+      if(!s.pausedSince){
+        updateMacaronTimer(s, elapsed);
+      }
+
+      // 3日終了
+      if(!s.pausedSince){
+        maybeEnd(s, elapsed);
+      }
+
+      s.lastSimElapsed = elapsed;
+      saveSave(s);
+      render(s);
+    }, 650);
+
+    // 初回描画
+    render(save);
   }
 
-  // シッター切り替え（時間停止）
-  function toggleSitter(force=null){
-    if(!save.life.bornAt) return;
-    if(save.life.isEnded) return;
-
-    const wantOn = (force!=null) ? force : !save.sitter.on;
-
-    if(wantOn && !save.sitter.on){
-      save.sitter.on = true;
-      save.sitter.onSince = nowMs();
-      addEvent("sitterOn", {});
-      saveNow();
-      renderCare();
-      return;
-    }
-    if(!wantOn && save.sitter.on){
-      const used = nowMs() - save.sitter.onSince;
-      save.sitter.on = false;
-      save.sitter.pausedTotal += used;
-      save.sitter.usedTotal += used;
-
-      const d = dayIndex(save);
-      const obj = save.logs.day[String(d)];
-      if(obj) obj.sitterMs += used;
-
-      save.sitter.onSince = null;
-      addEvent("sitterOff", { ms: used });
-      saveNow();
-      renderCare();
-      return;
-    }
-  }
-
-  function tick(){
-    if(!save) return;
-
-    // まだ誕生前（到着待ち）
-    if(save.story.arrivalAt && !save.story.hatched){
-      maybeHatch();
-      return;
-    }
-
-    if(save.life.bornAt){
-      const prevDay = save._prevDay || dayIndex(save);
-      const curDay = dayIndex(save);
-      finalizeDayIfNeeded(prevDay, curDay);
-      save._prevDay = curDay;
-
-      const effNow = effectiveNow(save);
-      const last = save._lastEff || effNow;
-      const dt = effNow - last;
-
-      if(dt > 0 && !save.sitter.on && !save.life.isEnded){
-        stepByTime(dt);
-      }
-      save._lastEff = effNow;
-
-      ensureDayHearts();
-      maybeEnd();
-
-      if(screens.care.classList.contains("active")){
-        renderCare();
-      }
-
-      saveNow();
-    }
-  }
-
-  // 初期化（プレイ）
-  function initPlay(){
-    setModePill();
-    save = loadSave();
-
-    normalizeSaveConfig();
-
-    if(save.playerName){
-      $("playerName").value = save.playerName;
-      subline.textContent = save.playerName ? `○○（${save.playerName}）の記録` : "記録だけが残る";
-    }
-    // 画面遷移：まずは物語の入口（必要なら"つづきから"）
-    // アセットの場所を検出してから表示（環境で public/char/ と stage1/ が揺れるため）
-    detectAssetBase().then(() => {
-      renderOnboarding();
-    });
-
-    // ボタン
-    const pn = $("playerName");
-    if(pn){
-      pn.addEventListener("input", () => {
-        save.playerName = pn.value;
-        saveNow();
-        updateStartButton();
-      });
-    }
-
-    const startBtn = $("btn_start");
-    if(startBtn){
-      startBtn.addEventListener("click", () => startFromOnboarding());
-    }
-
-    $("btn_new_reset").addEventListener("click", () => {
-      // 保存を消して、最初に戻る
-      resetAll();
-      if(pn) pn.value = "";
-      renderOnboarding();
-    });
-
-    const backIntroBtn = $("btn_back_intro");
-    if(backIntroBtn){
-      backIntroBtn.addEventListener("click", () => {
-        // 進行中なら、軽く確認する
-        if(save.story.arrivalAt || save.life.bornAt){
-          openChoiceModal("設定へ戻る", "相棒や名前を変えると、探し直しになります。どうしますか？", [
-            { label:"戻る", cls:"secondary", onClick: () => { renderOnboarding(); } },
-            { label:"やめる", cls:"blue", onClick: () => {} }
-          ]);
-        }else{
-          renderOnboarding();
-        }
-      });
-    }
-
-    $("btn_back_search").addEventListener("click", () => {
-      resetSearch();
-      buildMap();
-      showScreen("search");
-      $("searchNote").textContent = "まだ、何も見つからない。";
-    });
-
-    $("btn_hint").addEventListener("click", () => {
-      if(save.story.foundAt) return;
-      const N=12;
-      const i = Math.floor(Math.random()*N);
-      if(!save.story._revealed.includes(i)) save.story._revealed.push(i);
-      saveNow();
-      buildMap();
-      $("searchNote").textContent = "光の粒が、少しだけ道を示した。";
-    });
-
-    $("btn_new_reset").addEventListener("click", () => {
-      resetAll();
-      showScreen("intro");
-      $("searchNote").textContent = "まだ、何も見つからない。";
-    });
-
-    // お世話
-    $("btn_food").addEventListener("click", actFood);
-    $("btn_outing").addEventListener("click", actOuting);
-    $("btn_mini").addEventListener("click", actMini);
-    $("btn_clean").addEventListener("click", actClean);
-    $("btn_drink").addEventListener("click", actDrink);
-    $("btn_macaron").addEventListener("click", actMacaron);
-
-    $("btn_logs").addEventListener("click", () => showLogs());
-    $("btn_back_care").addEventListener("click", () => {
-      if(save.life.isEnded) showEnd();
-      else showCare();
-    });
-
-    // モーダル
-    $("btn_close_modal").addEventListener("click", () => overlay.classList.remove("on"));
-    overlay.addEventListener("click", (e) => {
-      if(e.target === overlay) overlay.classList.remove("on");
-    });
-
-    // シッター
-    const tgl = $("toggle_sitter");
-    tgl.addEventListener("click", () => toggleSitter());
-    tgl.addEventListener("keydown", (e) => {
-      if(e.key === "Enter" || e.key === " "){
-        e.preventDefault();
-        toggleSitter();
-      }
-    });
-
-    $("btn_end_logs").addEventListener("click", () => showLogs());
-
-    // タイマー
-    if(tickTimer) clearInterval(tickTimer);
-    tickTimer = setInterval(tick, 900);
-    tick();
-  }
-
-  setModePill();
-  initPlay();
+  boot();
 })();
 </script>
 </body>
