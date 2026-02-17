@@ -16,19 +16,16 @@
       --radius: 18px;
     }
     *{box-sizing:border-box;}
-   body{
-  margin:0;
-  color:var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
-
-  /* 画像 + 読みやすさ用の薄い暗幕 */
-  background:
-    linear-gradient(180deg, rgba(5,8,22,.55), rgba(11,16,40,.70)),
-    url("public/char/space_background.png") center/cover no-repeat fixed;
-
-  min-height:100vh;
-  overflow-x:hidden;
-}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      background:
+        linear-gradient(180deg, rgba(5,8,22,.55), rgba(11,16,40,.70)),
+        url("public/char/space_background.png") center/cover no-repeat fixed;
+      min-height:100vh;
+      overflow-x:hidden;
+    }
 
     .wrap{max-width: 1100px; margin:0 auto; padding: 18px 14px 40px;}
     .topbar{
@@ -229,6 +226,15 @@
       50%{transform: translate(2px,-1px);}
       100%{transform: translate(-1px,1px);}
     }
+
+    /* 眠り */
+    .charWrap.sleep{animation: sleepBreath 2.8s ease-in-out infinite;}
+    .charWrap.sleep .charImg{filter: saturate(.9) brightness(.96); transform: translateY(3px);}
+    @keyframes sleepBreath{
+      0%,100%{transform: translateY(2px);}
+      50%{transform: translateY(-4px);}
+    }
+
     .tears{position:absolute; inset:0; pointer-events:none; opacity:0; transition:.18s ease;}
     .charWrap.cry .tears{opacity:1;}
     .tear{
@@ -488,8 +494,8 @@
             <div class="actions">
               <div class="grid">
                 <button id="btnFood">食事</button>
-                <button id="btnOut">お出かけ</button>
-                <button id="btnMini">2択ミニゲーム</button>
+                <button id="btnOut">おでかけ</button>
+                <button id="btnStyle">おしゃれ</button>
                 <button id="btnClean">排泄除去</button>
               </div>
               <div class="grid">
@@ -566,7 +572,8 @@
 
   /*
     画像は public/char/ に統一
-    あなたの環境に合わせて、ここだけ差し替えればOKです
+    眠り画像はサブフォルダ: public/char/blue/sleep.png など
+    ピンクだけは依頼通り public/char/pick/sleep.png を優先し、無ければ pink/sleep.png を試します
   */
   const ASSET_BASE = "public/char/";
 
@@ -589,6 +596,9 @@
   const DRINK_EXTEND_MS   = FAST ? 20 * 1000 : 60 * 60 * 1000;
   const DRINK_BACK_MS     = FAST ?  8 * 1000 : 30 * 60 * 1000;
 
+  // 眠り（シーン用）
+  const SLEEP_MS = FAST ? 10 * 1000 : 2 * 60 * 1000;
+
   // 状態がじわじわ変わる係数（ざっくり）
   const HUNGER_PER_MIN = 0.25;
   const DIRT_PER_MIN   = 0.18;
@@ -604,11 +614,34 @@
       purple: "macaron_purple.png",
     },
     char: {
-      blue:   { closed:"blue_closed.png",   open:"blue_open.png" },
-      green:  { closed:"green_closed.png",  open:"green_open.png" },
-      pink:   { closed:"pink_closed.png",   open:"pink_open.png" },
-      purple: { closed:"purple_closed.png", open:"purple_open.png" },
+      blue:   { closed:"blue_closed.png",   open:"blue_open.png",   sleep:"blue/sleep.png" },
+      green:  { closed:"green_closed.png",  open:"green_open.png",  sleep:"green/sleep.png" },
+      // ピンクは pick/sleep.png を優先（依頼通り）
+      pink:   { closed:"pink_closed.png",   open:"pink_open.png",   sleep:"pick/sleep.png", sleepFallback:"pink/sleep.png" },
+      purple: { closed:"purple_closed.png", open:"purple_open.png", sleep:"purple/sleep.png" },
     }
+  };
+
+  // つまらない2択（カテゴリ別にランダムで出す）
+  const TWOCHOICE = {
+    food: [
+      { q:"どっちにする？", a:["おにぎり","手のひらサイズ。"], b:["パン","ちぎって分ける。"] },
+      { q:"今日の気分は？", a:["ラーメン","湯気がある。"], b:["サラダ","音が静か。"] },
+      { q:"手早くいく？", a:["ゼリー","つるっと。"], b:["カレー","ゆっくり。"] },
+      { q:"色で選ぶなら？", a:["白いごはん","まっすぐ。"], b:["黒いパン","ひねってる。"] },
+    ],
+    out: [
+      { q:"どっちの時間にする？", a:["公園","遠くの音がする。"], b:["映画館","暗いのに安心。"] },
+      { q:"寄り道するなら？", a:["本屋","背表紙の森。"], b:["ゲームセンター","光が強い。"] },
+      { q:"気配を選ぶなら？", a:["海","境界がゆれる。"], b:["山","境界が固い。"] },
+      { q:"帰り道の相棒は？", a:["ジュース","明るい甘さ。"], b:["お酒","静かな熱。"] },
+    ],
+    style: [
+      { q:"どっちを纏う？", a:["きらきら","目が追ってしまう。"], b:["しぶい","後から効く。"] },
+      { q:"手触りで選ぶなら？", a:["ふわふわ","近づきたくなる。"], b:["つるつる","離れて見える。"] },
+      { q:"色の気分は？", a:["パステル","やわらかい輪郭。"], b:["モノクロ","輪郭が立つ。"] },
+      { q:"小物を足すなら？", a:["リボン","結び目が残る。"], b:["帽子","影が増える。"] },
+    ]
   };
 
   const el = (id) => document.getElementById(id);
@@ -636,7 +669,7 @@
 
     btnFood: el("btnFood"),
     btnOut: el("btnOut"),
-    btnMini: el("btnMini"),
+    btnStyle: el("btnStyle"),
     btnClean: el("btnClean"),
     btnDrink: el("btnDrink"),
     btnMacaron: el("btnMacaron"),
@@ -684,6 +717,7 @@
     if(!raw) return null;
     const obj = safeJsonParse(raw);
     if(!obj || obj.version !== 1) return null;
+    normalizeSave(obj);
     return obj;
   }
   function saveSave(obj){ localStorage.setItem(SAVE_KEY, JSON.stringify(obj)); }
@@ -712,7 +746,7 @@
     if(!save.days[d]){
       save.days[d] = {
         day: d,
-        careCounts: { food:0, out:0, mini:0, clean:0 },
+        careCounts: { food:0, out:0, style:0, clean:0 },
         choices: [],
         heartChange: 0,
         sitterMs: 0,
@@ -720,8 +754,49 @@
         heartStart: save.heart,
         heartEnd: save.heart
       };
+    }else{
+      // 既存データの形を補正（古い mini が残っていても壊さない）
+      const dd = save.days[d];
+      if(!dd.careCounts) dd.careCounts = { food:0, out:0, style:0, clean:0 };
+      dd.careCounts.food = dd.careCounts.food ?? 0;
+      dd.careCounts.out = dd.careCounts.out ?? 0;
+      dd.careCounts.clean = dd.careCounts.clean ?? 0;
+      // 旧miniがある場合はstyleの表示に寄せる（ログ閲覧時に両方拾う）
+      dd.careCounts.style = dd.careCounts.style ?? 0;
+      if(!Array.isArray(dd.choices)) dd.choices = [];
+      if(!dd.items) dd.items = { drink:0, macaron:0 };
+      dd.items.drink = dd.items.drink ?? 0;
+      dd.items.macaron = dd.items.macaron ?? 0;
+      dd.heartChange = dd.heartChange ?? 0;
+      dd.sitterMs = dd.sitterMs ?? 0;
+      dd.heartStart = dd.heartStart ?? save.heart;
+      dd.heartEnd = dd.heartEnd ?? save.heart;
     }
     return save.days[d];
+  }
+
+  function normalizeSave(save){
+    // 足りないフィールドを補う
+    save.totalPausedMs = save.totalPausedMs ?? 0;
+    save.pausedSince = save.pausedSince ?? null;
+
+    save.lifeExtensionMs = save.lifeExtensionMs ?? 0;
+
+    save.heart = clamp(save.heart ?? 50, 0, 100);
+    save.hunger = clamp(save.hunger ?? 20, 0, 100);
+    save.dirt = clamp(save.dirt ?? 10, 0, 100);
+    save.mood = clamp(save.mood ?? 70, 0, 100);
+    save.poop = clamp(save.poop ?? 0, 0, 3);
+
+    save.lastSimElapsed = save.lastSimElapsed ?? 0;
+    save.currentDay = save.currentDay ?? 1;
+
+    save.sleepUntilElapsed = save.sleepUntilElapsed ?? null;
+    save.lastSleepAtElapsed = save.lastSleepAtElapsed ?? 0;
+
+    if(!Array.isArray(save.live)) save.live = [];
+    if(!save.days) save.days = {};
+    ensureDay(save, 1);
   }
 
   function pushLiveLog(save, text){
@@ -770,10 +845,10 @@
     const t = now();
     const playerId = uid();
 
-    // 孵化前はマカロン（色はランダム。無い色ならblueで表示される）
+    // 孵化前はマカロン（色はランダム）
     const macaronColor = COLORS[Math.floor(Math.random() * COLORS.length)];
 
-    // 誕生後の色（ここは同色にしています）
+    // 誕生後の色（同色）
     const charColor = macaronColor;
 
     const s = {
@@ -795,15 +870,17 @@
       macaronActive: false,
       macaronEndsAtElapsed: null,
 
-      // ドリンクで寿命を少し伸ばす
       lifeExtensionMs: 0,
 
-      // 状態
       heart: 50,
       hunger: 20,
       dirt: 10,
       mood: 70,
       poop: 0,
+
+      // 眠り状態
+      sleepUntilElapsed: null,
+      lastSleepAtElapsed: 0,
 
       lastSimElapsed: 0,
       currentDay: 1,
@@ -833,9 +910,30 @@
   }
 
   function updatePoop(save){
-    // 汚れが溜まるほど増える（0〜3）
     const desired = clamp(Math.floor((save.dirt - 50) / 20), 0, 3);
     save.poop = Math.max(save.poop, desired);
+  }
+
+  function isSleeping(save, elapsed){
+    if(save.pausedSince) return true; // シッター中は眠っている絵に寄せる
+    if(save.sleepUntilElapsed == null) return false;
+    return elapsed < save.sleepUntilElapsed;
+  }
+
+  function maybeStartSleep(save, elapsed, reason){
+    // 眠り中は上書きしない
+    if(isSleeping(save, elapsed)) return;
+
+    // 連続で眠りすぎないように間隔を取る
+    const since = elapsed - (save.lastSleepAtElapsed || 0);
+    const cool = FAST ? 7 * 1000 : 4 * 60 * 1000;
+    if(since < cool) return;
+
+    save.sleepUntilElapsed = elapsed + SLEEP_MS;
+    save.lastSleepAtElapsed = elapsed;
+
+    // 理由は説明しない。ログは小さく残す
+    if(reason) pushLiveLog(save, "静かになった。");
   }
 
   function applyTimeSimulation(save, elapsed){
@@ -863,7 +961,21 @@
       moodDelta += minutes * 0.10;
     }
 
+    // 眠っている間は、少しだけ整う感じ
+    if(isSleeping(save, elapsed)){
+      moodDelta += minutes * 0.12;
+    }
+
     save.mood = clamp(save.mood + moodDelta, 0, 100);
+
+    // 条件が良いとき、たまに眠る（シーン用）
+    const calm = (save.mood > 72 && save.hunger < 55 && save.dirt < 55 && save.poop === 0);
+    if(calm){
+      const p = minutes * 0.05; // 1分あたり約5%くらいのイメージ
+      if(Math.random() < p){
+        maybeStartSleep(save, elapsed, "auto");
+      }
+    }
   }
 
   function updateDayBoundary(save, elapsed){
@@ -885,7 +997,6 @@
     if(save.hatched) return;
     if(elapsed >= HATCH_MS){
       save.hatchAnim = true;
-      // 演出後に誕生扱い
       setTimeout(() => {
         const s = loadSave();
         if(!s || s.hatched) return;
@@ -940,32 +1051,51 @@
   }
 
   function setInteractable(enabled){
-    [ui.btnFood, ui.btnOut, ui.btnMini, ui.btnClean, ui.btnDrink].forEach(b => b.disabled = !enabled);
+    [ui.btnFood, ui.btnOut, ui.btnStyle, ui.btnClean, ui.btnDrink].forEach(b => b.disabled = !enabled);
+  }
+
+  // 画像の切り替え（sleep も含む）
+  function setImgWithFallback(imgEl, primarySrc, fallbackSrc){
+    imgEl.removeAttribute("data-fallback-used");
+    imgEl.setAttribute("data-primary", primarySrc);
+    imgEl.setAttribute("data-fallback", fallbackSrc || "");
+    if(imgEl.getAttribute("data-src") !== primarySrc){
+      imgEl.setAttribute("data-src", primarySrc);
+      imgEl.src = primarySrc;
+    }
   }
 
   function applyVisualImages(save){
     // マカロン
     const mc = FILES.macaron[save.macaronColor] ? save.macaronColor : "blue";
     const macaronSrc = assetPath(FILES.macaron[mc]);
-
     if(ui.macaronImg.getAttribute("data-src") !== macaronSrc){
       ui.macaronImg.setAttribute("data-src", macaronSrc);
       ui.macaronImg.src = macaronSrc;
     }
 
-    // キャラ（open/closed）
+    // キャラ
     const cc = FILES.char[save.charColor] ? save.charColor : "blue";
     const sc = stateClass(save);
 
-    // lively = open、それ以外 = closed（泣きはopen/closedではなく涙と揺れで表現）
-    const wantOpen = (sc === "lively");
-    const charFile = wantOpen ? FILES.char[cc].open : FILES.char[cc].closed;
-    const charSrc = assetPath(charFile);
+    const tNow = now();
+    const elapsed = calcElapsedMs(save, tNow);
+    const sleeping = isSleeping(save, elapsed);
 
-    if(ui.charImg.getAttribute("data-src") !== charSrc){
-      ui.charImg.setAttribute("data-src", charSrc);
-      ui.charImg.src = charSrc;
+    let charFile = FILES.char[cc].closed;
+    let fallback = "";
+
+    if(sleeping){
+      charFile = FILES.char[cc].sleep;
+      fallback = FILES.char[cc].sleepFallback || "";
+    }else{
+      const wantOpen = (sc === "lively");
+      charFile = wantOpen ? FILES.char[cc].open : FILES.char[cc].closed;
     }
+
+    const charSrc = assetPath(charFile);
+    const fbSrc = fallback ? assetPath(fallback) : "";
+    setImgWithFallback(ui.charImg, charSrc, fbSrc);
   }
 
   function render(save){
@@ -980,17 +1110,25 @@
       ui.macaronArea.style.display = "grid";
       ui.charArea.style.display = "none";
       ui.stageHint.textContent = save.pausedSince ? "時間が止まっている。" : "しばらくして、浮かび上がる。";
-      ui.stageNote.textContent = save.pausedSince ? "見守れない時間も、記録される。" : "見守るしかない時間。";
+      // 依頼の文言をここに表示
+      ui.stageNote.textContent = "どんな子かな？ちょっと待ってね";
       ui.macaronArea.classList.toggle("hatchLift", !!save.hatchAnim);
     }else{
       ui.macaronArea.style.display = "none";
       ui.charArea.style.display = "grid";
-      ui.stageHint.textContent = save.pausedSince ? "時間が止まっている。" : " ";
-      ui.stageNote.textContent = " ";
 
-      ui.charArea.classList.remove("lively","low","cry");
-      const sc = stateClass(save);
-      if(sc) ui.charArea.classList.add(sc);
+      const sleeping = isSleeping(save, elapsed);
+
+      ui.stageHint.textContent = save.pausedSince ? "時間が止まっている。" : " ";
+      ui.stageNote.textContent = sleeping ? " " : " ";
+
+      ui.charArea.classList.remove("lively","low","cry","sleep");
+      if(sleeping){
+        ui.charArea.classList.add("sleep");
+      }else{
+        const sc = stateClass(save);
+        if(sc) ui.charArea.classList.add(sc);
+      }
     }
 
     // 排泄表示
@@ -1056,15 +1194,31 @@
     return div;
   }
 
-  // 行動
+  function pickTwo(list){
+    const p = list[Math.floor(Math.random() * list.length)];
+    return p;
+  }
+
+  function applyAfterChoiceMaybeSleep(save){
+    // 選んだ直後に、たまに眠る（シーン用）
+    const tNow = now();
+    const elapsed = calcElapsedMs(save, tNow);
+    if(Math.random() < 0.18){
+      maybeStartSleep(save, elapsed, "after");
+    }
+  }
+
+  // 行動: 食事（つまらない2択）
   function actFood(){
     const save = loadSave(); if(!save) return;
     const elapsed = calcElapsedMs(save, now());
     if(!canInteract(save, elapsed)) return;
 
+    const p = pickTwo(TWOCHOICE.food);
+
     const body = document.createElement("div");
     body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
-      どっちにする？
+      ${escapeHtml(p.q)}
     </div>`;
     const two = document.createElement("div");
     two.className = "two";
@@ -1077,31 +1231,37 @@
       ensureDay(s, s.currentDay).careCounts.food++;
       addChoice(s, "食事", label);
 
-      const light = label.includes("軽");
-      s.hunger = clamp(s.hunger + (light ? -18 : -30) + (Math.random()*4 - 2), 0, 100);
-      s.mood   = clamp(s.mood   + (light ?  3 :  6) + (Math.random()*4 - 2), 0, 100);
+      // どっちが良いではなく、揺れるだけ
+      s.hunger = clamp(s.hunger - (label.includes("おにぎり") ? 22 : 20) + (Math.random()*6 - 3), 0, 100);
+      s.mood   = clamp(s.mood   +  4 + (Math.random()*6 - 3), 0, 100);
 
       applyHeart(s, heartDeltaRandom());
       pushLiveLog(s, "食事を選んだ。");
+
+      applyAfterChoiceMaybeSleep(s);
+
       saveSave(s);
       closeModal();
     };
 
-    two.appendChild(mkChoice("軽い食事", "少しだけ、静かに。", () => pick("軽い食事")));
-    two.appendChild(mkChoice("しっかりした食事", "長めに、ちゃんと。", () => pick("しっかりした食事")));
+    two.appendChild(mkChoice(p.a[0], p.a[1], () => pick(p.a[0])));
+    two.appendChild(mkChoice(p.b[0], p.b[1], () => pick(p.b[0])));
     body.appendChild(two);
 
     openModal("食事", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
   }
 
+  // 行動: おでかけ（つまらない2択）
   function actOut(){
     const save = loadSave(); if(!save) return;
     const elapsed = calcElapsedMs(save, now());
     if(!canInteract(save, elapsed)) return;
 
+    const p = pickTwo(TWOCHOICE.out);
+
     const body = document.createElement("div");
     body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
-      どっちの時間にする？
+      ${escapeHtml(p.q)}
     </div>`;
     const two = document.createElement("div");
     two.className = "two";
@@ -1112,45 +1272,40 @@
       if(!canInteract(s, e)) return;
 
       ensureDay(s, s.currentDay).careCounts.out++;
-      addChoice(s, "お出かけ", label);
+      addChoice(s, "おでかけ", label);
 
-      if(label.includes("外")){
-        s.mood = clamp(s.mood + 10 + (Math.random()*6 - 3), 0, 100);
-        s.dirt = clamp(s.dirt +  6 + (Math.random()*4 - 2), 0, 100);
-      }else{
-        s.mood = clamp(s.mood +  4 + (Math.random()*6 - 3), 0, 100);
-        s.dirt = clamp(s.dirt -  4 + (Math.random()*4 - 2), 0, 100);
-      }
+      // 外っぽいほど少し汚れて、気分は上がるかもしれない
+      const wild = (label.includes("公園") || label.includes("ゲーム") || label.includes("海") || label.includes("山"));
+      s.mood = clamp(s.mood + (wild ? 10 : 7) + (Math.random()*6 - 3), 0, 100);
+      s.dirt = clamp(s.dirt + (wild ?  7 : 4) + (Math.random()*4 - 2), 0, 100);
 
       applyHeart(s, heartDeltaRandom());
-      pushLiveLog(s, "お出かけを選んだ。");
+      pushLiveLog(s, "おでかけを選んだ。");
+
+      applyAfterChoiceMaybeSleep(s);
+
       saveSave(s);
       closeModal();
     };
 
-    two.appendChild(mkChoice("外に出る", "少し風に触れる。", () => pick("外に出る")));
-    two.appendChild(mkChoice("家で過ごす", "近くにいる。", () => pick("家で過ごす")));
+    two.appendChild(mkChoice(p.a[0], p.a[1], () => pick(p.a[0])));
+    two.appendChild(mkChoice(p.b[0], p.b[1], () => pick(p.b[0])));
     body.appendChild(two);
 
-    openModal("お出かけ", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
+    openModal("おでかけ", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
   }
 
-  function actMini(){
+  // 行動: おしゃれ（つまらない2択）
+  function actStyle(){
     const save = loadSave(); if(!save) return;
     const elapsed = calcElapsedMs(save, now());
     if(!canInteract(save, elapsed)) return;
 
-    const prompts = [
-      ["左の星", "右の星", "どっちが気になる？"],
-      ["丸い音", "角ばった音", "どっちが合いそう？"],
-      ["明るい影", "暗い影", "どっちを置く？"],
-      ["近い", "遠い", "どっちに寄る？"]
-    ];
-    const p = prompts[Math.floor(Math.random()*prompts.length)];
+    const p = pickTwo(TWOCHOICE.style);
 
     const body = document.createElement("div");
     body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
-      ${escapeHtml(p[2])}<br>すぐ終わる2択です。
+      ${escapeHtml(p.q)}
     </div>`;
     const two = document.createElement("div");
     two.className = "two";
@@ -1160,24 +1315,31 @@
       const e = calcElapsedMs(s, now());
       if(!canInteract(s, e)) return;
 
-      ensureDay(s, s.currentDay).careCounts.mini++;
-      addChoice(s, "ミニゲーム", label);
+      const d = ensureDay(s, s.currentDay);
+      d.careCounts.style = (d.careCounts.style ?? 0) + 1;
+      addChoice(s, "おしゃれ", label);
 
-      s.mood = clamp(s.mood + 5 + (Math.random()*6 - 3), 0, 100);
+      // ちょっとだけ気分が揺れる。汚れは増えることも減ることもある
+      s.mood = clamp(s.mood + 8 + (Math.random()*8 - 4), 0, 100);
+      s.dirt = clamp(s.dirt + (Math.random()*8 - 4), 0, 100);
+
       applyHeart(s, heartDeltaRandom());
+      pushLiveLog(s, "おしゃれを選んだ。");
 
-      pushLiveLog(s, "短い遊びをした。");
+      applyAfterChoiceMaybeSleep(s);
+
       saveSave(s);
       closeModal();
     };
 
-    two.appendChild(mkChoice(p[0], " ", () => pick(p[0])));
-    two.appendChild(mkChoice(p[1], " ", () => pick(p[1])));
+    two.appendChild(mkChoice(p.a[0], p.a[1], () => pick(p.a[0])));
+    two.appendChild(mkChoice(p.b[0], p.b[1], () => pick(p.b[0])));
     body.appendChild(two);
 
-    openModal("2択ミニゲーム", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
+    openModal("おしゃれ", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
   }
 
+  // 行動: 排泄除去（タップで消す）
   function actClean(){
     const save = loadSave(); if(!save) return;
     const elapsed = calcElapsedMs(save, now());
@@ -1274,8 +1436,10 @@
 
             applyHeart(s1, heartDeltaRandom());
             pushLiveLog(s1, "きれいにした。");
-            saveSave(s1);
 
+            applyAfterChoiceMaybeSleep(s1);
+
+            saveSave(s1);
             document.body.removeChild(overlay);
           }
         });
@@ -1305,6 +1469,7 @@
     openModal("排泄除去", "2択 + タップ", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
   }
 
+  // 行動: ドリンク（生存中のみ）
   function actDrink(){
     const save = loadSave(); if(!save) return;
     if(!save.hatched) return;
@@ -1338,17 +1503,25 @@
       s.startedAt += DRINK_BACK_MS;
 
       pushLiveLog(s, "ドリンクを使った。");
+
+      applyAfterChoiceMaybeSleep(s);
+
       saveSave(s);
       closeModal();
     };
 
     two.appendChild(mkChoice("使う", "ほんの少し。", use));
-    two.appendChild(mkChoice("使わない", "今回は見送る。", () => { addChoice(save, "ドリンク", "やめる"); closeModal(); }));
+    two.appendChild(mkChoice("使わない", "今回は見送る。", () => {
+      const s = loadSave();
+      if(s) { addChoice(s, "ドリンク", "やめる"); saveSave(s); }
+      closeModal();
+    }));
 
     body.appendChild(two);
     openModal("ドリンク", "生存中のみ", body, [ mkBtn("閉じる", "btnGhost", closeModal) ]);
   }
 
+  // 行動: マカロン（死後のみ）
   function actMacaron(){
     const save = loadSave(); if(!save) return;
     if(!save.ended || save.macaronActive) return;
@@ -1381,8 +1554,10 @@
       s.dirt   = clamp(s.dirt   - 6 + (Math.random()*6 - 3), 0, 100);
       s.mood   = clamp(s.mood   + 2 + (Math.random()*6 - 3), 0, 100);
 
-      // 
       applyHeart(s, Math.random() < 0.55 ? -2 : 0);
+
+      // 復活直後は、眠っている絵になりやすい
+      maybeStartSleep(s, e, "revive");
 
       pushLiveLog(s, "戻ってきた。");
       saveSave(s);
@@ -1390,7 +1565,11 @@
     };
 
     two.appendChild(mkChoice("使う", "一時的に。", use));
-    two.appendChild(mkChoice("使わない", "見送る。", () => { addChoice(save, "マカロン", "やめる"); closeModal(); }));
+    two.appendChild(mkChoice("使わない", "見送る。", () => {
+      const s = loadSave();
+      if(s) { addChoice(s, "マカロン", "やめる"); saveSave(s); }
+      closeModal();
+    }));
 
     body.appendChild(two);
     openModal("マカロン", "死後のみ", body, [ mkBtn("閉じる", "btnGhost", closeModal) ]);
@@ -1401,16 +1580,27 @@
     const days = [];
     for(let i=1;i<=3;i++){
       const d = ensureDay(save, i);
+
+      // 旧miniがあればstyleに寄せて表示
+      const cc = d.careCounts || {};
+      const styleCount = (cc.style ?? 0) + (cc.mini ?? 0);
+
       const lines = (d.choices || []).map(c => `・${formatClock(c.t)} ${c.category}：${c.choice}`).join("\n");
+
       days.push({
         day: i,
-        careCounts: d.careCounts,
-        heartChange: d.heartChange,
-        sitterMs: d.sitterMs,
-        items: d.items,
+        careCounts: {
+          food: cc.food ?? 0,
+          out: cc.out ?? 0,
+          style: styleCount,
+          clean: cc.clean ?? 0
+        },
+        heartChange: d.heartChange ?? 0,
+        sitterMs: d.sitterMs ?? 0,
+        items: d.items || {drink:0, macaron:0},
         choicesText: lines,
-        heartStart: d.heartStart,
-        heartEnd: d.heartEnd
+        heartStart: d.heartStart ?? save.heart,
+        heartEnd: d.heartEnd ?? save.heart
       });
     }
     return {
@@ -1578,7 +1768,7 @@
       const card = document.createElement("div");
       card.className = "dayCard";
       const sitterMin = Math.round((d.sitterMs || 0) / 60000);
-      const c = d.careCounts || {food:0,out:0,mini:0,clean:0};
+      const c = d.careCounts || {food:0,out:0,style:0,clean:0};
       const it = d.items || {drink:0,macaron:0};
 
       card.innerHTML = `
@@ -1588,8 +1778,8 @@
         </div>
         <div class="kvs">
           <div><span>食事</span> ${c.food}</div>
-          <div><span>お出かけ</span> ${c.out}</div>
-          <div><span>ミニゲーム</span> ${c.mini}</div>
+          <div><span>おでかけ</span> ${c.out}</div>
+          <div><span>おしゃれ</span> ${c.style}</div>
           <div><span>排泄除去</span> ${c.clean}</div>
           <div><span>ハートの変化</span> ${d.heartChange}</div>
           <div><span>シッター</span> ${sitterMin} 分</div>
@@ -1692,18 +1882,30 @@
       saveSave(save);
     }
 
-    ui.assetHint.textContent = `画像パス: ${ASSET_BASE}（例: ${ASSET_BASE}macaron_blue.png）`;
+    ui.assetHint.textContent = `画像パス: ${ASSET_BASE}（例: ${ASSET_BASE}blue/sleep.png）`;
 
-    // 画像が見つからないとき、画面に原因を出す
+    // 画像が見つからないとき、画面に原因を出す（sleep のフォールバックもここで処理）
     function markMissing(src){
       ui.stageNote.textContent = `画像が見つからないかもしれません\n${src}\npublic/char/ の中にPNGがあるか確認してください`;
     }
+
     ui.macaronImg.addEventListener("error", () => markMissing(ui.macaronImg.src));
-    ui.charImg.addEventListener("error", () => markMissing(ui.charImg.src));
+
+    ui.charImg.addEventListener("error", () => {
+      // sleep のフォールバックがあるなら、1回だけ差し替える
+      const used = ui.charImg.getAttribute("data-fallback-used") === "1";
+      const fb = ui.charImg.getAttribute("data-fallback") || "";
+      if(!used && fb){
+        ui.charImg.setAttribute("data-fallback-used","1");
+        ui.charImg.src = fb;
+        return;
+      }
+      markMissing(ui.charImg.src);
+    });
 
     ui.btnFood.addEventListener("click", actFood);
     ui.btnOut.addEventListener("click", actOut);
-    ui.btnMini.addEventListener("click", actMini);
+    ui.btnStyle.addEventListener("click", actStyle);
     ui.btnClean.addEventListener("click", actClean);
     ui.btnDrink.addEventListener("click", actDrink);
     ui.btnMacaron.addEventListener("click", actMacaron);
