@@ -57,8 +57,10 @@
       background: rgba(255,255,255,.05);
       border-radius: 999px;
       min-height: 34px;
+      position: relative;
     }
     .pill small{color: var(--muted);}
+
     .heartIcon{
       width:16px;height:16px; display:inline-block;
       background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.1)),
@@ -77,6 +79,30 @@
       display:block; height:100%; width:50%;
       background: linear-gradient(90deg, rgba(196,181,253,.95), rgba(147,197,253,.95));
       box-shadow: 0 0 14px rgba(147,197,253,.25);
+    }
+
+    .langSel{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(238,242,255,.92);
+      border-radius: 12px;
+      padding: 8px 28px 8px 10px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      line-height: 1;
+    }
+    .langSel option{background:#0b1028; color:#eef2ff;}
+    .pill[title="Language"]::after{
+      content:"▾";
+      position:absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(238,242,255,.72);
+      pointer-events:none;
+      font-size: 12px;
     }
 
     .toggle{display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none;}
@@ -481,6 +507,15 @@
       100%{opacity:0; transform: scale(1.05) translateY(-12px);}
     }
 
+    .letterSlot.show.drop{
+      animation: letterDrop .95s ease-out both;
+    }
+    @keyframes letterDrop{
+      0%{opacity:0; transform: translateY(-46px) scale(.98); filter: blur(10px);}
+      65%{opacity:1; transform: translateY(6px) scale(1.00); filter: blur(0);}
+      100%{opacity:1; transform: translateY(0) scale(1.00); filter: blur(0);}
+    }
+
     .letterModal{
       position: fixed;
       inset: 0;
@@ -579,7 +614,7 @@
       <div class="brand">
         <div class="dot"></div>
         <div>
-          <div class="title">3日間のお世話ゲーム（2D）</div>
+          <div class="title" id="txtGameTitle">3日間のお世話ゲーム（2D）</div>
           <div class="sub" id="subline">ログ記録</div>
         </div>
       </div>
@@ -591,8 +626,17 @@
           <small> </small>
         </div>
 
+        <div class="pill" title="Language">
+          <small id="txtLangLabel">言語</small>
+          <select id="langSel" class="langSel" aria-label="Language">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+        </div>
+
         <div class="pill toggle" id="sitterToggle" data-on="false" title="シッターONで時間が止まります（寿命・空腹・排泄・状態変化すべて停止）">
-          <small>シッター</small>
+          <small id="txtSitter">シッター</small>
           <div class="switch" aria-hidden="true"></div>
         </div>
       </div>
@@ -603,7 +647,7 @@
         <div class="card">
           <div class="cardHeader">
             <div>
-              <div class="h">ステージ</div>
+              <div class="h" id="txtStageHeader">ステージ</div>
               <div class="hint" id="stageHint"> </div>
             </div>
             <div class="btnRow">
@@ -643,7 +687,7 @@
             </div>
 
             <div class="centerOverlay" id="thanksOverlay" aria-hidden="true">
-              <div class="thanks">ありがとう</div>
+              <div class="thanks" id="txtThanks">ありがとう</div>
             </div>
           </div>
         </div>
@@ -652,8 +696,8 @@
           <div class="card">
             <div class="cardHeader">
               <div>
-                <div class="h">お世話</div>
-                <div class="hint">好きな方を選んでください</div>
+                <div class="h" id="txtCareHeader">お世話</div>
+                <div class="hint" id="txtCareHint">好きな方を選んでください</div>
               </div>
             </div>
 
@@ -661,7 +705,7 @@
               <div id="letterSlot" class="letterSlot" aria-label="お手紙">
                 <button id="letterBtn" class="letterBtn" type="button" aria-label="お手紙を読む">
                   <span class="letterIcon">✉</span>
-                  <span class="letterHint">お手紙</span>
+                  <span class="letterHint" id="txtLetterBtn">お手紙</span>
                 </button>
               </div>
 
@@ -687,7 +731,7 @@
               </div>
             </div>
             <div class="logPane">
-              <div class="mini">表情や動きだけで状態が変わります。</div>
+              <div class="mini" id="txtMiniInfo">表情や動きだけで状態が変わります。</div>
               <div class="logList" id="liveLog"></div>
             </div>
           </div>
@@ -699,8 +743,8 @@
       <div class="card">
         <div class="cardHeader">
           <div>
-            <div class="h">観察用ログ</div>
-            <div class="hint">操作はできません（ログとハート推移のみ）</div>
+            <div class="h" id="txtObserveHeader">観察用ログ</div>
+            <div class="hint" id="txtObserveHint">操作はできません（ログとハート推移のみ）</div>
           </div>
           <div class="btnRow">
             <button id="btnBackToGame" class="btnGhost">戻る</button>
@@ -742,7 +786,7 @@
   <div class="letterModal" id="letterModal" aria-hidden="true">
     <div class="letterPaper" role="dialog" aria-modal="true">
       <div class="letterHead">
-        <b>お手紙</b>
+        <b id="txtLetterTitle">お手紙</b>
         <button id="letterX" class="btnGhost" style="padding:8px 10px;">閉じる</button>
       </div>
       <div class="letterBody">
@@ -763,13 +807,15 @@
   const url = new URL(location.href);
   const FAST = url.searchParams.get("fast") === "1";
 
-  const SAVE_KEY = "osewa_save_2d_char_v1";
-  const ARCHIVE_KEY = "osewa_archives_2d_char_v1";
+  const SAVE_KEY = "osewa_save_2d_char_v2";
+  const ARCHIVE_KEY = "osewa_archives_2d_char_v2";
 
   const DAY_MS  = 24 * 60 * 60 * 1000;
   const LIFE_MS = 3 * DAY_MS;
 
   const HATCH_MS = FAST ? 12 * 1000 : 3 * 60 * 1000;
+
+  const LETTER_DELAY_MS = FAST ? 2500 : 30 * 1000;
 
   const MACARON_REVIVE_MS = FAST ? 18 * 1000 : 10 * 60 * 1000;
   const DRINK_EXTEND_MS   = FAST ? 20 * 1000 : 60 * 60 * 1000;
@@ -782,6 +828,8 @@
 
   const COLORS = ["blue","green","pink","purple"];
 
+  // sleep は "sleep_" 形式（例: blue_sleep.png）へ変更
+  // 旧形式（blue/sleep.png）もフォールバックで拾う
   const FILES = {
     macaron: {
       blue:   "macaron_blue.png",
@@ -790,220 +838,1078 @@
       purple: "macaron_purple.png",
     },
     char: {
-      blue:   { closed:"blue_closed.png",   open:"blue_open.png",   sleep:"blue_sleep.png" },
-      green:  { closed:"green_closed.png",  open:"green_open.png",  sleep:"green_sleep.png" },
-      pink:   { closed:"pink_closed.png",   open:"pink_open.png",   sleep:"pick_sleep.png", sleepFallback:"pink_sleep.png" },
-      purple: { closed:"purple_closed.png", open:"purple_open.png", sleep:"purple_sleep.png" },
+      blue:   { closed:"blue_closed.png",   open:"blue_open.png",   sleep:"blue_sleep.png",   sleepFallback:"blue/sleep.png" },
+      green:  { closed:"green_closed.png",  open:"green_open.png",  sleep:"green_sleep.png",  sleepFallback:"green/sleep.png" },
+      purple: { closed:"purple_closed.png", open:"purple_open.png", sleep:"purple_sleep.png", sleepFallback:"purple/sleep.png" },
+      // ピンク系は pick を優先（pick_sleep.png）。旧 pick/sleep.png、pink_sleep.png もフォールバック。
+      pink:   { closed:"pink_closed.png",   open:"pink_open.png",   sleep:"pick_sleep.png",   sleepFallback:"pick/sleep.png", sleepFallback2:"pink_sleep.png" },
     }
   };
 
-  const INTRO_TEXT = [
-    "あなたは、夜空からこぼれ落ちた「マカロン星のたまご」を見つけました。",
-    "殻の中では、甘いひかりがころころ揺れています。",
-    "この子は、たった３日だけ、あなたのそばにいられます。",
-    "３日たったら、マカロン星へ帰ってしまいます。",
-    "でも、ときどきここで静かに眠ってしまうこともあるかもしれません。",
-    "だからこそ、いまだけは。やさしく育ててね。"
-  ].join("\n");
+  const LANG_KEY = "osewa_lang_v2";
+  function getLang(){
+    const v = localStorage.getItem(LANG_KEY);
+    return (v === "en" || v === "zh" || v === "ja") ? v : "ja";
+  }
+  let LANG = getLang();
 
-  const LETTER_BODY =
-    INTRO_TEXT + "\n\n" +
-    "追伸：まずは、この子に名前をつけてあげてください。";
+  const I18N = {
+    ja: {
+      docTitle: "3日間のお世話ゲーム（2D）",
+      gameTitle: "3日間のお世話ゲーム（2D）",
+      langLabel: "言語",
+      sitter: "シッター",
+      stageHeader: "ステージ",
+      careHeader: "お世話",
+      careHint: "好きな方を選んでください",
+      letter: "お手紙",
+      observeHeader: "観察用ログ",
+      observeHint: "操作はできません（ログとハート推移のみ）",
+      btnShare: "観察用URL",
+      btnLogs: "ログ",
+      btnName: "名前",
+      btnReset: "はじめから",
+      btnBack: "戻る",
+      btnClose: "閉じる",
+      btnCancel: "やめる",
+      btnCopy: "コピー",
+      btnLater: "あとで",
+      btnDecide: "決定",
+      btnFood: "食事",
+      btnOut: "おでかけ",
+      btnStyle: "おしゃれ",
+      btnClean: "排泄除去",
+      btnDrink: "ドリンク",
+      btnMacaron: "マカロン",
+      twoChoice: "2択",
+      timeStopped: "時間が止まっている。",
+      hatchingSoon: "しばらくして、浮かび上がる。",
+      waitNote: "どんな子かな？ちょっと待ってね",
+      sleepNote: "すやすや…",
+      thisPet: "この子：",
+      subRunning: "ログ記録",
+      subEnded: "操作は停止します",
+      thanks: "ありがとう",
+      miniInfo: "表情や動きだけで状態が変わります。",
+      assetHint: "画像パス",
+      shareTitle: "観察用URL",
+      shareHint: "共有するとログだけ見られます",
+      shareText: "このURLを共有すると、第三者は「観察用ログ画面」だけを閲覧できます。\n操作はできません。見えるのはログとハート推移のみです。",
+      shareCopied: "URLをコピーした。",
+      shareShown: "URLを表示した。",
+      letterLines: [
+        "あなたは、夜空からこぼれ落ちた「マカロン星のたまご」を見つけました。",
+        "殻の中では、甘いひかりがころころ揺れています。",
+        "この子は、たった３日だけ、あなたのそばにいられます。",
+        "３日たったら、マカロン星へ帰ってしまいます。",
+        "でも、ときどきここで静かに眠ってしまうこともあるかもしれません。",
+        "だからこそ、いまだけは。やさしく育ててね。"
+      ],
+      psName: "追伸：よかったら、この子に名前をつけてあげてください。",
+      nameTitle: "名前",
+      nameHintInit: "この子に名前をつけてね",
+      nameHintEdit: " ",
+      nameStoryEdit: "この子の名前を、そっと変えてみる？",
+      namePlaceholder: "名前（12文字まで）",
+      nameNote: "あとで「名前」ボタンから変更できます。",
+      resetTitle: "はじめから",
+      resetText: "はじめから遊べます。\nログは痕跡として残すか、消すか選べます。",
+      resetKeep: "ログを残してはじめる",
+      resetKeepSub: "過去の痕跡はアーカイブへ。",
+      resetWipe: "ログを消してはじめる",
+      resetWipeSub: "この端末の記録を消します。",
+      resetCancel: "やめる",
+      logArrived: "到着した。",
+      logStarted: "始まった。",
+      logHatched: "浮かび上がって、誕生した。",
+      logDayChanged: "日が変わった。",
+      logQuiet: "静かになった。",
+      logGone: "いなくなった。",
+      logOff: "どこかズレたまま、また静かになった。",
+      logReadLetter: "手紙を読んだ。",
+      logNamed: "名前をつけた：",
+      logSitterOn: "預けた。",
+      logSitterOff: "戻った。",
+      missAsset: "画像が見つからないかもしれません\n{src}\npublic/char/ の中にPNGがあるか確認してください",
+      cleanHow: "まずやり方を選んで、出ているものをタップして消します。\n放置すると状態がゆっくり悪化します。",
+      tapToErase: "タップして消す（残り {n}）",
+      autoBack: "終わったら自動で戻ります。",
+      drinkAsk: "ドリンクを使う？\n少しだけ時間や状態が戻る／延びることがあります。理由は説明しません。\n使用はログに残ります。",
+      macaronAsk: "マカロンを使う？\n一時的に戻るかもしれませんが、完全ではありません。\n使用はログに残ります。",
+      use: "使う",
+      notUse: "使わない",
+      onlyAlive: "生存中のみ",
+      onlyAfter: "死後のみ",
+      chose: "を選んだ。",
+      decided: "にした。",
+      cleaned: "きれいにした。",
+      usedDrink: "ドリンクを使った。",
+      returned: "戻ってきた。"
+    },
+    en: {
+      docTitle: "3-Day Care Game (2D)",
+      gameTitle: "3-Day Care Game (2D)",
+      langLabel: "Language",
+      sitter: "Sitter",
+      stageHeader: "Stage",
+      careHeader: "Care",
+      careHint: "Choose whichever you like",
+      letter: "Letter",
+      observeHeader: "Observer Log",
+      observeHint: "No controls (logs and heart trend only)",
+      btnShare: "Observer URL",
+      btnLogs: "Logs",
+      btnName: "Name",
+      btnReset: "Restart",
+      btnBack: "Back",
+      btnClose: "Close",
+      btnCancel: "Cancel",
+      btnCopy: "Copy",
+      btnLater: "Later",
+      btnDecide: "OK",
+      btnFood: "Food",
+      btnOut: "Go out",
+      btnStyle: "Style",
+      btnClean: "Clean",
+      btnDrink: "Drink",
+      btnMacaron: "Macaron",
+      twoChoice: "Two choices",
+      timeStopped: "Time is paused.",
+      hatchingSoon: "Soon, something will rise…",
+      waitNote: "What kind of child will it be? Please wait a moment.",
+      sleepNote: "Zzz…",
+      thisPet: "This one: ",
+      subRunning: "Logging",
+      subEnded: "Controls disabled",
+      thanks: "Thanks",
+      miniInfo: "Status changes from expressions and motion.",
+      assetHint: "Asset path",
+      shareTitle: "Observer URL",
+      shareHint: "Shareable (log only)",
+      shareText: "Sharing this URL lets others view only the observer log screen.\nThey cannot play. Only logs and heart trend are visible.",
+      shareCopied: "URL copied.",
+      shareShown: "URL shown.",
+      letterLines: [
+        "You found a ‘macaron-star egg’ that slipped from the night sky.",
+        "Inside the shell, a sweet light gently rolls around.",
+        "This child can stay with you for only three days.",
+        "After three days, it will return to the macaron star.",
+        "Sometimes, it may quietly fall asleep here as well.",
+        "That’s why—just for now—please care for it gently."
+      ],
+      psName: "P.S. If you’d like, please give this child a name.",
+      nameTitle: "Name",
+      nameHintInit: "Please name this child",
+      nameHintEdit: " ",
+      nameStoryEdit: "Want to quietly change the name?",
+      namePlaceholder: "Name (up to 12 chars)",
+      nameNote: "You can change it later with the Name button.",
+      resetTitle: "Restart",
+      resetText: "You can start over.\nChoose whether to keep traces (archive) or erase them.",
+      resetKeep: "Restart (keep logs)",
+      resetKeepSub: "Past traces go to archive.",
+      resetWipe: "Restart (erase logs)",
+      resetWipeSub: "Erase records on this device.",
+      resetCancel: "Cancel",
+      logArrived: "Arrived.",
+      logStarted: "Started.",
+      logHatched: "It rose and was born.",
+      logDayChanged: "A new day began.",
+      logQuiet: "It became quiet.",
+      logGone: "It is gone.",
+      logOff: "It returned… but slightly off, and became quiet again.",
+      logReadLetter: "Read the letter.",
+      logNamed: "Named: ",
+      logSitterOn: "Paused (sitter).",
+      logSitterOff: "Resumed.",
+      missAsset: "This image may be missing:\n{src}\nPlease check PNGs under public/char/",
+      cleanHow: "First choose how to clean, then tap the mess to erase it.\nIf you leave it, the status will slowly get worse.",
+      tapToErase: "Tap to erase (left: {n})",
+      autoBack: "You will return automatically when done.",
+      drinkAsk: "Use a drink?\nIt may slightly restore/extend time or status. No explanation.\nYour choice will be logged.",
+      macaronAsk: "Use a macaron?\nIt may bring it back briefly, but not perfectly.\nYour choice will be logged.",
+      use: "Use",
+      notUse: "Not now",
+      onlyAlive: "Only while alive",
+      onlyAfter: "Only after death",
+      chose: " selected.",
+      decided: " chosen.",
+      cleaned: "Cleaned.",
+      usedDrink: "Used a drink.",
+      returned: "It came back."
+    },
+    zh: {
+      docTitle: "三天照护游戏（2D）",
+      gameTitle: "三天照护游戏（2D）",
+      langLabel: "语言",
+      sitter: "托管",
+      stageHeader: "舞台",
+      careHeader: "照护",
+      careHint: "请选择你喜欢的一个",
+      letter: "信",
+      observeHeader: "观察记录",
+      observeHint: "无法操作（仅显示记录与心值趋势）",
+      btnShare: "观察链接",
+      btnLogs: "记录",
+      btnName: "名字",
+      btnReset: "重新开始",
+      btnBack: "返回",
+      btnClose: "关闭",
+      btnCancel: "取消",
+      btnCopy: "复制",
+      btnLater: "稍后",
+      btnDecide: "确定",
+      btnFood: "吃饭",
+      btnOut: "外出",
+      btnStyle: "打扮",
+      btnClean: "清理",
+      btnDrink: "饮料",
+      btnMacaron: "马卡龙",
+      twoChoice: "二选一",
+      timeStopped: "时间已暂停。",
+      hatchingSoon: "再等一会儿，它会浮现出来…",
+      waitNote: "会是什么样的孩子呢？稍等一下哦。",
+      sleepNote: "呼噜…",
+      thisPet: "这个孩子：",
+      subRunning: "记录中",
+      subEnded: "已停止操作",
+      thanks: "谢谢",
+      miniInfo: "表情与动作会影响状态。",
+      assetHint: "资源路径",
+      shareTitle: "观察链接",
+      shareHint: "分享后仅可看记录",
+      shareText: "分享此链接后，别人只能查看“观察记录”画面。\n不能进行游戏操作，只能看到记录与心值趋势。",
+      shareCopied: "已复制链接。",
+      shareShown: "已显示链接。",
+      letterLines: [
+        "你捡到了一枚从夜空中落下的“马卡龙星之蛋”。",
+        "蛋壳里，甜甜的光在轻轻滚动。",
+        "这个孩子只能陪你三天。",
+        "三天后，它会回到马卡龙星。",
+        "不过，有时它也可能在这里静静睡去。",
+        "所以——就在此刻——请温柔地照顾它。"
+      ],
+      psName: "附言：如果愿意，请给这个孩子取个名字。",
+      nameTitle: "名字",
+      nameHintInit: "请给它取个名字",
+      nameHintEdit: " ",
+      nameStoryEdit: "想悄悄改一下名字吗？",
+      namePlaceholder: "名字（最多12字）",
+      nameNote: "之后也可以用“名字”按钮修改。",
+      resetTitle: "重新开始",
+      resetText: "可以从头开始。\n请选择保留痕迹（归档）或清除记录。",
+      resetKeep: "保留记录重新开始",
+      resetKeepSub: "过去痕迹会归档。",
+      resetWipe: "清除记录重新开始",
+      resetWipeSub: "清除本设备记录。",
+      resetCancel: "取消",
+      logArrived: "已到达。",
+      logStarted: "已开始。",
+      logHatched: "它浮起并诞生了。",
+      logDayChanged: "新的一天开始了。",
+      logQuiet: "它安静下来了。",
+      logGone: "它离开了。",
+      logOff: "它回来了…但有点不一样，又安静了。",
+      logReadLetter: "读了信。",
+      logNamed: "取名：",
+      logSitterOn: "已托管（暂停）。",
+      logSitterOff: "已恢复。",
+      missAsset: "可能找不到图片：\n{src}\n请确认 public/char/ 下是否有PNG",
+      cleanHow: "先选择清理方式，然后点击脏东西把它清除。\n如果放着不管，状态会慢慢变差。",
+      tapToErase: "点击清除（剩余 {n}）",
+      autoBack: "完成后会自动返回。",
+      drinkAsk: "要使用饮料吗？\n它可能稍微恢复/延长时间或状态。不解释原因。\n你的选择会被记录。",
+      macaronAsk: "要使用马卡龙吗？\n它可能让它短暂回来，但不会完美。\n你的选择会被记录。",
+      use: "使用",
+      notUse: "暂不使用",
+      onlyAlive: "仅在存活时",
+      onlyAfter: "仅在离开后",
+      chose: " 已选择。",
+      decided: " 已决定。",
+      cleaned: "已清理。",
+      usedDrink: "使用了饮料。",
+      returned: "它回来了。"
+    }
+  };
 
-  function makeOpt(icon, t, sub, extra){
-    return Object.assign({ icon, t, sub }, extra || {});
+  function t(key){
+    return (I18N[LANG] && I18N[LANG][key]) || I18N.ja[key] || key;
+  }
+  function getLetterBody(){
+    const lines = t("letterLines");
+    const arr = Array.isArray(lines) ? lines : I18N.ja.letterLines;
+    return arr.join("\n") + "\n\n" + t("psName");
+  }
+  function getIntroText(){
+    const lines = t("letterLines");
+    const arr = Array.isArray(lines) ? lines : I18N.ja.letterLines;
+    return arr.join("\n");
+  }
+  function setLang(lang){
+    LANG = (lang === "en" || lang === "zh" || lang === "ja") ? lang : "ja";
+    localStorage.setItem(LANG_KEY, LANG);
+    applyLangToUI();
+    if(ui.letterText) ui.letterText.textContent = getLetterBody();
   }
 
-  // 2択（アイコン＋20本ずつ、袋シャッフルでなるべく被らない）
+  function makeOpt(icon, title, sub, extra){
+    return Object.assign({ icon, t:title, sub }, extra || {});
+  }
+  function makePrompt(q, a, b){
+    return { q, a, b };
+  }
+
+  // 2択の文章も言語別に用意
+  // 注意：各言語で配列長を揃えています（途中で言語を変えても破綻しにくい）
   const TWOCHOICE = {
-    food: [
-      { q:"星くずごはん、どっち？",
-        a: makeOpt("🍙","星おにぎり","ぎゅっと光る。"),
-        b: makeOpt("🥐","月のクロワッサン","層がふわり。") },
-      { q:"あったかい？つめたい？",
-        a: makeOpt("🍜","ほしラーメン","湯気が宇宙船。"),
-        b: makeOpt("🥗","静かなサラダ","葉っぱがささやく。") },
-      { q:"手早くいく？ゆっくりいく？",
-        a: makeOpt("🍮","ぷるぷるゼリー","つるっと。"),
-        b: makeOpt("🍛","ゆっくりカレー","時間の匂い。") },
-      { q:"色で選ぶなら？",
-        a: makeOpt("🍚","まっ白ごはん","まっすぐ。"),
-        b: makeOpt("🍞","こげ色パン","ひねってる。") },
-      { q:"甘い星のひと口、どっち？",
-        a: makeOpt("🍫","夜チョコ","黒の安心。"),
-        b: makeOpt("🍓","朝いちご","赤のきらめき。") },
-      { q:"パリッと？もちっと？",
-        a: makeOpt("🥟","小さな餃子","月面の音。"),
-        b: makeOpt("🍡","三色だんご","手のひら祭り。") },
-      { q:"スープで包む？焼いて香る？",
-        a: makeOpt("🍲","星のスープ","湯気がふわふわ。"),
-        b: makeOpt("🍕","小さなピザ","香りが先に来る。") },
-      { q:"海の気配、どっち？",
-        a: makeOpt("🍣","きらり寿司","波の角度。"),
-        b: makeOpt("🦐","えびフライ","衣が星屑。") },
-      { q:"ふわっと？しゃきっと？",
-        a: makeOpt("🧁","雲のカップケーキ","口どけが早い。"),
-        b: makeOpt("🥪","影のサンド","噛むほど増える。") },
-      { q:"あまい予感、どっち？",
-        a: makeOpt("🍪","ほろほろクッキー","音が優しい。"),
-        b: makeOpt("🧇","焼きワッフル","格子が嬉しい。") },
-      { q:"小さく幸せ、どっち？",
-        a: makeOpt("🧀","ひとくちチーズ","静かに濃い。"),
-        b: makeOpt("🍯","はちみつひかり","とろり長い。") },
-      { q:"果物の星、どっち？",
-        a: makeOpt("🍑","もも色の夢","やわらかい輪郭。"),
-        b: makeOpt("🍇","ぶどうの夜","粒が並ぶ。") },
-      { q:"ぱちぱち？しっとり？",
-        a: makeOpt("🍿","宇宙ポップ","はじける。"),
-        b: makeOpt("🍰","しっとりケーキ","落ち着く。") },
-      { q:"あったか包む？冷たく澄む？",
-        a: makeOpt("🥟","おまじない蒸し","白い湯気。"),
-        b: makeOpt("🍨","月のアイス","冷えた青。") },
-      { q:"香ばしいの、どっち？",
-        a: makeOpt("🍢","星おでん串","湯気の会話。"),
-        b: makeOpt("🥓","ぱりベーコン","音が勝つ。") },
-      { q:"ふしぎな飲みもの、どっち？",
-        a: makeOpt("🧃","星ジュース","明るい甘さ。"),
-        b: makeOpt("🫖","静かな紅茶","余韻が長い。") },
-      { q:"ころころ？とろとろ？",
-        a: makeOpt("🍙","小さなころん飯","手の温度。"),
-        b: makeOpt("🍝","とろりパスタ","糸が伸びる。") },
-      { q:"元気を足すなら？",
-        a: makeOpt("🍌","バナナの光","すぐ効く。"),
-        b: makeOpt("🥜","ナッツの芯","あとで効く。") },
-      { q:"音で選ぶなら？",
-        a: makeOpt("🥨","かりかりプレッツェル","軽い足音。"),
-        b: makeOpt("🍞","ふわパン","音が消える。") },
-      { q:"最後のひと口、どっち？",
-        a: makeOpt("🍬","小さな飴","長く残る。"),
-        b: makeOpt("🍋","きゅんレモン","一瞬まぶしい。") },
-    ],
-    out: [
-      { q:"どっちの時間にする？",
-        a: makeOpt("🌳","公園","遠くの音がする。",{ wild:true }),
-        b: makeOpt("🎬","映画館","暗いのに安心。",{ wild:false }) },
-      { q:"寄り道するなら？",
-        a: makeOpt("📚","本屋","背表紙の森。",{ wild:false }),
-        b: makeOpt("🕹️","ゲームセンター","光が強い。",{ wild:false }) },
-      { q:"気配を選ぶなら？",
-        a: makeOpt("🌊","海","境界がゆれる。",{ wild:true }),
-        b: makeOpt("🏔️","山","境界が固い。",{ wild:true }) },
-      { q:"帰り道の相棒は？",
-        a: makeOpt("🧃","ジュース","明るい甘さ。",{ wild:false }),
-        b: makeOpt("🍶","お酒","静かな熱。",{ wild:false }) },
+    ja: {
+      food: [
+        makePrompt("星くずごはん、どっち？",
+          makeOpt("🍙","星おにぎり","ぎゅっと光る。"),
+          makeOpt("🥐","月のクロワッサン","層がふわり。")
+        ),
+        makePrompt("あったかい？つめたい？",
+          makeOpt("🍜","ほしラーメン","湯気が宇宙船。"),
+          makeOpt("🥗","静かなサラダ","葉っぱがささやく。")
+        ),
+        makePrompt("手早くいく？ゆっくりいく？",
+          makeOpt("🍮","ぷるぷるゼリー","つるっと。"),
+          makeOpt("🍛","ゆっくりカレー","時間の匂い。")
+        ),
+        makePrompt("色で選ぶなら？",
+          makeOpt("🍚","まっ白ごはん","まっすぐ。"),
+          makeOpt("🍞","こげ色パン","ひねってる。")
+        ),
+        makePrompt("甘い星のひと口、どっち？",
+          makeOpt("🍫","夜チョコ","黒の安心。"),
+          makeOpt("🍓","朝いちご","赤のきらめき。")
+        ),
+        makePrompt("パリッと？もちっと？",
+          makeOpt("🥟","小さな餃子","月面の音。"),
+          makeOpt("🍡","三色だんご","手のひら祭り。")
+        ),
+        makePrompt("スープで包む？焼いて香る？",
+          makeOpt("🍲","星のスープ","湯気がふわふわ。"),
+          makeOpt("🍕","小さなピザ","香りが先に来る。")
+        ),
+        makePrompt("海の気配、どっち？",
+          makeOpt("🍣","きらり寿司","波の角度。"),
+          makeOpt("🦐","えびフライ","衣が星屑。")
+        ),
+        makePrompt("ふわっと？しゃきっと？",
+          makeOpt("🧁","雲のカップケーキ","口どけが早い。"),
+          makeOpt("🥪","影のサンド","噛むほど増える。")
+        ),
+        makePrompt("あまい予感、どっち？",
+          makeOpt("🍪","ほろほろクッキー","音が優しい。"),
+          makeOpt("🧇","焼きワッフル","格子が嬉しい。")
+        ),
+        makePrompt("小さく幸せ、どっち？",
+          makeOpt("🧀","ひとくちチーズ","静かに濃い。"),
+          makeOpt("🍯","はちみつひかり","とろり長い。")
+        ),
+        makePrompt("果物の星、どっち？",
+          makeOpt("🍑","もも色の夢","やわらかい輪郭。"),
+          makeOpt("🍇","ぶどうの夜","粒が並ぶ。")
+        ),
+        makePrompt("ぱちぱち？しっとり？",
+          makeOpt("🍿","宇宙ポップ","はじける。"),
+          makeOpt("🍰","しっとりケーキ","落ち着く。")
+        ),
+        makePrompt("あったか包む？冷たく澄む？",
+          makeOpt("🥟","おまじない蒸し","白い湯気。"),
+          makeOpt("🍨","月のアイス","冷えた青。")
+        ),
+        makePrompt("香ばしいの、どっち？",
+          makeOpt("🍢","星おでん串","湯気の会話。"),
+          makeOpt("🥓","ぱりベーコン","音が勝つ。")
+        ),
+        makePrompt("ふしぎな飲みもの、どっち？",
+          makeOpt("🧃","星ジュース","明るい甘さ。"),
+          makeOpt("🫖","静かな紅茶","余韻が長い。")
+        ),
+        makePrompt("ころころ？とろとろ？",
+          makeOpt("🍙","小さなころん飯","手の温度。"),
+          makeOpt("🍝","とろりパスタ","糸が伸びる。")
+        ),
+        makePrompt("元気を足すなら？",
+          makeOpt("🍌","バナナの光","すぐ効く。"),
+          makeOpt("🥜","ナッツの芯","あとで効く。")
+        ),
+        makePrompt("音で選ぶなら？",
+          makeOpt("🥨","かりかりプレッツェル","軽い足音。"),
+          makeOpt("🍞","ふわパン","音が消える。")
+        ),
+        makePrompt("最後のひと口、どっち？",
+          makeOpt("🍬","小さな飴","長く残る。"),
+          makeOpt("🍋","きゅんレモン","一瞬まぶしい。")
+        ),
+      ],
+      out: [
+        makePrompt("どっちの時間にする？",
+          makeOpt("🌳","公園","遠くの音がする。",{ wild:true }),
+          makeOpt("🎬","映画館","暗いのに安心。",{ wild:false })
+        ),
+        makePrompt("寄り道するなら？",
+          makeOpt("📚","本屋","背表紙の森。",{ wild:false }),
+          makeOpt("🕹️","ゲームセンター","光が強い。",{ wild:false })
+        ),
+        makePrompt("気配を選ぶなら？",
+          makeOpt("🌊","海","境界がゆれる。",{ wild:true }),
+          makeOpt("🏔️","山","境界が固い。",{ wild:true })
+        ),
+        makePrompt("帰り道の相棒は？",
+          makeOpt("🧃","ジュース","明るい甘さ。",{ wild:false }),
+          makeOpt("🍶","お酒","静かな熱。",{ wild:false })
+        ),
+        makePrompt("空を見上げるなら？",
+          makeOpt("🌙","月の近く","白く静か。",{ wild:false }),
+          makeOpt("⭐","星の多い場所","数が増える。",{ wild:false })
+        ),
+        makePrompt("風の方向、どっち？",
+          makeOpt("🪁","風の広場","ひっぱられる。",{ wild:true }),
+          makeOpt("☕","喫茶の窓","落ち着く。",{ wild:false })
+        ),
+        makePrompt("光を浴びる？影を歩く？",
+          makeOpt("🌞","ひだまり","あったかい。",{ wild:true }),
+          makeOpt("🌌","星影の道","音が細い。",{ wild:false })
+        ),
+        makePrompt("揺れるの、好き？",
+          makeOpt("🎡","観覧車","ゆっくり回る。",{ wild:false }),
+          makeOpt("🚃","電車","景色が流れる。",{ wild:false })
+        ),
+        makePrompt("見つけもの、どっち？",
+          makeOpt("🪐","小さな隕石屋","意味が増える。",{ wild:false }),
+          makeOpt("🧸","ぬいぐるみ屋","抱きやすい。",{ wild:false })
+        ),
+        makePrompt("音が多いのは？",
+          makeOpt("🏟️","にぎやか広場","笑いが跳ねる。",{ wild:true }),
+          makeOpt("🕯️","静かな路地","足音だけ。",{ wild:false })
+        ),
+        makePrompt("水辺に寄る？",
+          makeOpt("⛲","噴水","きらきら散る。",{ wild:true }),
+          makeOpt("🛁","湯の気配","とける。",{ wild:false })
+        ),
+        makePrompt("ふたりの速度は？",
+          makeOpt("🚶","のんびり散歩","考えが並ぶ。",{ wild:true }),
+          makeOpt("🏃","小走り","笑いが先。",{ wild:true })
+        ),
+        makePrompt("空の乗りもの、どっち？",
+          makeOpt("🛸","UFOごっこ","浮いた気分。",{ wild:false }),
+          makeOpt("🎈","風船旅","軽くなる。",{ wild:true })
+        ),
+        makePrompt("景色が変わるのは？",
+          makeOpt("🏙️","街のネオン","色が増える。",{ wild:false }),
+          makeOpt("🌲","森の入口","匂いが増える。",{ wild:true })
+        ),
+        makePrompt("ひと休みするなら？",
+          makeOpt("🍦","アイス屋","冷えて笑う。",{ wild:false }),
+          makeOpt("🥟","屋台","湯気で隠れる。",{ wild:false })
+        ),
+        makePrompt("遠くへ行く？近くで遊ぶ？",
+          makeOpt("🗺️","小旅行","思い出が増える。",{ wild:true }),
+          makeOpt("🎲","近くの遊び","今が濃い。",{ wild:false })
+        ),
+        makePrompt("見上げたいのは？",
+          makeOpt("🪟","大きい窓","外が入る。",{ wild:false }),
+          makeOpt("🔭","望遠鏡","遠くが近い。",{ wild:false })
+        ),
+        makePrompt("音の種類は？",
+          makeOpt("🎶","音楽の道","リズムが出る。",{ wild:false }),
+          makeOpt("🤫","しーの道","声が小さい。",{ wild:false })
+        ),
+        makePrompt("足跡を残すなら？",
+          makeOpt("👣","砂の道","すぐ消える。",{ wild:true }),
+          makeOpt("🧱","石の道","長く残る。",{ wild:true })
+        ),
+        makePrompt("最後に寄りたいのは？",
+          makeOpt("🏠","おうち","安心が戻る。",{ wild:false }),
+          makeOpt("🌠","流れ星スポット","願いが増える。",{ wild:false })
+        ),
+      ],
+      style: [
+        makePrompt("どっちを纏う？",
+          makeOpt("✨","きらきら","目が追ってしまう。"),
+          makeOpt("🪨","しぶい","後から効く。")
+        ),
+        makePrompt("手触りで選ぶなら？",
+          makeOpt("🧣","ふわふわ","近づきたくなる。"),
+          makeOpt("🧊","つるつる","離れて見える。")
+        ),
+        makePrompt("色の気分は？",
+          makeOpt("🩷","パステル","やわらかい輪郭。"),
+          makeOpt("🖤","モノクロ","輪郭が立つ。")
+        ),
+        makePrompt("小物を足すなら？",
+          makeOpt("🎀","リボン","結び目が残る。"),
+          makeOpt("🎩","帽子","影が増える。")
+        ),
+        makePrompt("目元の魔法、どっち？",
+          makeOpt("🕶️","サングラス","強く見える。"),
+          makeOpt("👓","めがね","賢く見える。")
+        ),
+        makePrompt("手の気分は？",
+          makeOpt("🧤","手袋","秘密が守れる。"),
+          makeOpt("🫧","素手","感じやすい。")
+        ),
+        makePrompt("足元は？",
+          makeOpt("👟","スニーカー","軽い音。"),
+          makeOpt("👢","ブーツ","重い音。")
+        ),
+        makePrompt("首元は？",
+          makeOpt("📿","おまもり","理由がある。"),
+          makeOpt("💎","きら石","言い訳が要らない。")
+        ),
+        makePrompt("香りの気配、どっち？",
+          makeOpt("🌸","花の匂い","近い春。"),
+          makeOpt("🍂","木の匂い","遠い秋。")
+        ),
+        makePrompt("髪の気分、どっち？",
+          makeOpt("🌬️","ふわっと","風が入る。"),
+          makeOpt("🧷","きゅっと","形が保てる。")
+        ),
+        makePrompt("持ち物、どっち？",
+          makeOpt("👜","小さなバッグ","秘密が入る。"),
+          makeOpt("🎒","大きなバッグ","世界が入る。")
+        ),
+        makePrompt("光を足すなら？",
+          makeOpt("🪄","きら粉","舞う。"),
+          makeOpt("🕯️","灯り","静かに燃える。")
+        ),
+        makePrompt("模様は？",
+          makeOpt("🟦","ストライプ","進む。"),
+          makeOpt("🟣","ドット","跳ねる。")
+        ),
+        makePrompt("アクセントは？",
+          makeOpt("💍","指輪","約束っぽい。"),
+          makeOpt("🪙","コイン","冒険っぽい。")
+        ),
+        makePrompt("耳の気分は？",
+          makeOpt("🎧","ヘッドホン","世界を切る。"),
+          makeOpt("🎵","イヤホン","世界と混ざる。")
+        ),
+        makePrompt("温度は？",
+          makeOpt("🔥","あったか","近い。"),
+          makeOpt("❄️","ひんやり","澄む。")
+        ),
+        makePrompt("つけ足すなら？",
+          makeOpt("🌟","星のバッジ","誇らしい。"),
+          makeOpt("🌙","月のバッジ","控えめ。")
+        ),
+        makePrompt("影の作り方は？",
+          makeOpt("🧢","つばの影","顔が謎。"),
+          makeOpt("🧥","コートの影","身体が謎。")
+        ),
+        makePrompt("約束の形は？",
+          makeOpt("🧷","ピン","留める。"),
+          makeOpt("🪢","結び","続ける。")
+        ),
+        makePrompt("今日の仕上げは？",
+          makeOpt("🫶","やさしい","伝わる。"),
+          makeOpt("😼","つよい","守れる。")
+        ),
+      ]
+    },
 
-      { q:"空を見上げるなら？",
-        a: makeOpt("🌙","月の近く","白く静か。",{ wild:false }),
-        b: makeOpt("⭐","星の多い場所","数が増える。",{ wild:false }) },
-      { q:"風の方向、どっち？",
-        a: makeOpt("🪁","風の広場","ひっぱられる。",{ wild:true }),
-        b: makeOpt("☕","喫茶の窓","落ち着く。",{ wild:false }) },
-      { q:"光を浴びる？影を歩く？",
-        a: makeOpt("🌞","ひだまり","あったかい。",{ wild:true }),
-        b: makeOpt("🌌","星影の道","音が細い。",{ wild:false }) },
-      { q:"揺れるの、好き？",
-        a: makeOpt("🎡","観覧車","ゆっくり回る。",{ wild:false }),
-        b: makeOpt("🚃","電車","景色が流れる。",{ wild:false }) },
-      { q:"見つけもの、どっち？",
-        a: makeOpt("🪐","小さな隕石屋","意味が増える。",{ wild:false }),
-        b: makeOpt("🧸","ぬいぐるみ屋","抱きやすい。",{ wild:false }) },
-      { q:"音が多いのは？",
-        a: makeOpt("🏟️","にぎやか広場","笑いが跳ねる。",{ wild:true }),
-        b: makeOpt("🕯️","静かな路地","足音だけ。",{ wild:false }) },
-      { q:"水辺に寄る？",
-        a: makeOpt("⛲","噴水","きらきら散る。",{ wild:true }),
-        b: makeOpt("🛁","湯の気配","とける。",{ wild:false }) },
-      { q:"ふたりの速度は？",
-        a: makeOpt("🚶","のんびり散歩","考えが並ぶ。",{ wild:true }),
-        b: makeOpt("🏃","小走り","笑いが先。",{ wild:true }) },
-      { q:"空の乗りもの、どっち？",
-        a: makeOpt("🛸","UFOごっこ","浮いた気分。",{ wild:false }),
-        b: makeOpt("🎈","風船旅","軽くなる。",{ wild:true }) },
-      { q:"景色が変わるのは？",
-        a: makeOpt("🏙️","街のネオン","色が増える。",{ wild:false }),
-        b: makeOpt("🌲","森の入口","匂いが増える。",{ wild:true }) },
-      { q:"ひと休みするなら？",
-        a: makeOpt("🍦","アイス屋","冷えて笑う。",{ wild:false }),
-        b: makeOpt("🥟","屋台","湯気で隠れる。",{ wild:false }) },
-      { q:"遠くへ行く？近くで遊ぶ？",
-        a: makeOpt("🗺️","小旅行","思い出が増える。",{ wild:true }),
-        b: makeOpt("🎲","近くの遊び","今が濃い。",{ wild:false }) },
-      { q:"見上げたいのは？",
-        a: makeOpt("🪟","大きい窓","外が入る。",{ wild:false }),
-        b: makeOpt("🔭","望遠鏡","遠くが近い。",{ wild:false }) },
-      { q:"音の種類は？",
-        a: makeOpt("🎶","音楽の道","リズムが出る。",{ wild:false }),
-        b: makeOpt("🤫","しーの道","声が小さい。",{ wild:false }) },
-      { q:"足跡を残すなら？",
-        a: makeOpt("👣","砂の道","すぐ消える。",{ wild:true }),
-        b: makeOpt("🧱","石の道","長く残る。",{ wild:true }) },
-      { q:"最後に寄りたいのは？",
-        a: makeOpt("🏠","おうち","安心が戻る。",{ wild:false }),
-        b: makeOpt("🌠","流れ星スポット","願いが増える。",{ wild:false }) },
-    ],
-    style: [
-      { q:"どっちを纏う？",
-        a: makeOpt("✨","きらきら","目が追ってしまう。"),
-        b: makeOpt("🪨","しぶい","後から効く。") },
-      { q:"手触りで選ぶなら？",
-        a: makeOpt("🧣","ふわふわ","近づきたくなる。"),
-        b: makeOpt("🧊","つるつる","離れて見える。") },
-      { q:"色の気分は？",
-        a: makeOpt("🩷","パステル","やわらかい輪郭。"),
-        b: makeOpt("🖤","モノクロ","輪郭が立つ。") },
-      { q:"小物を足すなら？",
-        a: makeOpt("🎀","リボン","結び目が残る。"),
-        b: makeOpt("🎩","帽子","影が増える。") },
+    // 英語版
+    en: {
+      food: [
+        makePrompt("Stardust meal—choose one?",
+          makeOpt("🍙","Star rice ball","A tight little glow."),
+          makeOpt("🥐","Moon croissant","Soft layers inside.")
+        ),
+        makePrompt("Warm or cold?",
+          makeOpt("🍜","Star ramen","Steam like a spaceship."),
+          makeOpt("🥗","Quiet salad","Leaves whisper softly.")
+        ),
+        makePrompt("Quick or slow?",
+          makeOpt("🍮","Jelly wobble","Slips right down."),
+          makeOpt("🍛","Slow curry","Smells like time.")
+        ),
+        makePrompt("Pick by color?",
+          makeOpt("🍚","Pure white rice","Straight and calm."),
+          makeOpt("🍞","Toasty bread","A little twisty.")
+        ),
+        makePrompt("A sweet bite—choose?",
+          makeOpt("🍫","Night chocolate","Dark comfort."),
+          makeOpt("🍓","Morning strawberry","A red sparkle.")
+        ),
+        makePrompt("Crispy or chewy?",
+          makeOpt("🥟","Tiny dumplings","A moon-surface sound."),
+          makeOpt("🍡","Tri-color dango","A palm-sized festival.")
+        ),
+        makePrompt("Wrapped in soup or baked aroma?",
+          makeOpt("🍲","Star soup","Soft floating steam."),
+          makeOpt("🍕","Little pizza","Smell arrives first.")
+        ),
+        makePrompt("A hint of ocean—choose?",
+          makeOpt("🍣","Glitter sushi","Angle of waves."),
+          makeOpt("🦐","Fried shrimp","Crumbs like stardust.")
+        ),
+        makePrompt("Fluffy or crunchy?",
+          makeOpt("🧁","Cloud cupcake","Melts fast."),
+          makeOpt("🥪","Shadow sandwich","Grows as you chew.")
+        ),
+        makePrompt("A sweet feeling—choose?",
+          makeOpt("🍪","Crumbly cookie","A gentle sound."),
+          makeOpt("🧇","Warm waffle","Happy little grid.")
+        ),
+        makePrompt("Small happiness—choose?",
+          makeOpt("🧀","One-bite cheese","Quietly rich."),
+          makeOpt("🍯","Honey light","Long, slow drip.")
+        ),
+        makePrompt("Fruit planet—choose?",
+          makeOpt("🍑","Peach dream","Soft outlines."),
+          makeOpt("🍇","Grape night","Neat little dots.")
+        ),
+        makePrompt("Pop-pop or moist?",
+          makeOpt("🍿","Space popcorn","Pops loudly."),
+          makeOpt("🍰","Soft cake","Settles you down.")
+        ),
+        makePrompt("Warm wrap or cold clarity?",
+          makeOpt("🥟","Steamed charm","White steam."),
+          makeOpt("🍨","Moon ice","Cool blue.")
+        ),
+        makePrompt("Toasty—choose one?",
+          makeOpt("🍢","Star oden skewer","Steam is talking."),
+          makeOpt("🥓","Crisp bacon","Sound wins.")
+        ),
+        makePrompt("A strange drink—choose?",
+          makeOpt("🧃","Star juice","Bright sweetness."),
+          makeOpt("🫖","Quiet tea","Long aftertaste.")
+        ),
+        makePrompt("Round or silky?",
+          makeOpt("🍙","Little round rice","Warm hands."),
+          makeOpt("🍝","Silky pasta","Strings stretch.")
+        ),
+        makePrompt("Add energy—choose?",
+          makeOpt("🍌","Banana light","Works fast."),
+          makeOpt("🥜","Nut core","Works later.")
+        ),
+        makePrompt("Pick by sound?",
+          makeOpt("🥨","Crunchy pretzel","Light footsteps."),
+          makeOpt("🍞","Fluffy bread","Sound disappears.")
+        ),
+        makePrompt("Last bite—choose?",
+          makeOpt("🍬","Tiny candy","Stays long."),
+          makeOpt("🍋","Sharp lemon","A quick flash.")
+        ),
+      ],
+      out: [
+        makePrompt("Which time do you want?",
+          makeOpt("🌳","Park","Distant sounds.",{ wild:true }),
+          makeOpt("🎬","Cinema","Safe in the dark.",{ wild:false })
+        ),
+        makePrompt("A detour?",
+          makeOpt("📚","Bookstore","A forest of spines.",{ wild:false }),
+          makeOpt("🕹️","Arcade","Strong lights.",{ wild:false })
+        ),
+        makePrompt("Choose the vibe?",
+          makeOpt("🌊","Sea","Borders wobble.",{ wild:true }),
+          makeOpt("🏔️","Mountain","Borders feel solid.",{ wild:true })
+        ),
+        makePrompt("A companion for the way back?",
+          makeOpt("🧃","Juice","Bright sweetness.",{ wild:false }),
+          makeOpt("🍶","Sake","A quiet warmth.",{ wild:false })
+        ),
+        makePrompt("Look up at the sky?",
+          makeOpt("🌙","Near the moon","White and still.",{ wild:false }),
+          makeOpt("⭐","Many-star place","Numbers increase.",{ wild:false })
+        ),
+        makePrompt("Where does the wind go?",
+          makeOpt("🪁","Wind square","It pulls you.",{ wild:true }),
+          makeOpt("☕","Cafe window","You settle.",{ wild:false })
+        ),
+        makePrompt("Sunlight or shadow?",
+          makeOpt("🌞","Sunny spot","Warm.",{ wild:true }),
+          makeOpt("🌌","Star-shadow path","Thin sounds.",{ wild:false })
+        ),
+        makePrompt("Do you like swaying?",
+          makeOpt("🎡","Ferris wheel","Slow rotation.",{ wild:false }),
+          makeOpt("🚃","Train","Scenery flows.",{ wild:false })
+        ),
+        makePrompt("A found thing?",
+          makeOpt("🪐","Tiny meteor shop","More meaning.",{ wild:false }),
+          makeOpt("🧸","Plush shop","Easy to hug.",{ wild:false })
+        ),
+        makePrompt("More noise?",
+          makeOpt("🏟️","Lively plaza","Laughter bounces.",{ wild:true }),
+          makeOpt("🕯️","Quiet alley","Only footsteps.",{ wild:false })
+        ),
+        makePrompt("Stop by water?",
+          makeOpt("⛲","Fountain","Sparkles scatter.",{ wild:true }),
+          makeOpt("🛁","Warm steam","Melts you.",{ wild:false })
+        ),
+        makePrompt("Your speed together?",
+          makeOpt("🚶","Slow walk","Thoughts align.",{ wild:true }),
+          makeOpt("🏃","Little run","Laughter first.",{ wild:true })
+        ),
+        makePrompt("A sky ride?",
+          makeOpt("🛸","UFO pretend","Feels floating.",{ wild:false }),
+          makeOpt("🎈","Balloon trip","Gets lighter.",{ wild:true })
+        ),
+        makePrompt("Where does the view change?",
+          makeOpt("🏙️","Neon street","More colors.",{ wild:false }),
+          makeOpt("🌲","Forest gate","More smells.",{ wild:true })
+        ),
+        makePrompt("A short break?",
+          makeOpt("🍦","Ice cream shop","Cold giggle.",{ wild:false }),
+          makeOpt("🥟","Food stall","Hidden by steam.",{ wild:false })
+        ),
+        makePrompt("Far or near play?",
+          makeOpt("🗺️","Mini trip","More memories.",{ wild:true }),
+          makeOpt("🎲","Nearby play","Now becomes dense.",{ wild:false })
+        ),
+        makePrompt("What do you want to look up at?",
+          makeOpt("🪟","Big window","Outside comes in.",{ wild:false }),
+          makeOpt("🔭","Telescope","Far becomes near.",{ wild:false })
+        ),
+        makePrompt("Type of sound?",
+          makeOpt("🎶","Music street","Rhythm appears.",{ wild:false }),
+          makeOpt("🤫","Shh street","Voices get small.",{ wild:false })
+        ),
+        makePrompt("Leave footprints?",
+          makeOpt("👣","Sand path","Disappears fast.",{ wild:true }),
+          makeOpt("🧱","Stone path","Stays long.",{ wild:true })
+        ),
+        makePrompt("One last stop?",
+          makeOpt("🏠","Home","Safety returns.",{ wild:false }),
+          makeOpt("🌠","Falling-star spot","Wishes increase.",{ wild:false })
+        ),
+      ],
+      style: [
+        makePrompt("What will you wear?",
+          makeOpt("✨","Sparkly","Eyes will follow."),
+          makeOpt("🪨","Muted","Hits later.")
+        ),
+        makePrompt("Choose by texture?",
+          makeOpt("🧣","Fluffy","Makes you come closer."),
+          makeOpt("🧊","Smooth","Looks cooler from afar.")
+        ),
+        makePrompt("Color mood?",
+          makeOpt("🩷","Pastel","Soft outlines."),
+          makeOpt("🖤","Monochrome","Sharp edges.")
+        ),
+        makePrompt("Add a small item?",
+          makeOpt("🎀","Ribbon","A knot remains."),
+          makeOpt("🎩","Hat","More shadow.")
+        ),
+        makePrompt("Eye magic?",
+          makeOpt("🕶️","Sunglasses","Looks strong."),
+          makeOpt("👓","Glasses","Looks smart.")
+        ),
+        makePrompt("Hands today?",
+          makeOpt("🧤","Gloves","Secrets stay safe."),
+          makeOpt("🫧","Bare hands","Feels more.")
+        ),
+        makePrompt("Footsteps?",
+          makeOpt("👟","Sneakers","Light sounds."),
+          makeOpt("👢","Boots","Heavy sounds.")
+        ),
+        makePrompt("Neck choice?",
+          makeOpt("📿","Charm","Has a reason."),
+          makeOpt("💎","Shiny stone","No excuses needed.")
+        ),
+        makePrompt("A hint of scent?",
+          makeOpt("🌸","Flower","Near spring."),
+          makeOpt("🍂","Wood","Far autumn.")
+        ),
+        makePrompt("Hair mood?",
+          makeOpt("🌬️","Soft and airy","Wind comes in."),
+          makeOpt("🧷","Tight and neat","Keeps shape.")
+        ),
+        makePrompt("Carry what?",
+          makeOpt("👜","Small bag","Holds secrets."),
+          makeOpt("🎒","Big bag","Holds a world.")
+        ),
+        makePrompt("Add some light?",
+          makeOpt("🪄","Glitter dust","It dances."),
+          makeOpt("🕯️","Candle glow","Burns quietly.")
+        ),
+        makePrompt("Pattern?",
+          makeOpt("🟦","Stripes","Moves forward."),
+          makeOpt("🟣","Dots","Bounces.")
+        ),
+        makePrompt("Accent?",
+          makeOpt("💍","Ring","Feels like a promise."),
+          makeOpt("🪙","Coin","Feels like adventure.")
+        ),
+        makePrompt("Ears today?",
+          makeOpt("🎧","Headphones","Cuts the world."),
+          makeOpt("🎵","Earbuds","Mixes with the world.")
+        ),
+        makePrompt("Temperature?",
+          makeOpt("🔥","Warm","Closer."),
+          makeOpt("❄️","Cool","Clearer.")
+        ),
+        makePrompt("A badge?",
+          makeOpt("🌟","Star badge","Proud."),
+          makeOpt("🌙","Moon badge","Quiet.")
+        ),
+        makePrompt("How to make shadow?",
+          makeOpt("🧢","Brim shadow","Face becomes a mystery."),
+          makeOpt("🧥","Coat shadow","Body becomes a mystery.")
+        ),
+        makePrompt("Shape of a promise?",
+          makeOpt("🧷","Pin","Hold it."),
+          makeOpt("🪢","Knot","Continue it.")
+        ),
+        makePrompt("Final finish today?",
+          makeOpt("🫶","Gentle","It reaches."),
+          makeOpt("😼","Strong","It protects.")
+        ),
+      ]
+    },
 
-      { q:"目元の魔法、どっち？",
-        a: makeOpt("🕶️","サングラス","強く見える。"),
-        b: makeOpt("👓","めがね","賢く見える。") },
-      { q:"手の気分は？",
-        a: makeOpt("🧤","手袋","秘密が守れる。"),
-        b: makeOpt("🫧","素手","感じやすい。") },
-      { q:"足元は？",
-        a: makeOpt("👟","スニーカー","軽い音。"),
-        b: makeOpt("👢","ブーツ","重い音。") },
-      { q:"首元は？",
-        a: makeOpt("📿","おまもり","理由がある。"),
-        b: makeOpt("💎","きら石","言い訳が要らない。") },
-      { q:"香りの気配、どっち？",
-        a: makeOpt("🌸","花の匂い","近い春。"),
-        b: makeOpt("🍂","木の匂い","遠い秋。") },
-      { q:"髪の気分、どっち？",
-        a: makeOpt("🌬️","ふわっと","風が入る。"),
-        b: makeOpt("🧷","きゅっと","形が保てる。") },
-      { q:"持ち物、どっち？",
-        a: makeOpt("👜","小さなバッグ","秘密が入る。"),
-        b: makeOpt("🎒","大きなバッグ","世界が入る。") },
-      { q:"光を足すなら？",
-        a: makeOpt("🪄","きら粉","舞う。"),
-        b: makeOpt("🕯️","灯り","静かに燃える。") },
-      { q:"模様は？",
-        a: makeOpt("🟦","ストライプ","進む。"),
-        b: makeOpt("🟣","ドット","跳ねる。") },
-      { q:"アクセントは？",
-        a: makeOpt("💍","指輪","約束っぽい。"),
-        b: makeOpt("🪙","コイン","冒険っぽい。") },
-      { q:"耳の気分は？",
-        a: makeOpt("🎧","ヘッドホン","世界を切る。"),
-        b: makeOpt("🎵","イヤホン","世界と混ざる。") },
-      { q:"温度は？",
-        a: makeOpt("🔥","あったか","近い。"),
-        b: makeOpt("❄️","ひんやり","澄む。") },
-      { q:"つけ足すなら？",
-        a: makeOpt("🌟","星のバッジ","誇らしい。"),
-        b: makeOpt("🌙","月のバッジ","控えめ。") },
-      { q:"影の作り方は？",
-        a: makeOpt("🧢","つばの影","顔が謎。"),
-        b: makeOpt("🧥","コートの影","身体が謎。") },
-      { q:"約束の形は？",
-        a: makeOpt("🧷","ピン","留める。"),
-        b: makeOpt("🪢","結び","続ける。") },
-      { q:"今日の仕上げは？",
-        a: makeOpt("🫶","やさしい","伝わる。"),
-        b: makeOpt("😼","つよい","守れる。") },
-    ]
+    // 中文版（简体）
+    zh: {
+      food: [
+        makePrompt("星屑饭，选哪个？",
+          makeOpt("🍙","星星饭团","紧紧发光。"),
+          makeOpt("🥐","月亮可颂","层层软软。")
+        ),
+        makePrompt("热的？冷的？",
+          makeOpt("🍜","星拉面","蒸汽像飞船。"),
+          makeOpt("🥗","安静沙拉","叶子在低语。")
+        ),
+        makePrompt("快一点？慢一点？",
+          makeOpt("🍮","抖抖果冻","滑溜溜。"),
+          makeOpt("🍛","慢慢咖喱","有时间的味道。")
+        ),
+        makePrompt("按颜色选？",
+          makeOpt("🍚","雪白米饭","直直的。"),
+          makeOpt("🍞","焦香面包","有点拐弯。")
+        ),
+        makePrompt("甜甜一口，选哪个？",
+          makeOpt("🍫","夜之巧克力","黑色的安心。"),
+          makeOpt("🍓","晨之草莓","红色闪闪。")
+        ),
+        makePrompt("脆脆？糯糯？",
+          makeOpt("🥟","小饺子","像月面声音。"),
+          makeOpt("🍡","三色团子","掌心小祭典。")
+        ),
+        makePrompt("汤里包住？烤出香味？",
+          makeOpt("🍲","星星汤","蒸汽软软飘。"),
+          makeOpt("🍕","小披萨","香味先到。")
+        ),
+        makePrompt("海的气息，选哪个？",
+          makeOpt("🍣","闪光寿司","像海浪角度。"),
+          makeOpt("🦐","炸虾","外衣像星屑。")
+        ),
+        makePrompt("软软？脆脆？",
+          makeOpt("🧁","云朵杯子蛋糕","入口很快融。"),
+          makeOpt("🥪","影子三明治","越嚼越多。")
+        ),
+        makePrompt("甜的预感，选哪个？",
+          makeOpt("🍪","酥酥饼干","声音很温柔。"),
+          makeOpt("🧇","热华夫","格子很开心。")
+        ),
+        makePrompt("小小幸福，选哪个？",
+          makeOpt("🧀","一口奶酪","安静地浓。"),
+          makeOpt("🍯","蜂蜜之光","慢慢流很久。")
+        ),
+        makePrompt("水果星球，选哪个？",
+          makeOpt("🍑","桃色的梦","轮廓软软。"),
+          makeOpt("🍇","葡萄之夜","小点点排队。")
+        ),
+        makePrompt("噼啪？湿润？",
+          makeOpt("🍿","宇宙爆米花","啪地炸开。"),
+          makeOpt("🍰","柔软蛋糕","让人安定。")
+        ),
+        makePrompt("温暖包住？冷静清澈？",
+          makeOpt("🥟","蒸汽小咒语","白白热气。"),
+          makeOpt("🍨","月亮冰淇淋","冷冷的蓝。")
+        ),
+        makePrompt("香香的，选哪个？",
+          makeOpt("🍢","星之关东煮串","蒸汽在聊天。"),
+          makeOpt("🥓","脆培根","声音更强。")
+        ),
+        makePrompt("奇妙饮料，选哪个？",
+          makeOpt("🧃","星果汁","亮亮的甜。"),
+          makeOpt("🫖","安静红茶","余味很长。")
+        ),
+        makePrompt("圆圆？滑滑？",
+          makeOpt("🍙","小圆饭团","手心的温度。"),
+          makeOpt("🍝","顺滑意面","拉出细丝。")
+        ),
+        makePrompt("补充能量，选哪个？",
+          makeOpt("🍌","香蕉之光","立刻见效。"),
+          makeOpt("🥜","坚果之芯","稍后见效。")
+        ),
+        makePrompt("按声音选？",
+          makeOpt("🥨","咔嚓脆饼","像轻脚步。"),
+          makeOpt("🍞","软面包","声音消失。")
+        ),
+        makePrompt("最后一口，选哪个？",
+          makeOpt("🍬","小糖","留得很久。"),
+          makeOpt("🍋","酸柠檬","一瞬很亮。")
+        ),
+      ],
+      out: [
+        makePrompt("想要哪种时间？",
+          makeOpt("🌳","公园","远处有声音。",{ wild:true }),
+          makeOpt("🎬","电影院","黑暗也安心。",{ wild:false })
+        ),
+        makePrompt("要不要绕路？",
+          makeOpt("📚","书店","书脊像森林。",{ wild:false }),
+          makeOpt("🕹️","游戏厅","光很强。",{ wild:false })
+        ),
+        makePrompt("选一种气息？",
+          makeOpt("🌊","海边","边界会摇晃。",{ wild:true }),
+          makeOpt("🏔️","山里","边界很坚固。",{ wild:true })
+        ),
+        makePrompt("回家路上的伙伴？",
+          makeOpt("🧃","果汁","亮亮的甜。",{ wild:false }),
+          makeOpt("🍶","酒","安静的热。",{ wild:false })
+        ),
+        makePrompt("抬头看天空？",
+          makeOpt("🌙","靠近月亮","白白静静。",{ wild:false }),
+          makeOpt("⭐","星星很多的地方","数量变多。",{ wild:false })
+        ),
+        makePrompt("风往哪边？",
+          makeOpt("🪁","风的广场","会被拉走。",{ wild:true }),
+          makeOpt("☕","咖啡窗边","会安定。",{ wild:false })
+        ),
+        makePrompt("晒光？走影子？",
+          makeOpt("🌞","阳光地","暖暖的。",{ wild:true }),
+          makeOpt("🌌","星影小路","声音很细。",{ wild:false })
+        ),
+        makePrompt("喜欢摇摇晃晃吗？",
+          makeOpt("🎡","摩天轮","慢慢转。",{ wild:false }),
+          makeOpt("🚃","电车","景色流动。",{ wild:false })
+        ),
+        makePrompt("想找什么？",
+          makeOpt("🪐","小陨石店","意义变多。",{ wild:false }),
+          makeOpt("🧸","玩偶店","很好抱。",{ wild:false })
+        ),
+        makePrompt("哪里更吵？",
+          makeOpt("🏟️","热闹广场","笑声跳来跳去。",{ wild:true }),
+          makeOpt("🕯️","安静小巷","只有脚步声。",{ wild:false })
+        ),
+        makePrompt("要靠近水吗？",
+          makeOpt("⛲","喷泉","亮晶晶散开。",{ wild:true }),
+          makeOpt("🛁","热气","慢慢融化。",{ wild:false })
+        ),
+        makePrompt("你们的速度？",
+          makeOpt("🚶","慢慢散步","想法并排走。",{ wild:true }),
+          makeOpt("🏃","小跑一下","笑声先到。",{ wild:true })
+        ),
+        makePrompt("天空交通工具？",
+          makeOpt("🛸","扮演UFO","像在漂浮。",{ wild:false }),
+          makeOpt("🎈","气球旅行","变轻了。",{ wild:true })
+        ),
+        makePrompt("哪里景色会变？",
+          makeOpt("🏙️","霓虹街","颜色更多。",{ wild:false }),
+          makeOpt("🌲","森林入口","气味更多。",{ wild:true })
+        ),
+        makePrompt("休息一下？",
+          makeOpt("🍦","冰淇淋店","冷冷地笑。",{ wild:false }),
+          makeOpt("🥟","小摊","被热气遮住。",{ wild:false })
+        ),
+        makePrompt("去远一点？在附近玩？",
+          makeOpt("🗺️","小旅行","回忆更多。",{ wild:true }),
+          makeOpt("🎲","附近玩","当下更浓。",{ wild:false })
+        ),
+        makePrompt("想抬头看什么？",
+          makeOpt("🪟","大窗户","外面进来。",{ wild:false }),
+          makeOpt("🔭","望远镜","远的变近。",{ wild:false })
+        ),
+        makePrompt("声音的种类？",
+          makeOpt("🎶","音乐之路","有节奏。",{ wild:false }),
+          makeOpt("🤫","嘘之路","声音变小。",{ wild:false })
+        ),
+        makePrompt("要留下脚印吗？",
+          makeOpt("👣","沙路","很快消失。",{ wild:true }),
+          makeOpt("🧱","石路","留得很久。",{ wild:true })
+        ),
+        makePrompt("最后想去哪里？",
+          makeOpt("🏠","回家","安心回来。",{ wild:false }),
+          makeOpt("🌠","流星点","愿望变多。",{ wild:false })
+        ),
+      ],
+      style: [
+        makePrompt("穿哪一种？",
+          makeOpt("✨","闪闪","眼睛会追着看。"),
+          makeOpt("🪨","低调","后劲更强。")
+        ),
+        makePrompt("按触感选？",
+          makeOpt("🧣","软软","让人想靠近。"),
+          makeOpt("🧊","滑滑","远看更冷静。")
+        ),
+        makePrompt("颜色心情？",
+          makeOpt("🩷","粉彩","轮廓软软。"),
+          makeOpt("🖤","黑白","轮廓更清晰。")
+        ),
+        makePrompt("加个小配件？",
+          makeOpt("🎀","蝴蝶结","结会留下。"),
+          makeOpt("🎩","帽子","影子更多。")
+        ),
+        makePrompt("眼睛的魔法？",
+          makeOpt("🕶️","墨镜","看起来更强。"),
+          makeOpt("👓","眼镜","看起来更聪明。")
+        ),
+        makePrompt("手的心情？",
+          makeOpt("🧤","手套","能守住秘密。"),
+          makeOpt("🫧","徒手","更容易感受。")
+        ),
+        makePrompt("脚步声？",
+          makeOpt("👟","运动鞋","声音轻。"),
+          makeOpt("👢","靴子","声音重。")
+        ),
+        makePrompt("脖子那里？",
+          makeOpt("📿","护身符","有理由。"),
+          makeOpt("💎","闪石","不需要解释。")
+        ),
+        makePrompt("气味的感觉？",
+          makeOpt("🌸","花香","近一点的春天。"),
+          makeOpt("🍂","木香","远一点的秋天。")
+        ),
+        makePrompt("头发的心情？",
+          makeOpt("🌬️","松松的","风会进来。"),
+          makeOpt("🧷","紧紧的","形状能保持。")
+        ),
+        makePrompt("带什么？",
+          makeOpt("👜","小包","装秘密。"),
+          makeOpt("🎒","大包","装世界。")
+        ),
+        makePrompt("加一点光？",
+          makeOpt("🪄","亮粉","会飘舞。"),
+          makeOpt("🕯️","烛光","安静地燃。")
+        ),
+        makePrompt("图案？",
+          makeOpt("🟦","条纹","向前走。"),
+          makeOpt("🟣","圆点","会跳。")
+        ),
+        makePrompt("小重点？",
+          makeOpt("💍","戒指","像约定。"),
+          makeOpt("🪙","硬币","像冒险。")
+        ),
+        makePrompt("耳朵的选择？",
+          makeOpt("🎧","大耳机","切开世界。"),
+          makeOpt("🎵","小耳机","和世界混在一起。")
+        ),
+        makePrompt("温度？",
+          makeOpt("🔥","暖暖","更靠近。"),
+          makeOpt("❄️","凉凉","更清澈。")
+        ),
+        makePrompt("加个徽章？",
+          makeOpt("🌟","星徽章","有点骄傲。"),
+          makeOpt("🌙","月徽章","有点安静。")
+        ),
+        makePrompt("影子怎么做？",
+          makeOpt("🧢","帽檐影子","脸变神秘。"),
+          makeOpt("🧥","外套影子","身体变神秘。")
+        ),
+        makePrompt("约定的形状？",
+          makeOpt("🧷","别针","固定住。"),
+          makeOpt("🪢","打结","继续下去。")
+        ),
+        makePrompt("今天最后的完成？",
+          makeOpt("🫶","温柔","更能传达。"),
+          makeOpt("😼","强一点","更能保护。")
+        ),
+      ]
+    }
   };
 
   const el = (id) => document.getElementById(id);
@@ -1013,6 +1919,7 @@
     heartFill: el("heartFill"),
 
     sitterToggle: el("sitterToggle"),
+    txtSitter: el("txtSitter"),
 
     stageHint: el("stageHint"),
     stageNote: el("stageNote"),
@@ -1024,6 +1931,7 @@
     charImg: el("charImg"),
 
     thanksOverlay: el("thanksOverlay"),
+    txtThanks: el("txtThanks"),
 
     poop1: el("poop1"),
     poop2: el("poop2"),
@@ -1041,6 +1949,7 @@
     btnReset: el("btnReset"),
 
     assetHint: el("assetHint"),
+    txtMiniInfo: el("txtMiniInfo"),
 
     liveLog: el("liveLog"),
 
@@ -1053,6 +1962,8 @@
 
     screenGame: el("screenGame"),
     screenObserve: el("screenObserve"),
+    txtObserveHeader: el("txtObserveHeader"),
+    txtObserveHint: el("txtObserveHint"),
     obsTitle: el("obsTitle"),
     obsSub: el("obsSub"),
     obsDays: el("obsDays"),
@@ -1065,11 +1976,64 @@
     letterText: el("letterText"),
     letterClose: el("letterClose"),
     letterX: el("letterX"),
+
+    langSel: el("langSel"),
+    txtLangLabel: el("txtLangLabel"),
+
+    txtGameTitle: el("txtGameTitle"),
+    txtStageHeader: el("txtStageHeader"),
+    txtCareHeader: el("txtCareHeader"),
+    txtCareHint: el("txtCareHint"),
+    txtLetterBtn: el("txtLetterBtn"),
+    txtLetterTitle: el("txtLetterTitle"),
+    txtObserveHeader: el("txtObserveHeader"),
+    txtObserveHint: el("txtObserveHint")
   };
+
+  function applyLangToUI(){
+    document.documentElement.lang = LANG;
+    document.title = t("docTitle");
+
+    ui.txtGameTitle.textContent = t("gameTitle");
+    ui.txtLangLabel.textContent = t("langLabel");
+    ui.txtSitter.textContent = t("sitter");
+
+    ui.txtStageHeader.textContent = t("stageHeader");
+    ui.txtCareHeader.textContent = t("careHeader");
+    ui.txtCareHint.textContent = t("careHint");
+
+    ui.txtLetterBtn.textContent = t("letter");
+    ui.txtLetterTitle.textContent = t("letter");
+
+    ui.txtObserveHeader.textContent = t("observeHeader");
+    ui.txtObserveHint.textContent = t("observeHint");
+
+    ui.btnShare.textContent = t("btnShare");
+    ui.btnLogs.textContent = t("btnLogs");
+    ui.btnName.textContent = t("btnName");
+    ui.btnReset.textContent = t("btnReset");
+
+    ui.btnFood.textContent = `🍽 ${t("btnFood")}`;
+    ui.btnOut.textContent = `🚀 ${t("btnOut")}`;
+    ui.btnStyle.textContent = `✨ ${t("btnStyle")}`;
+    ui.btnClean.textContent = `🧼 ${t("btnClean")}`;
+    ui.btnDrink.textContent = `🥤 ${t("btnDrink")}`;
+    ui.btnMacaron.textContent = `🍬 ${t("btnMacaron")}`;
+
+    ui.modalX.textContent = t("btnClose");
+    ui.letterX.textContent = t("btnClose");
+    ui.letterClose.textContent = t("btnClose");
+
+    ui.txtThanks.textContent = t("thanks");
+    ui.txtMiniInfo.textContent = t("miniInfo");
+
+    ui.assetHint.textContent = `${t("assetHint")}: ${ASSET_BASE}（例: ${ASSET_BASE}blue_sleep.png）`;
+
+    ui.letterText.textContent = getLetterBody();
+  }
 
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
   function now(){ return Date.now(); }
-
   function safeJsonParse(s){ try{ return JSON.parse(s); }catch(_){ return null; } }
 
   function uid(){
@@ -1083,9 +2047,9 @@
   }
 
   function normalizeName(s){
-    const t = String(s || "").trim();
-    if(!t) return "";
-    return t.replace(/[\r\n\t]/g, "").slice(0, 12);
+    const tt = String(s || "").trim();
+    if(!tt) return "";
+    return tt.replace(/[\r\n\t]/g, "").slice(0, 12);
   }
 
   function loadSave(){
@@ -1185,8 +2149,8 @@
     if(save.live.length > 30) save.live.length = 30;
   }
 
-  function formatClock(t){
-    const d = new Date(t);
+  function formatClock(t2){
+    const d = new Date(t2);
     const hh = String(d.getHours()).padStart(2,"0");
     const mm = String(d.getMinutes()).padStart(2,"0");
     return `${hh}:${mm}`;
@@ -1221,7 +2185,7 @@
   }
 
   function createNewSave(){
-    const t = now();
+    const t0 = now();
     const playerId = uid();
 
     const macaronColor = COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -1230,7 +2194,7 @@
     const s = {
       version: 1,
       playerId,
-      startedAt: t,
+      startedAt: t0,
       totalPausedMs: 0,
       pausedSince: null,
 
@@ -1269,7 +2233,7 @@
     };
 
     ensureDay(s, 1);
-    pushLiveLog(s, "到着した。");
+    pushLiveLog(s, t("logArrived"));
     return s;
   }
 
@@ -1308,7 +2272,7 @@
     save.sleepUntilElapsed = elapsed + SLEEP_MS;
     save.lastSleepAtElapsed = elapsed;
 
-    pushLiveLog(save, "静かになった。");
+    pushLiveLog(save, t("logQuiet"));
   }
 
   function applyTimeSimulation(save, elapsed){
@@ -1360,7 +2324,7 @@
       save.currentDay = d;
       const next = ensureDay(save, d);
       next.heartStart = save.heart;
-      pushLiveLog(save, "日が変わった。");
+      pushLiveLog(save, t("logDayChanged"));
     }
     ensureDay(save, save.currentDay);
   }
@@ -1374,33 +2338,9 @@
         if(!s || s.hatched) return;
         s.hatched = true;
         s.hatchAnim = false;
-        pushLiveLog(s, "浮かび上がって、誕生した。");
+        pushLiveLog(s, t("logHatched"));
         saveSave(s);
       }, 700);
-    }
-  }
-
-  function maybeEnd(save, elapsed){
-    if(save.macaronActive) return;
-    const deadline = LIFE_MS + (save.lifeExtensionMs || 0);
-    if(!save.ended && elapsed >= deadline){
-      save.ended = true;
-      save.endedAt = now();
-      pushLiveLog(save, "いなくなった。");
-      archiveRun(save);
-    }
-  }
-
-  function updateMacaronTimer(save, elapsed){
-    if(!save.macaronActive) return;
-    if(save.macaronEndsAtElapsed == null) return;
-    if(elapsed >= save.macaronEndsAtElapsed){
-      save.macaronActive = false;
-      save.macaronEndsAtElapsed = null;
-      save.ended = true;
-      save.endedAt = now();
-      pushLiveLog(save, "どこかズレたまま、また静かになった。");
-      archiveRun(save);
     }
   }
 
@@ -1414,6 +2354,30 @@
     saveArchives(arr);
   }
 
+  function maybeEnd(save, elapsed){
+    if(save.macaronActive) return;
+    const deadline = LIFE_MS + (save.lifeExtensionMs || 0);
+    if(!save.ended && elapsed >= deadline){
+      save.ended = true;
+      save.endedAt = now();
+      pushLiveLog(save, t("logGone"));
+      archiveRun(save);
+    }
+  }
+
+  function updateMacaronTimer(save, elapsed){
+    if(!save.macaronActive) return;
+    if(save.macaronEndsAtElapsed == null) return;
+    if(elapsed >= save.macaronEndsAtElapsed){
+      save.macaronActive = false;
+      save.macaronEndsAtElapsed = null;
+      save.ended = true;
+      save.endedAt = now();
+      pushLiveLog(save, t("logOff"));
+      archiveRun(save);
+    }
+  }
+
   function stateClass(save){
     if(save.mood < 25 || save.hunger > 85 || save.dirt > 85 || save.poop >= 3) return "cry";
     if(save.mood < 45 || save.hunger > 70 || save.dirt > 70 || save.poop >= 2) return "low";
@@ -1425,10 +2389,12 @@
     [ui.btnFood, ui.btnOut, ui.btnStyle, ui.btnClean, ui.btnDrink].forEach(b => b.disabled = !enabled);
   }
 
-  function setImgWithFallback(imgEl, primarySrc, fallbackSrc){
+  function setImgWithFallback(imgEl, primarySrc, fallbackSrc, fallback2Src){
     imgEl.removeAttribute("data-fallback-used");
+    imgEl.removeAttribute("data-fallback2-used");
     imgEl.setAttribute("data-primary", primarySrc);
     imgEl.setAttribute("data-fallback", fallbackSrc || "");
+    imgEl.setAttribute("data-fallback2", fallback2Src || "");
     if(imgEl.getAttribute("data-src") !== primarySrc){
       imgEl.setAttribute("data-src", primarySrc);
       imgEl.src = primarySrc;
@@ -1450,19 +2416,22 @@
     const sleeping = isSleeping(save, elapsed);
 
     let charFile = FILES.char[cc].closed;
-    let fallback = "";
+    let fb1 = "";
+    let fb2 = "";
 
     if(sleeping){
       charFile = FILES.char[cc].sleep;
-      fallback = FILES.char[cc].sleepFallback || "";
+      fb1 = FILES.char[cc].sleepFallback || "";
+      fb2 = FILES.char[cc].sleepFallback2 || "";
     }else{
       const wantOpen = (sc === "lively");
       charFile = wantOpen ? FILES.char[cc].open : FILES.char[cc].closed;
     }
 
     const charSrc = assetPath(charFile);
-    const fbSrc = fallback ? assetPath(fallback) : "";
-    setImgWithFallback(ui.charImg, charSrc, fbSrc);
+    const fbSrc1 = fb1 ? assetPath(fb1) : "";
+    const fbSrc2 = fb2 ? assetPath(fb2) : "";
+    setImgWithFallback(ui.charImg, charSrc, fbSrc1, fbSrc2);
   }
 
   let letterAutoCloseTimer = null;
@@ -1477,8 +2446,8 @@
 
     const s = loadSave();
     if(s){
-      addChoice(s, "手紙", "読んだ");
-      pushLiveLog(s, "手紙を読んだ。");
+      addChoice(s, "Letter", "Read");
+      pushLiveLog(s, t("logReadLetter"));
       saveSave(s);
     }
   }
@@ -1498,6 +2467,11 @@
     ui.letterSlot.classList.remove("vanish");
     if(!ui.letterSlot.classList.contains("show")){
       ui.letterSlot.classList.add("show");
+    }
+    if(ui.letterSlot.dataset.dropped !== "1"){
+      ui.letterSlot.dataset.dropped = "1";
+      ui.letterSlot.classList.add("drop");
+      setTimeout(() => ui.letterSlot.classList.remove("drop"), 980);
     }
   }
 
@@ -1556,11 +2530,21 @@
     return a;
   }
 
+  function listForLang(key){
+    const pack = TWOCHOICE[LANG] || TWOCHOICE.ja;
+    const list = pack[key] || (TWOCHOICE.ja[key] || []);
+    return list;
+  }
+
   function pickFromBag(save, key){
-    const list = TWOCHOICE[key];
+    const list = listForLang(key);
     if(!list || !list.length) return null;
+
     if(!save.bags) save.bags = { food:[], out:[], style:[] };
     if(!Array.isArray(save.bags[key])) save.bags[key] = [];
+
+    // 言語変更などで長さがズレたときは袋を作り直す
+    if(save.bags[key].some(i => i >= list.length)) save.bags[key] = [];
 
     if(save.bags[key].length === 0){
       save.bags[key] = shuffleInPlace([...Array(list.length)].map((_,i)=>i));
@@ -1587,12 +2571,12 @@
     story.style.lineHeight = "1.85";
     story.style.whiteSpace = "pre-wrap";
     story.style.marginBottom = "10px";
-    story.textContent = initial ? INTRO_TEXT : "この子の名前を、そっと変えてみる？";
+    story.textContent = initial ? getIntroText() : t("nameStoryEdit");
 
     const input = document.createElement("input");
     input.type = "text";
     input.maxLength = 12;
-    input.placeholder = "名前（12文字まで）";
+    input.placeholder = t("namePlaceholder");
     input.value = save.petName || "";
     input.style.width = "100%";
     input.style.padding = "12px 12px";
@@ -1607,7 +2591,7 @@
     note.style.color = "rgba(238,242,255,.62)";
     note.style.lineHeight = "1.7";
     note.style.marginTop = "8px";
-    note.textContent = "あとで「名前」ボタンから変更できます。";
+    note.textContent = t("nameNote");
 
     body.appendChild(story);
     body.appendChild(input);
@@ -1617,8 +2601,8 @@
       const s = loadSave(); if(!s) return;
       const name = normalizeName(input.value);
       s.petName = name || "？？？";
-      addChoice(s, "名前", s.petName);
-      pushLiveLog(s, `名前をつけた：${s.petName}`);
+      addChoice(s, "Name", s.petName);
+      pushLiveLog(s, `${t("logNamed")}${s.petName}`);
       saveSave(s);
       closeModal();
     };
@@ -1631,12 +2615,12 @@
     });
 
     openModal(
-      "名前",
-      initial ? "この子に名前をつけてね" : " ",
+      t("nameTitle"),
+      initial ? t("nameHintInit") : t("nameHintEdit"),
       body,
       [
-        mkBtn("あとで", "btnGhost", closeModal),
-        mkBtn("決定", "", commit)
+        mkBtn(t("btnLater"), "btnGhost", closeModal),
+        mkBtn(t("btnDecide"), "", commit)
       ]
     );
 
@@ -1665,13 +2649,13 @@
 
       ensureDay(s, s.currentDay).careCounts.food++;
       const label = `${opt.icon} ${opt.t}`;
-      addChoice(s, "食事", label);
+      addChoice(s, t("btnFood"), label);
 
       s.hunger = clamp(s.hunger - 21 + (Math.random()*6 - 3), 0, 100);
       s.mood   = clamp(s.mood   +  4 + (Math.random()*6 - 3), 0, 100);
 
       applyHeart(s, heartDeltaRandom());
-      pushLiveLog(s, `${label} を選んだ。`);
+      pushLiveLog(s, `${label}${t("chose")}`);
 
       applyAfterChoiceMaybeSleep(s);
 
@@ -1683,7 +2667,7 @@
     two.appendChild(mkChoice(p.b.icon, p.b.t, p.b.sub, () => pick(p.b)));
     body.appendChild(two);
 
-    openModal("食事", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
+    openModal(t("btnFood"), t("twoChoice"), body, [ mkBtn(t("btnCancel"), "btnGhost", closeModal) ]);
   }
 
   function actOut(){
@@ -1708,14 +2692,14 @@
 
       ensureDay(s, s.currentDay).careCounts.out++;
       const label = `${opt.icon} ${opt.t}`;
-      addChoice(s, "おでかけ", label);
+      addChoice(s, t("btnOut"), label);
 
       const wild = !!opt.wild;
       s.mood = clamp(s.mood + (wild ? 10 : 7) + (Math.random()*6 - 3), 0, 100);
       s.dirt = clamp(s.dirt + (wild ?  7 : 4) + (Math.random()*4 - 2), 0, 100);
 
       applyHeart(s, heartDeltaRandom());
-      pushLiveLog(s, `${label} にした。`);
+      pushLiveLog(s, `${label}${t("decided")}`);
 
       applyAfterChoiceMaybeSleep(s);
 
@@ -1727,7 +2711,7 @@
     two.appendChild(mkChoice(p.b.icon, p.b.t, p.b.sub, () => pick(p.b)));
     body.appendChild(two);
 
-    openModal("おでかけ", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
+    openModal(t("btnOut"), t("twoChoice"), body, [ mkBtn(t("btnCancel"), "btnGhost", closeModal) ]);
   }
 
   function actStyle(){
@@ -1754,13 +2738,13 @@
       d.careCounts.style = (d.careCounts.style ?? 0) + 1;
 
       const label = `${opt.icon} ${opt.t}`;
-      addChoice(s, "おしゃれ", label);
+      addChoice(s, t("btnStyle"), label);
 
       s.mood = clamp(s.mood + 8 + (Math.random()*8 - 4), 0, 100);
       s.dirt = clamp(s.dirt + (Math.random()*8 - 4), 0, 100);
 
       applyHeart(s, heartDeltaRandom());
-      pushLiveLog(s, `${label} にした。`);
+      pushLiveLog(s, `${label}${t("decided")}`);
 
       applyAfterChoiceMaybeSleep(s);
 
@@ -1772,7 +2756,7 @@
     two.appendChild(mkChoice(p.b.icon, p.b.t, p.b.sub, () => pick(p.b)));
     body.appendChild(two);
 
-    openModal("おしゃれ", "2択", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
+    openModal(t("btnStyle"), t("twoChoice"), body, [ mkBtn(t("btnCancel"), "btnGhost", closeModal) ]);
   }
 
   function actClean(){
@@ -1781,15 +2765,14 @@
     if(!canInteract(save, elapsed)) return;
 
     const body = document.createElement("div");
-    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
-      まずやり方を選んで、出ているものをタップして消します。<br>
-      放置すると状態がゆっくり悪化します。
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7; white-space:pre-wrap">
+${escapeHtml(t("cleanHow"))}
     </div>`;
 
     const two = document.createElement("div");
     two.className = "two";
 
-    const startClean = (modeLabel) => {
+    const startClean = (modeLabel, careful) => {
       const s0 = loadSave(); if(!s0) return;
       const e0 = calcElapsedMs(s0, now());
       if(!canInteract(s0, e0)) return;
@@ -1824,12 +2807,15 @@
       head.style.justifyContent = "space-between";
       head.style.gap = "10px";
       head.style.alignItems = "center";
-      head.innerHTML = `<div>
-        <div style="font-weight:850;font-size:14px">排泄除去</div>
-        <div style="font-size:12px;color:rgba(238,242,255,.72);margin-top:4px">タップして消す（残り ${remaining}）</div>
-      </div>`;
 
-      const cancel = mkBtn("やめる", "btnGhost", () => { document.body.removeChild(overlay); });
+      const left = document.createElement("div");
+      left.innerHTML = `
+        <div style="font-weight:850;font-size:14px">${escapeHtml(t("btnClean"))}</div>
+        <div style="font-size:12px;color:rgba(238,242,255,.72);margin-top:4px">${escapeHtml(t("tapToErase").replace("{n}", String(remaining)))}</div>
+      `;
+      head.appendChild(left);
+
+      const cancel = mkBtn(t("btnCancel"), "btnGhost", () => { document.body.removeChild(overlay); });
       cancel.style.padding = "8px 10px";
       head.appendChild(cancel);
 
@@ -1839,6 +2825,10 @@
       field.style.flexWrap = "wrap";
       field.style.gap = "10px";
       field.style.justifyContent = "center";
+
+      function setRemainText(n){
+        left.querySelector("div:nth-child(2)").textContent = t("tapToErase").replace("{n}", String(Math.max(0,n)));
+      }
 
       function mkPoopChip(){
         const chip = document.createElement("div");
@@ -1854,7 +2844,7 @@
           chip.style.opacity = ".0";
           chip.style.pointerEvents = "none";
           remaining--;
-          head.querySelector("div div:nth-child(2)").textContent = `タップして消す（残り ${Math.max(0, remaining)}）`;
+          setRemainText(remaining);
 
           if(remaining <= 0){
             const s1 = loadSave(); if(!s1) return;
@@ -1862,15 +2852,14 @@
             if(!canInteract(s1, e1)) return;
 
             ensureDay(s1, s1.currentDay).careCounts.clean++;
-            addChoice(s1, "排泄除去", modeLabel);
+            addChoice(s1, t("btnClean"), modeLabel);
 
-            const careful = modeLabel.includes("ていねい");
             s1.poop = 0;
             s1.dirt = clamp(s1.dirt - (careful ? 26 : 16) + (Math.random()*4 - 2), 0, 100);
             s1.mood = clamp(s1.mood + (careful ? 10 :  6) + (Math.random()*4 - 2), 0, 100);
 
             applyHeart(s1, heartDeltaRandom());
-            pushLiveLog(s1, "きれいにした。");
+            pushLiveLog(s1, t("cleaned"));
 
             applyAfterChoiceMaybeSleep(s1);
 
@@ -1888,7 +2877,7 @@
       note.style.fontSize = "12px";
       note.style.color = "rgba(238,242,255,.72)";
       note.style.lineHeight = "1.7";
-      note.textContent = "終わったら自動で戻ります。";
+      note.textContent = t("autoBack");
 
       box.appendChild(head);
       box.appendChild(field);
@@ -1897,11 +2886,14 @@
       document.body.appendChild(overlay);
     };
 
-    two.appendChild(mkChoice("🧼","ていねいに掃除","少し時間をかける。", () => startClean("ていねいに掃除")));
-    two.appendChild(mkChoice("🧻","さっと掃除","急いで済ませる。", () => startClean("さっと掃除")));
+    const labelCareful = (LANG==="en") ? "Carefully" : (LANG==="zh" ? "认真清理" : "ていねいに掃除");
+    const labelQuick   = (LANG==="en") ? "Quickly"   : (LANG==="zh" ? "快速清理" : "さっと掃除");
+
+    two.appendChild(mkChoice("🧼", labelCareful, (LANG==="en"?"Take a little time.":(LANG==="zh"?"稍微花点时间。":"少し時間をかける。")), () => startClean(labelCareful, true)));
+    two.appendChild(mkChoice("🧻", labelQuick,   (LANG==="en"?"Finish fast.":(LANG==="zh"?"赶快结束。":"急いで済ませる。")), () => startClean(labelQuick, false)));
     body.appendChild(two);
 
-    openModal("排泄除去", "2択 + タップ", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
+    openModal(t("btnClean"), `${t("twoChoice")} + Tap`, body, [ mkBtn(t("btnCancel"), "btnGhost", closeModal) ]);
   }
 
   function actDrink(){
@@ -1910,10 +2902,8 @@
     if(save.ended || save.macaronActive) return;
 
     const body = document.createElement("div");
-    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
-      ドリンクを使う？<br>
-      少しだけ時間や状態が戻る／延びることがあります。理由は説明しません。<br>
-      使用はログに残ります。
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7; white-space:pre-wrap">
+${escapeHtml(t("drinkAsk"))}
     </div>`;
 
     const two = document.createElement("div");
@@ -1925,7 +2915,7 @@
 
       const d = ensureDay(s, s.currentDay);
       d.items.drink++;
-      addChoice(s, "ドリンク", "🥤 使う");
+      addChoice(s, t("btnDrink"), "🥤 " + t("use"));
 
       s.hunger = clamp(s.hunger - 12 + (Math.random()*4 - 2), 0, 100);
       s.dirt   = clamp(s.dirt   - 10 + (Math.random()*4 - 2), 0, 100);
@@ -1934,7 +2924,7 @@
       s.lifeExtensionMs = (s.lifeExtensionMs || 0) + DRINK_EXTEND_MS;
       s.startedAt += DRINK_BACK_MS;
 
-      pushLiveLog(s, "ドリンクを使った。");
+      pushLiveLog(s, t("usedDrink"));
 
       applyAfterChoiceMaybeSleep(s);
 
@@ -1942,15 +2932,15 @@
       closeModal();
     };
 
-    two.appendChild(mkChoice("🥤","使う","ほんの少し。", use));
-    two.appendChild(mkChoice("🤲","使わない","今回は見送る。", () => {
+    two.appendChild(mkChoice("🥤", t("use"), (LANG==="en"?"Just a little.":(LANG==="zh"?"只是一点点。":"ほんの少し。")), use));
+    two.appendChild(mkChoice("🤲", t("notUse"), (LANG==="en"?"Maybe later.":(LANG==="zh"?"以后再说。":"今回は見送る。")), () => {
       const s = loadSave();
-      if(s) { addChoice(s, "ドリンク", "🤲 やめる"); saveSave(s); }
+      if(s) { addChoice(s, t("btnDrink"), "🤲 " + t("notUse")); saveSave(s); }
       closeModal();
     }));
 
     body.appendChild(two);
-    openModal("ドリンク", "生存中のみ", body, [ mkBtn("閉じる", "btnGhost", closeModal) ]);
+    openModal(t("btnDrink"), t("onlyAlive"), body, [ mkBtn(t("btnClose"), "btnGhost", closeModal) ]);
   }
 
   function actMacaron(){
@@ -1958,10 +2948,8 @@
     if(!save.ended || save.macaronActive) return;
 
     const body = document.createElement("div");
-    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
-      マカロンを使う？<br>
-      一時的に戻るかもしれませんが、完全ではありません。<br>
-      使用はログに残ります。
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7; white-space:pre-wrap">
+${escapeHtml(t("macaronAsk"))}
     </div>`;
 
     const two = document.createElement("div");
@@ -1974,7 +2962,7 @@
       const e = calcElapsedMs(s, now());
       const d = ensureDay(s, s.currentDay);
       d.items.macaron++;
-      addChoice(s, "マカロン", "🍬 使う");
+      addChoice(s, t("btnMacaron"), "🍬 " + t("use"));
 
       s.macaronActive = true;
       s.macaronEndsAtElapsed = e + MACARON_REVIVE_MS;
@@ -1988,20 +2976,20 @@
 
       maybeStartSleep(s, e);
 
-      pushLiveLog(s, "戻ってきた。");
+      pushLiveLog(s, t("returned"));
       saveSave(s);
       closeModal();
     };
 
-    two.appendChild(mkChoice("🍬","使う","一時的に。", use));
-    two.appendChild(mkChoice("🕯️","使わない","見送る。", () => {
+    two.appendChild(mkChoice("🍬", t("use"), (LANG==="en"?"Only briefly.":(LANG==="zh"?"只是短暂。":"一時的に。")), use));
+    two.appendChild(mkChoice("🕯️", t("notUse"), (LANG==="en"?"Let it be.":(LANG==="zh"?"就这样吧。":"見送る。")), () => {
       const s = loadSave();
-      if(s) { addChoice(s, "マカロン", "🕯️ やめる"); saveSave(s); }
+      if(s) { addChoice(s, t("btnMacaron"), "🕯️ " + t("notUse")); saveSave(s); }
       closeModal();
     }));
 
     body.appendChild(two);
-    openModal("マカロン", "死後のみ", body, [ mkBtn("閉じる", "btnGhost", closeModal) ]);
+    openModal(t("btnMacaron"), t("onlyAfter"), body, [ mkBtn(t("btnClose"), "btnGhost", closeModal) ]);
   }
 
   function exportObservationData(save){
@@ -2009,7 +2997,6 @@
     for(let i=1;i<=3;i++){
       const d = ensureDay(save, i);
       const cc = d.careCounts || {};
-      const styleCount = (cc.style ?? 0) + (cc.mini ?? 0);
       const lines = (d.choices || []).map(c => `・${formatClock(c.t)} ${c.category}：${c.choice}`).join("\n");
 
       days.push({
@@ -2017,7 +3004,7 @@
         careCounts: {
           food: cc.food ?? 0,
           out: cc.out ?? 0,
-          style: styleCount,
+          style: cc.style ?? 0,
           clean: cc.clean ?? 0
         },
         heartChange: d.heartChange ?? 0,
@@ -2081,9 +3068,8 @@
   function showShare(save){
     const shareUrl = makeShareUrl(save);
     const body = document.createElement("div");
-    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7">
-      このURLを共有すると、第三者は「観察用ログ画面」だけを閲覧できます。<br>
-      操作はできません。見えるのはログとハート推移のみです。
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7; white-space:pre-wrap;">
+${escapeHtml(t("shareText"))}
     </div>`;
     const box = document.createElement("div");
     box.style.marginTop = "10px";
@@ -2097,18 +3083,18 @@
     box.textContent = shareUrl;
     body.appendChild(box);
 
-    const bCopy = mkBtn("コピー", "", async () => {
+    const bCopy = mkBtn(t("btnCopy"), "", async () => {
       const ok = await copyText(shareUrl);
       const s = loadSave();
       if(s){
-        pushLiveLog(s, ok ? "URLをコピーした。" : "URLを表示した。");
+        pushLiveLog(s, ok ? t("shareCopied") : t("shareShown"));
         saveSave(s);
       }
       closeModal();
     });
 
-    openModal("観察用URL", "共有するとログだけ見られます", body, [
-      mkBtn("閉じる", "btnGhost", closeModal),
+    openModal(t("shareTitle"), t("shareHint"), body, [
+      mkBtn(t("btnClose"), "btnGhost", closeModal),
       bCopy
     ]);
   }
@@ -2185,10 +3171,10 @@
     const end = exp.endedAt ? new Date(exp.endedAt) : null;
 
     const nm = normalizeName(exp.petName) ? `（${exp.petName}）` : "";
-    ui.obsTitle.textContent = `観察ID：${exp.playerId.slice(0,8)} ${nm}`;
+    ui.obsTitle.textContent = `Observer ID: ${exp.playerId.slice(0,8)} ${nm}`;
     ui.obsSub.textContent = end
       ? `${start.toLocaleString()} 〜 ${end.toLocaleString()}`
-      : `${start.toLocaleString()} 〜 （進行中）`;
+      : `${start.toLocaleString()} 〜 (running)`;
 
     ui.obsDays.innerHTML = "";
     exp.days.forEach(d => {
@@ -2204,22 +3190,22 @@
           <small> </small>
         </div>
         <div class="kvs">
-          <div><span>食事</span> ${c.food}</div>
-          <div><span>おでかけ</span> ${c.out}</div>
-          <div><span>おしゃれ</span> ${c.style}</div>
-          <div><span>排泄除去</span> ${c.clean}</div>
-          <div><span>ハートの変化</span> ${d.heartChange}</div>
-          <div><span>シッター</span> ${sitterMin} 分</div>
-          <div><span>ドリンク</span> ${it.drink}</div>
-          <div><span>マカロン</span> ${it.macaron}</div>
+          <div><span>${escapeHtml(t("btnFood"))}</span> ${c.food}</div>
+          <div><span>${escapeHtml(t("btnOut"))}</span> ${c.out}</div>
+          <div><span>${escapeHtml(t("btnStyle"))}</span> ${c.style}</div>
+          <div><span>${escapeHtml(t("btnClean"))}</span> ${c.clean}</div>
+          <div><span>Heart Δ</span> ${d.heartChange}</div>
+          <div><span>${escapeHtml(t("sitter"))}</span> ${sitterMin} min</div>
+          <div><span>${escapeHtml(t("btnDrink"))}</span> ${it.drink}</div>
+          <div><span>${escapeHtml(t("btnMacaron"))}</span> ${it.macaron}</div>
         </div>
-        <div class="choices">${escapeHtml(d.choicesText || "（記録なし）")}</div>
+        <div class="choices">${escapeHtml(d.choicesText || "（no logs）")}</div>
       `;
       ui.obsDays.appendChild(card);
     });
 
     drawHeartChart(exp);
-    ui.btnBackToGame.textContent = fromUrl ? "閉じる" : "戻る";
+    ui.btnBackToGame.textContent = fromUrl ? t("btnClose") : t("btnBack");
   }
 
   function enterObserveFromUrl(){
@@ -2234,10 +3220,9 @@
     if(!data){
       const body = document.createElement("div");
       body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
-        観察用データが見つかりませんでした。<br>
-        共有URLをそのまま開いているか確認してください。
+        No observer data found. Please open the shared URL as-is.
       </div>`;
-      openModal("観察", " ", body, [mkBtn("閉じる", "btnGhost", closeModal)]);
+      openModal("Observer", " ", body, [mkBtn(t("btnClose"), "btnGhost", closeModal)]);
       return true;
     }
 
@@ -2250,19 +3235,17 @@
     }catch(_){
       const body = document.createElement("div");
       body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
-        観察用データの読み込みに失敗しました。<br>
-        URLが途中で切れている可能性があります。
+        Failed to load observer data. The URL might be truncated.
       </div>`;
-      openModal("観察", " ", body, [mkBtn("閉じる", "btnGhost", closeModal)]);
+      openModal("Observer", " ", body, [mkBtn(t("btnClose"), "btnGhost", closeModal)]);
       return true;
     }
   }
 
   function confirmReset(){
     const body = document.createElement("div");
-    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8">
-      はじめから遊べます。<br>
-      ログは痕跡として残すか、消すか選べます。
+    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.8; white-space:pre-wrap;">
+${escapeHtml(t("resetText"))}
     </div>`;
     const two = document.createElement("div");
     two.className = "two";
@@ -2272,26 +3255,24 @@
       if(s) archiveRun(s);
       const n = createNewSave();
       saveSave(n);
-      pushLiveLog(n, "始まった。");
+      pushLiveLog(n, t("logStarted"));
       saveSave(n);
       closeModal();
-      openNameModal(true);
     };
     const wipe = () => {
       localStorage.removeItem(SAVE_KEY);
       const n = createNewSave();
       saveSave(n);
-      pushLiveLog(n, "始まった。");
+      pushLiveLog(n, t("logStarted"));
       saveSave(n);
       closeModal();
-      openNameModal(true);
     };
 
-    two.appendChild(mkChoice("🗂️","ログを残してはじめる","過去の痕跡はアーカイブへ。", keep));
-    two.appendChild(mkChoice("🧽","ログを消してはじめる","この端末の記録を消します。", wipe));
+    two.appendChild(mkChoice("🗂️", t("resetKeep"), t("resetKeepSub"), keep));
+    two.appendChild(mkChoice("🧽", t("resetWipe"), t("resetWipeSub"), wipe));
     body.appendChild(two);
 
-    openModal("はじめから", " ", body, [ mkBtn("やめる", "btnGhost", closeModal) ]);
+    openModal(t("resetTitle"), " ", body, [ mkBtn(t("resetCancel"), "btnGhost", closeModal) ]);
   }
 
   function showLogs(save){
@@ -2300,7 +3281,8 @@
   }
 
   function markMissing(src){
-    ui.stageNote.textContent = `画像が見つからないかもしれません\n${src}\npublic/char/ の中にPNGがあるか確認してください`;
+    const msg = t("missAsset").replace("{src}", src);
+    ui.stageNote.textContent = msg;
   }
 
   function render(save){
@@ -2310,7 +3292,8 @@
     ui.heartFill.style.width = clamp(save.heart, 0, 100) + "%";
     ui.sitterToggle.dataset.on = save.pausedSince ? "true" : "false";
 
-    if(!save.hatched && !save.ended){
+    const letterReady = (!save.hatched && !save.ended && elapsed >= LETTER_DELAY_MS);
+    if(letterReady){
       showLetterSlot();
     }else{
       hideLetterSlot();
@@ -2320,8 +3303,8 @@
     if(!save.hatched){
       ui.macaronArea.style.display = "grid";
       ui.charArea.style.display = "none";
-      ui.stageHint.textContent = save.pausedSince ? "時間が止まっている。" : "しばらくして、浮かび上がる。";
-      ui.stageNote.textContent = "どんな子かな？ちょっと待ってね";
+      ui.stageHint.textContent = save.pausedSince ? t("timeStopped") : t("hatchingSoon");
+      ui.stageNote.textContent = t("waitNote");
       ui.macaronArea.classList.toggle("hatchLift", !!save.hatchAnim);
     }else{
       ui.macaronArea.style.display = "none";
@@ -2329,8 +3312,8 @@
 
       const sleeping = isSleeping(save, elapsed);
 
-      ui.stageHint.textContent = save.pausedSince ? "時間が止まっている。" : `この子：${pet}`;
-      ui.stageNote.textContent = sleeping ? "すやすや…" : " ";
+      ui.stageHint.textContent = save.pausedSince ? t("timeStopped") : `${t("thisPet")}${pet}`;
+      ui.stageNote.textContent = sleeping ? t("sleepNote") : " ";
 
       ui.charArea.classList.remove("lively","low","cry","sleep");
       if(sleeping){
@@ -2351,7 +3334,7 @@
     ui.btnMacaron.disabled = !(save.ended && !save.macaronActive);
 
     ui.thanksOverlay.classList.toggle("show", save.ended && !save.macaronActive);
-    ui.subline.textContent = (save.ended && !save.macaronActive) ? "操作は停止します" : "ログだけが残ります";
+    ui.subline.textContent = (save.ended && !save.macaronActive) ? t("subEnded") : t("subRunning");
 
     ui.liveLog.innerHTML = "";
     (save.live || []).slice(0, 14).forEach(it => {
@@ -2371,30 +3354,35 @@
     if(!save){
       save = createNewSave();
       saveSave(save);
-      pushLiveLog(save, "始まった。");
+      pushLiveLog(save, t("logStarted"));
       saveSave(save);
     }
 
-    ui.assetHint.textContent = `画像パス: ${ASSET_BASE}（例: ${ASSET_BASE}blue/sleep.png）`;
+    ui.langSel.value = LANG;
+    ui.langSel.addEventListener("change", () => setLang(ui.langSel.value));
+    applyLangToUI();
 
-    if(ui.letterText) ui.letterText.textContent = LETTER_BODY;
-
-    if(ui.letterBtn) ui.letterBtn.addEventListener("click", openLetter);
-    if(ui.letterClose) ui.letterClose.addEventListener("click", closeLetter);
-    if(ui.letterX) ui.letterX.addEventListener("click", closeLetter);
-    if(ui.letterModal){
-      ui.letterModal.addEventListener("click", (e) => {
-        if(e.target === ui.letterModal) closeLetter();
-      });
-    }
+    ui.letterBtn.addEventListener("click", openLetter);
+    ui.letterClose.addEventListener("click", closeLetter);
+    ui.letterX.addEventListener("click", closeLetter);
+    ui.letterModal.addEventListener("click", (e) => {
+      if(e.target === ui.letterModal) closeLetter();
+    });
 
     ui.macaronImg.addEventListener("error", () => markMissing(ui.macaronImg.src));
     ui.charImg.addEventListener("error", () => {
-      const used = ui.charImg.getAttribute("data-fallback-used") === "1";
-      const fb = ui.charImg.getAttribute("data-fallback") || "";
-      if(!used && fb){
+      const used1 = ui.charImg.getAttribute("data-fallback-used") === "1";
+      const used2 = ui.charImg.getAttribute("data-fallback2-used") === "1";
+      const fb1 = ui.charImg.getAttribute("data-fallback") || "";
+      const fb2 = ui.charImg.getAttribute("data-fallback2") || "";
+      if(!used1 && fb1){
         ui.charImg.setAttribute("data-fallback-used","1");
-        ui.charImg.src = fb;
+        ui.charImg.src = fb1;
+        return;
+      }
+      if(!used2 && fb2){
+        ui.charImg.setAttribute("data-fallback2-used","1");
+        ui.charImg.src = fb2;
         return;
       }
       markMissing(ui.charImg.src);
@@ -2430,27 +3418,21 @@
 
       if(!s.pausedSince){
         s.pausedSince = now();
-        pushLiveLog(s, "預けた。");
+        pushLiveLog(s, t("logSitterOn"));
         saveSave(s);
       }else{
-        const t = now();
-        const pausedDur = t - s.pausedSince;
+        const t1 = now();
+        const pausedDur = t1 - s.pausedSince;
         s.totalPausedMs += pausedDur;
 
         const d = ensureDay(s, s.currentDay);
         d.sitterMs += pausedDur;
 
         s.pausedSince = null;
-        pushLiveLog(s, "戻った。");
+        pushLiveLog(s, t("logSitterOff"));
         saveSave(s);
       }
     });
-
-    // 初回は名前
-    const s0 = loadSave();
-    if(s0 && !normalizeName(s0.petName)){
-      setTimeout(() => openNameModal(true), 300);
-    }
 
     setInterval(() => {
       const s = loadSave();
