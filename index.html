@@ -18,7 +18,15 @@
       --shadow: 0 10px 40px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans JP",sans-serif;background:radial-gradient(1200px 900px at 50% 20%, rgba(255,255,255,.10), transparent 55%), linear-gradient(180deg,var(--bg0),var(--bg1));color:var(--text);min-height:100vh;}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI","Noto Sans JP",sans-serif;
+      background:
+        radial-gradient(1200px 900px at 50% 20%, rgba(255,255,255,.10), transparent 55%),
+        linear-gradient(180deg,var(--bg0),var(--bg1));
+      color:var(--text);
+      min-height:100vh;
+    }
     main{max-width:980px;margin:0 auto;padding:18px 18px 32px}
     header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
     .title{font-weight:900;letter-spacing:.02em}
@@ -34,11 +42,14 @@
     @media (max-width: 900px){ .grid{grid-template-columns:1fr; } }
 
     .card{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
-    .stage{position:relative;min-height:360px;overflow:hidden;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:
-      radial-gradient(900px 500px at 50% 20%, rgba(120,150,255,.18), transparent 55%),
-      radial-gradient(700px 450px at 20% 70%, rgba(255,120,200,.12), transparent 55%),
-      radial-gradient(700px 450px at 80% 80%, rgba(120,255,220,.10), transparent 55%),
-      rgba(0,0,0,.10);
+    .stage{
+      position:relative;min-height:360px;overflow:hidden;border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(900px 500px at 50% 20%, rgba(120,150,255,.18), transparent 55%),
+        radial-gradient(700px 450px at 20% 70%, rgba(255,120,200,.12), transparent 55%),
+        radial-gradient(700px 450px at 80% 80%, rgba(120,255,220,.10), transparent 55%),
+        rgba(0,0,0,.10);
     }
 
     .stars{
@@ -59,9 +70,10 @@
 
     .ground{
       position:absolute;left:-10%;right:-10%;bottom:-50px;height:140px;border-radius:50%;
-      background:radial-gradient(900px 220px at 50% 20%, rgba(255,255,255,.14), transparent 60%),
-                 radial-gradient(700px 160px at 30% 30%, rgba(120,255,220,.10), transparent 55%),
-                 rgba(255,255,255,.05);
+      background:
+        radial-gradient(900px 220px at 50% 20%, rgba(255,255,255,.14), transparent 60%),
+        radial-gradient(700px 160px at 30% 30%, rgba(120,255,220,.10), transparent 55%),
+        rgba(255,255,255,.05);
       filter: blur(.2px);
     }
 
@@ -72,10 +84,13 @@
       font-size:13px;line-height:1.55;
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
       backdrop-filter: blur(4px);
+      min-height:42px;
     }
 
+    /* キャラ配置（プレイヤーは常にいる。子は誕生まで隠す） */
     .pair{position:absolute;left:0;right:0;bottom:58px;display:flex;justify-content:center;align-items:flex-end;gap:22px;pointer-events:none}
-    .charWrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+    .charWrap{display:flex;flex-direction:column;align-items:center;gap:10px;transition:opacity .6s ease, transform .6s ease}
+    .charWrap.hidePet{opacity:0;transform:translateY(10px) scale(.98)}
     .sprite{
       width:148px;height:148px;border-radius:999px;
       display:grid;place-items:center;
@@ -87,7 +102,7 @@
     .sprite.big{width:168px;height:168px}
     .sprite.small{width:132px;height:132px}
 
-    /* 画像がないときのフォールバック用 */
+    /* 画像がないときのフォールバック顔 */
     .face{position:absolute;inset:0;display:grid;place-items:center;opacity:.95}
     .eyes{display:flex;gap:18px;transform:translateY(-6px)}
     .eye{width:16px;height:16px;border-radius:999px;background:#fff;opacity:.95}
@@ -108,20 +123,24 @@
     .state-cry .tear{opacity:1;animation: drip .9s ease-in-out infinite}
     @keyframes drip{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(22px);opacity:0}}
 
-    /* たまご */
+    /* マカロン（卵） */
     .egg{
-      position:absolute;left:50%;bottom:130px;transform:translateX(-50%);
-      width:140px;height:140px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);
-      display:grid;place-items:center;box-shadow: 0 18px 40px rgba(0,0,0,.28);
+      position:absolute;left:50%;bottom:128px;transform:translateX(-50%);
+      width:150px;height:150px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      display:grid;place-items:center;
+      box-shadow: 0 18px 40px rgba(0,0,0,.28);
       animation: eggFloat 2.8s ease-in-out infinite;
       pointer-events:none;
+      overflow:hidden;
     }
+    .egg img{width:86%;height:86%;object-fit:contain;filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));transition:opacity .25s ease, filter .25s ease}
     @keyframes eggFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-10px)}}
     .eggGlow{position:absolute;inset:-30px;border-radius:999px;background:radial-gradient(circle, rgba(185,246,202,.18), transparent 55%);filter:blur(1px);opacity:.9}
-    .eggTxt{font-weight:900;letter-spacing:.03em;color:rgba(238,242,255,.9)}
     .eggLift{transition: transform .6s ease}
     .eggLift.lift{transform:translateX(-50%) translateY(-46px)}
+    .eggHint{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-weight:900;color:rgba(238,242,255,.85);font-size:12px;letter-spacing:.04em}
 
     /* 💩 */
     .poops{position:absolute;left:0;right:0;bottom:88px;display:flex;justify-content:center;gap:18px;pointer-events:none}
@@ -131,8 +150,7 @@
       background:rgba(0,0,0,.20);
       border:1px solid rgba(255,255,255,.12);
       box-shadow: 0 10px 24px rgba(0,0,0,.24);
-      filter: saturate(1.1);
-      opacity:.0;
+      opacity:0;
       transform:translateY(12px);
       transition:opacity .35s ease, transform .35s ease;
     }
@@ -206,10 +224,7 @@
       filter: blur(.2px);
     }
     .revive .glitch{opacity:.75;animation: glitchMove .35s linear infinite}
-    @keyframes glitchMove{
-      0%{transform:translateX(-12px)}
-      100%{transform:translateX(12px)}
-    }
+    @keyframes glitchMove{ 0%{transform:translateX(-12px)} 100%{transform:translateX(12px)} }
 
     /* 終了 */
     .ending{
@@ -256,13 +271,16 @@
 
       <div class="stink" id="stink">〰️〰️</div>
 
-      <div class="egg eggLift" id="egg">
+      <!-- マカロン（卵の代わり） -->
+      <div class="egg eggLift" id="egg" aria-hidden="true">
         <div class="eggGlow"></div>
-        <div class="eggTxt">…</div>
+        <img id="eggImg" alt="" />
+        <div class="eggHint">macaron</div>
       </div>
 
+      <!-- キャラ（プレイヤーは常に表示、子は誕生まで隠す） -->
       <div class="pair" id="pair">
-        <div class="charWrap">
+        <div class="charWrap" id="playerWrap">
           <div class="sprite big state-good" id="playerSprite">
             <img class="img" id="playerImg" alt="" />
             <div class="face" id="playerFace">
@@ -271,7 +289,8 @@
             </div>
           </div>
         </div>
-        <div class="charWrap">
+
+        <div class="charWrap hidePet" id="petWrap">
           <div class="sprite small state-good" id="petSprite">
             <div class="glitch"></div>
             <img class="img" id="petImg" alt="" />
@@ -381,32 +400,37 @@
   // ====== 設定 ======
   const SAVE_KEY = "tosewa_save_v1";
 
-  const INCUBATION_MS = 3 * 60 * 1000;              // 3分で誕生（シッター中は進まない）
-  const LIFE_MS       = 3 * 24 * 60 * 60 * 1000;    // 3日寿命（誕生後、シッター中は進まない）
+  const INCUBATION_MS = 3 * 60 * 1000;              // 3分で誕生
+  const LIFE_MS       = 3 * 24 * 60 * 60 * 1000;    // 3日寿命（誕生後）
   const DAY_MS        = 24 * 60 * 60 * 1000;
 
   // 空腹・💩の進行速度（ざっくり）
   const HUNGER_PER_HOUR = 12; // 0-100
   const POOP_PER_HOUR   = 10; // 0-100
 
-  // UI
   const ui = {
     subLine: document.getElementById("subLine"),
     bubble: document.getElementById("bubble"),
-    stage: document.getElementById("stage"),
+
     sit: document.getElementById("sit"),
     egg: document.getElementById("egg"),
-    pair: document.getElementById("pair"),
+    eggImg: document.getElementById("eggImg"),
+
+    playerWrap: document.getElementById("playerWrap"),
+    petWrap: document.getElementById("petWrap"),
+
     stink: document.getElementById("stink"),
     poop1: document.getElementById("poop1"),
     poop2: document.getElementById("poop2"),
     poop3: document.getElementById("poop3"),
+
     playerSprite: document.getElementById("playerSprite"),
     petSprite: document.getElementById("petSprite"),
     playerImg: document.getElementById("playerImg"),
     petImg: document.getElementById("petImg"),
     playerFace: document.getElementById("playerFace"),
     petFace: document.getElementById("petFace"),
+
     hearts: document.getElementById("hearts"),
     hungerBar: document.getElementById("hungerBar"),
     poopBar: document.getElementById("poopBar"),
@@ -433,64 +457,58 @@
     ending: document.getElementById("ending"),
   };
 
-  // 画像差し替えしやすいようにパスをまとめる（無ければフォールバック顔が見える）
+  // 画像差し替えしやすいようにパスをまとめる
+  // 無い場合はフォールバック顔で表示される
   const ASSETS = {
     blue:   { open:"public/char/blue/open.png",   closed:"public/char/blue_closed.png",   sleep:"public/char/blue/sleep.png" },
     green:  { open:"public/char/green/open.png",  closed:"public/char/green_closed.png",  sleep:"public/char/green/sleep.png" },
     purple: { open:"public/char/purple/open.png", closed:"public/char/purple_closed.png", sleep:"public/char/purple/sleep.png" },
     pick:   { open:"public/char/pick/open.png",   closed:"public/char/pick_closed.png",   sleep:"public/char/pick/sleep.png" },
+
+    // マカロン（卵の代わり）
     eggByColor: {
-      blue: "public/char/macaron_blue.png",
-      green:"public/char/macaron_green.png",
-      purple:"public/char/macaron_purple.png",
-      pick:"public/char/macaron_pick.png",
+      blue:   "public/char/macaron_blue.png",
+      green:  "public/char/macaron_green.png",
+      purple: "public/char/macaron_purple.png",
+      pick:   "public/char/macaron_pick.png",
     }
   };
 
-  // ====== セーブ構造 ======
+  // ====== セーブ ======
   function defaultSave(){
     return {
       v:1,
       createdAt: Date.now(),
 
-      // 選択
       playerColor: null,
       petColor: null,
 
-      // 状態
       stage: "egg",              // egg | alive | dead | revived | ended
       sitterOn: false,
 
-      // 時間管理（シッター除外で進む「キャラ時間」）
       lastRealAt: Date.now(),
-      accMs: 0,                  // incub+life を含む累積（シッターOFF時のみ加算）
-      sitterMs: 0,               // シッター総使用
+      accMs: 0,                  // シッターOFF時のみ進むキャラ時間
+      sitterMs: 0,
 
-      // 生存時間（誕生後）
-      bornAccMs: null,           // 誕生したときの accMs
+      bornAccMs: null,
 
-      // ニーズ
-      hunger: 15,                // 0-100
-      poop: 10,                  // 0-100
-      health: 80,                // 0-100（表情用）
+      hunger: 15,
+      poop: 10,
+      health: 80,
 
-      // ハート（0-10）
       heart: 6,
-      heartHistory: [],          // {t, v}
+      heartHistory: [],
 
-      // アイテム
       drinkUsed: 0,
       macaronUsed: 0,
-      revivedUntilAccMs: null,   // accMs 基準で復活期限
+      revivedUntilAccMs: null,
 
-      // ログ
-      events: [],                // 事実ログ（評価なし）
+      events: [],
       day: [
         {food:[], out:[], mini:[], poop:[], heartStart:null, heartEnd:null, sitterMs:0, drink:0, macaron:0},
         {food:[], out:[], mini:[], poop:[], heartStart:null, heartEnd:null, sitterMs:0, drink:0, macaron:0},
         {food:[], out:[], mini:[], poop:[], heartStart:null, heartEnd:null, sitterMs:0, drink:0, macaron:0},
       ],
-
       endedAt: null,
     };
   }
@@ -510,8 +528,17 @@
     state.lastRealAt = Date.now();
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
   }
-
   let state = load();
+
+  function uid(){
+    try{
+      const a = new Uint32Array(2);
+      crypto.getRandomValues(a);
+      return [...a].map(x => x.toString(16).padStart(8,"0")).join("");
+    }catch(_){
+      return Math.random().toString(16).slice(2);
+    }
+  }
 
   // ====== 初回：色選択 ======
   function openSetup(){
@@ -522,7 +549,6 @@
     ui.setupBack.classList.remove("open");
     ui.setupBack.setAttribute("aria-hidden","true");
   }
-
   function pickPetColor(playerColor){
     const colors = ["blue","green","purple","pick"].filter(c => c !== playerColor);
     return colors[Math.floor(Math.random()*colors.length)];
@@ -532,15 +558,21 @@
     const pc = state.playerColor || "blue";
     const kc = state.petColor || "green";
 
+    ui.playerImg.style.display = "";
+    ui.petImg.style.display = "";
+    ui.playerFace.style.display = "none";
+    ui.petFace.style.display = "none";
+
     ui.playerImg.src = ASSETS[pc]?.closed || "";
     ui.petImg.src = ASSETS[kc]?.closed || "";
 
-    // 画像が読めなかったらフォールバックの顔が見えるようにする
     ui.playerImg.onerror = () => { ui.playerImg.style.display="none"; ui.playerFace.style.display="grid"; };
     ui.petImg.onerror = () => { ui.petImg.style.display="none"; ui.petFace.style.display="grid"; };
 
-    ui.playerFace.style.display = ui.playerImg.src ? "none" : "grid";
-    ui.petFace.style.display = ui.petImg.src ? "none" : "grid";
+    // マカロン画像（子の色に合わせる）
+    ui.eggImg.style.display = "";
+    ui.eggImg.src = ASSETS.eggByColor[kc] || "";
+    ui.eggImg.onerror = () => { ui.eggImg.style.display = "none"; };
   }
 
   if(!state.playerColor){
@@ -556,16 +588,16 @@
     if(!btn) return;
     state.playerColor = btn.dataset.color;
     state.petColor = pickPetColor(state.playerColor);
-    setSprites();
 
-    // その日のハート開始値
+    setSprites();
     ensureDayStart();
 
     closeSetup();
     save();
+    render();
   });
 
-  // ====== 時間計算 ======
+  // ====== 時間管理 ======
   function liveMs(){
     if(state.bornAccMs == null) return 0;
     return Math.max(0, state.accMs - state.bornAccMs);
@@ -601,8 +633,6 @@
     const di = dayIndex();
     ensureDayStart();
     state.day[di].heartEnd = state.heart;
-
-    // ハートは強調しすぎないため、微妙なときは変化なしにする
     if(state.heart !== before){
       pushEvent("heart", {before, after: state.heart});
     }
@@ -610,7 +640,6 @@
 
   // ====== 表情（ラベル無し） ======
   function mood(){
-    // health を基準に3段階
     const h = state.health;
     if(h >= 60) return "good";
     if(h >= 32) return "low";
@@ -619,24 +648,14 @@
 
   function applySpriteState(){
     const m = mood();
-    const cls = {
-      good:"state-good",
-      low:"state-low",
-      cry:"state-cry"
-    }[m];
+    const cls = { good:"state-good", low:"state-low", cry:"state-cry" }[m];
 
     ui.petSprite.classList.remove("state-good","state-low","state-cry");
     ui.petSprite.classList.add(cls);
 
-    // 復活は違和感（glitch）
-    if(state.stage === "revived"){
-      ui.petSprite.classList.add("revive");
-    }else{
-      ui.petSprite.classList.remove("revive");
-    }
+    if(state.stage === "revived") ui.petSprite.classList.add("revive");
+    else ui.petSprite.classList.remove("revive");
 
-    // 画像がある場合も一応顔を変えるために closed / open / sleep を切り替える
-    // ラベルは出さず、雰囲気だけ変える
     const c = state.petColor || "green";
     const img = ui.petImg;
     const map = ASSETS[c] || {};
@@ -648,7 +667,7 @@
     }
   }
 
-  // ====== UI（ハートとバー） ======
+  // ====== UI ======
   function renderHearts(){
     ui.hearts.innerHTML = "";
     for(let i=0;i<10;i++){
@@ -658,22 +677,17 @@
       ui.hearts.appendChild(s);
     }
   }
-
   function setBar(el, v){
     const pct = Math.max(0, Math.min(100, v));
     el.style.width = pct + "%";
   }
 
-  // ====== 💩表示 ======
+  // 💩表示
   function renderPoops(){
     const p = state.poop;
-    const s1 = p >= 22;
-    const s2 = p >= 52;
-    const s3 = p >= 78;
-    ui.poop1.classList.toggle("show", s1);
-    ui.poop2.classList.toggle("show", s2);
-    ui.poop3.classList.toggle("show", s3);
-
+    ui.poop1.classList.toggle("show", p >= 22);
+    ui.poop2.classList.toggle("show", p >= 52);
+    ui.poop3.classList.toggle("show", p >= 78);
     ui.stink.classList.toggle("on", p >= 62);
   }
 
@@ -691,9 +705,7 @@
       const b = document.createElement("button");
       b.className = "choice";
       b.innerHTML = `<div>${c.label}</div>${c.sub ? `<small>${c.sub}</small>` : ""}`;
-      b.addEventListener("click", () => {
-        modalOnPick?.(idx, c);
-      });
+      b.addEventListener("click", () => modalOnPick?.(idx, c));
       ui.choiceRow.appendChild(b);
     });
 
@@ -706,14 +718,13 @@
     modalOnPick = null;
   }
   ui.modalClose.addEventListener("click", closeModal);
-  ui.modalBack.addEventListener("click", (e) => {
-    if(e.target === ui.modalBack) closeModal();
-  });
+  ui.modalBack.addEventListener("click", (e) => { if(e.target === ui.modalBack) closeModal(); });
 
-  // ====== お世話の中身 ======
+  // ====== お世話 ======
   function canInteract(){
     if(state.stage === "ended") return false;
     if(state.stage === "dead") return false;
+    if(state.stage === "egg") return false;   // 生まれる前は世話できない
     if(state.sitterOn) return false;
     return true;
   }
@@ -721,7 +732,6 @@
   function doFood(){
     if(!canInteract()) return;
     modalOnPick = (idx, c) => {
-      // 効果（理由は言わない）
       if(idx === 0){
         state.hunger = Math.max(0, state.hunger - 25);
         state.poop = Math.min(100, state.poop + 6);
@@ -739,12 +749,8 @@
       save();
       render();
     };
-    openModal(
-      "ごはん",
-      [
-        {label:"軽い食事", sub:"すぐ終わる"},
-        {label:"しっかりした食事", sub:"ちょっと重い"}
-      ],
+    openModal("ごはん",
+      [{label:"軽い食事", sub:"すぐ終わる"},{label:"しっかりした食事", sub:"ちょっと重い"}],
       "どちらも正解ではありません。"
     );
   }
@@ -753,13 +759,11 @@
     if(!canInteract()) return;
     modalOnPick = (idx, c) => {
       if(idx === 0){
-        // 外
         state.hunger = Math.min(100, state.hunger + 10);
         state.poop   = Math.min(100, state.poop + 10);
         state.health = Math.min(100, state.health + 8);
         addHeart(1);
       }else{
-        // 家
         state.hunger = Math.min(100, state.hunger + 4);
         state.poop   = Math.min(100, state.poop + 3);
         state.health = Math.min(100, state.health + 4);
@@ -771,20 +775,14 @@
       save();
       render();
     };
-    openModal(
-      "おでかけ",
-      [
-        {label:"外に出る", sub:"気分が変わる"},
-        {label:"家で過ごす", sub:"静かに過ぎる"}
-      ],
+    openModal("おでかけ",
+      [{label:"外に出る", sub:"気分が変わる"},{label:"家で過ごす", sub:"静かに過ぎる"}],
       "選んだ痕跡だけが残ります。"
     );
   }
 
   function doMini(){
     if(!canInteract()) return;
-
-    // つまらない2択（短い）
     const pool = [
       ["ボタンを押す","押さない"],
       ["目を閉じる","目を開けたまま"],
@@ -795,7 +793,6 @@
     const q = pool[Math.floor(Math.random()*pool.length)];
 
     modalOnPick = (idx, c) => {
-      // 小さな揺れ（説明なし）
       const r = (Math.random() < .55) ? 1 : 0;
       if(idx === 0){
         state.health = Math.min(100, state.health + (r?6:2));
@@ -811,23 +808,17 @@
       render();
     };
 
-    openModal(
-      "2択ミニ",
-      [
-        {label:q[0], sub:"…"},
-        {label:q[1], sub:"…"}
-      ],
+    openModal("2択ミニ",
+      [{label:q[0], sub:"…"},{label:q[1], sub:"…"}],
       "終わったら、何も残りません。ログ以外は。"
     );
   }
 
-  // 💩そうじ（ここが消えてた問題の本体）
+  // 💩そうじ（タップで消す短時間ゲーム）
   function doPoopGame(){
     if(!canInteract()) return;
 
     const before = state.poop;
-
-    // 二択にしてから、クリックゲーム（短時間）
     const mini = `
       <div class="hint">💩をタップして消してください（10秒）。</div>
       <div class="poopGameRow" id="poopRow" style="margin-top:10px"></div>
@@ -838,7 +829,6 @@
       const mode = idx === 0 ? "quick" : "careful";
       closeModal();
 
-      // ゲーム開始
       ui.modalTitle.textContent = "そうじ";
       ui.choiceRow.innerHTML = "";
       ui.modalHint.textContent = "タップできた数だけ、少しだけ戻ります。";
@@ -853,9 +843,7 @@
       let hit = 0;
       let left = 10;
 
-      // 💩の数は汚れ具合で決める
       const n = Math.max(3, Math.min(9, Math.floor(state.poop/12)));
-
       for(let i=0;i<n;i++){
         const t = document.createElement("div");
         t.className = "poopTarget";
@@ -875,13 +863,10 @@
         if(left <= 0){
           clearInterval(tick);
 
-          // 効果：モードで効きが少し違う
           const base = mode === "quick" ? 6 : 8;
           const reduce = Math.min(60, base + hit * (mode==="quick"?3:2));
 
           state.poop = Math.max(0, state.poop - reduce);
-
-          // そうじは状態をちょっと改善
           state.health = Math.min(100, state.health + 10);
           addHeart(1);
 
@@ -895,12 +880,8 @@
       }, 1000);
     };
 
-    openModal(
-      "そうじ",
-      [
-        {label:"サッと拭く", sub:"速い"},
-        {label:"丁寧にやる", sub:"遅い"}
-      ],
+    openModal("そうじ",
+      [{label:"サッと拭く", sub:"速い"},{label:"丁寧にやる", sub:"遅い"}],
       "放置すると、ゆっくり悪化します。"
     );
   }
@@ -910,16 +891,12 @@
     if(state.sitterOn) return;
 
     modalOnPick = (idx, c) => {
-      // 2択にしておく（効果はやんわり）
-      // どちらも「少し戻す／延ばす」に当たる
       if(idx === 0){
-        // ちょい戻し
-        state.accMs = Math.max(0, state.accMs - (2*60*60*1000)); // 2時間ぶん戻す
+        state.accMs = Math.max(0, state.accMs - (2*60*60*1000));
         state.hunger = Math.max(0, state.hunger - 18);
         state.poop   = Math.max(0, state.poop - 10);
         state.health = Math.min(100, state.health + 4);
       }else{
-        // ちょい延ばし（実質、健康側）
         state.hunger = Math.max(0, state.hunger - 10);
         state.poop   = Math.max(0, state.poop - 8);
         state.health = Math.min(100, state.health + 8);
@@ -932,43 +909,41 @@
       render();
     };
 
-    openModal(
-      "ドリンク",
-      [
-        {label:"少し巻き戻す", sub:"ちょっとだけ"},
-        {label:"少し整える", sub:"ちょっとだけ"}
-      ],
+    openModal("ドリンク",
+      [{label:"少し巻き戻す", sub:"ちょっとだけ"},{label:"少し整える", sub:"ちょっとだけ"}],
       "ハッピーアイテムではありません。"
     );
   }
 
   function doMacaron(){
-    // 死後にだけ使える
     if(state.stage !== "dead") return;
 
     modalOnPick = (idx, c) => {
-      // 一時的に生き返るが、違和感（glitch）
+      if(idx === 1){
+        pushEvent("macaron_skip", {});
+        closeModal();
+        save();
+        render();
+        return;
+      }
+
       state.macaronUsed++;
       state.day[Math.min(2, dayIndex())].macaron++;
 
       state.stage = "revived";
-      state.revivedUntilAccMs = state.accMs + (10 * 60 * 1000); // 10分だけ
+      state.revivedUntilAccMs = state.accMs + (10 * 60 * 1000);
       state.health = Math.min(100, Math.max(state.health, 38));
       state.hunger = Math.min(100, state.hunger + 6);
       state.poop   = Math.min(100, state.poop + 8);
 
-      pushEvent("macaron", {choice:c.label});
+      pushEvent("macaron", {choice:"使う"});
       closeModal();
       save();
       render();
     };
 
-    openModal(
-      "マカロン",
-      [
-        {label:"使う", sub:"戻ってくる"},
-        {label:"使わない", sub:"戻らない"}
-      ],
+    openModal("マカロン",
+      [{label:"使う", sub:"戻ってくる"},{label:"使わない", sub:"戻らない"}],
       "戻ってきても、前と同じとは限りません。"
     );
   }
@@ -990,14 +965,93 @@
   ui.actDrink.addEventListener("click", doDrink);
   ui.actMacaron.addEventListener("click", doMacaron);
 
-  ui.toLogs.addEventListener("click", () => {
-    location.href = "./logs.html";
-  });
+  ui.toLogs.addEventListener("click", () => { location.href = "./logs.html"; });
 
-  // ====== 終了表示（ありがとうだけ） ======
-  ui.ending.addEventListener("click", () => {
-    location.href = "./logs.html";
-  });
+  // ====== 終了表示 ======
+  ui.ending.addEventListener("click", () => { location.href = "./logs.html"; });
+
+  function setDisabledAll(dis){
+    const arr = [ui.actFood, ui.actOut, ui.actMini, ui.actPoop, ui.actDrink, ui.actMacaron, ui.sit];
+    arr.forEach(b => b.disabled = !!dis);
+  }
+
+  // ====== 初回のハート履歴 ======
+  if(state.heartHistory.length === 0){
+    state.heartHistory.push({t: Date.now(), v: state.heart});
+    ensureDayStart();
+    save();
+  }
+
+  // ====== 表示更新（ここで「マカロン→誕生」を演出） ======
+  function render(){
+    const lines = [];
+    if(state.sitterOn) lines.push("時間は止まっています。");
+    if(state.stage === "egg") lines.push("マカロンが、少しずつ薄くなる。");
+    if(state.stage === "alive") lines.push("何も言わない。");
+    if(state.stage === "revived") lines.push("戻ってきたけど、少し違う。");
+    if(state.stage === "dead") lines.push("ここから先は、選べないものが増える。");
+    ui.subLine.textContent = lines.join(" ");
+
+    if(state.stage === "egg"){
+      ui.bubble.textContent = "どんな子かな？ちょっと待ってね。";
+    }else if(state.stage === "dead"){
+      ui.bubble.textContent = "……";
+    }else if(state.stage === "revived"){
+      ui.bubble.textContent = "……？";
+    }else{
+      ui.bubble.textContent = " ";
+    }
+
+    // マカロン（卵）の進行度
+    const p = Math.max(0, Math.min(1, state.accMs / INCUBATION_MS));
+
+    // 終盤で少し浮き上がる
+    ui.egg.classList.toggle("lift", p > 0.72);
+
+    // じわじわ薄くなる（誕生直前ほど薄い）
+    const fade = 1 - Math.max(0, (p - 0.25) / 0.75); // 0.25以降から薄く
+    ui.eggImg.style.opacity = String(Math.max(0, Math.min(1, fade)));
+    ui.eggImg.style.filter = `drop-shadow(0 10px 18px rgba(0,0,0,.25)) blur(${(1-fade)*0.8}px)`;
+
+    // egg中はマカロン表示、子は隠す
+    ui.egg.style.display = (state.stage === "egg") ? "grid" : "none";
+    ui.petWrap.classList.toggle("hidePet", (state.stage === "egg"));
+
+    // 生まれた瞬間に子が現れる（fade-inはCSS）
+    if(state.stage !== "egg"){
+      ui.petWrap.classList.remove("hidePet");
+    }
+
+    // ボタン活性
+    const interact = canInteract();
+    ui.actFood.disabled = !interact;
+    ui.actOut.disabled  = !interact;
+    ui.actMini.disabled = !interact;
+    ui.actPoop.disabled = !interact;
+
+    ui.actDrink.disabled   = !(state.stage === "alive" && !state.sitterOn);
+    ui.actMacaron.disabled = !(state.stage === "dead");
+
+    if(state.stage === "dead") ui.sit.disabled = true;
+    else ui.sit.disabled = false;
+
+    setBar(ui.hungerBar, 100 - state.hunger);
+    setBar(ui.poopBar,   100 - state.poop);
+
+    ui.hungerIcon.textContent = state.hunger < 35 ? "🍙" : state.hunger < 70 ? "🍚" : "🍽️";
+    ui.poopIcon.textContent = state.poop < 35 ? "🧼" : state.poop < 70 ? "💩" : "🫠";
+
+    renderPoops();
+    renderHearts();
+    applySpriteState();
+
+    const h = [];
+    if(state.stage === "dead") h.push("マカロンは、いまだけ。");
+    if(state.sitterOn) h.push("シッター中は何も進まない。");
+    if(state.poop > 60) h.push("……匂いがする。");
+    if(state.stage === "egg") h.push("生まれるまでは、見守るだけ。");
+    ui.hintLine.textContent = h.join(" ");
+  }
 
   // ====== メインループ ======
   function tick(){
@@ -1005,16 +1059,14 @@
     const dt = Math.max(0, now - (state.lastRealAt || now));
     state.lastRealAt = now;
 
-    // 終了後は止める
     if(state.stage === "ended"){
       save();
       return;
     }
 
-    // シッターONなら全部止める（寿命も止める）
+    // シッターONなら全部停止（寿命も停止）
     if(state.sitterOn){
       state.sitterMs += dt;
-      // その日のシッター時間に寄せる（厳密でなくてOK）
       const di = dayIndex();
       state.day[di].sitterMs += dt;
       save();
@@ -1025,7 +1077,7 @@
     // キャラ時間を進める
     state.accMs += dt;
 
-    // たまご → 誕生（3分）
+    // マカロン→誕生（3分）
     if(state.stage === "egg"){
       if(state.accMs >= INCUBATION_MS){
         state.stage = "alive";
@@ -1035,15 +1087,14 @@
       }
     }
 
-    // 生存中（または復活中）だけニーズ進行
     const aliveLike = (state.stage === "alive" || state.stage === "revived");
 
+    // ニーズ進行（生存中）
     if(aliveLike){
       const hours = dt / (60*60*1000);
       state.hunger = Math.min(100, state.hunger + HUNGER_PER_HOUR * hours);
       state.poop   = Math.min(100, state.poop + POOP_PER_HOUR * hours);
 
-      // 健康は空腹と💩でじわじわ下がる（理由は言わない）
       const penalty = (state.hunger*0.12 + state.poop*0.16) * hours;
       state.health = Math.max(0, state.health - penalty);
     }
@@ -1057,7 +1108,7 @@
       }
     }
 
-    // 寿命（誕生後 3日）
+    // 寿命（誕生後3日）
     if(state.stage === "alive"){
       if(liveMs() >= LIFE_MS){
         state.stage = "ended";
@@ -1066,18 +1117,16 @@
       }
     }
 
-    // 終了なら「ありがとう」だけ表示
+    // 終了演出
     if(state.stage === "ended"){
       save();
       render();
       ui.ending.classList.add("show");
-      // 操作を全部無効化
       setDisabledAll(true);
       return;
     }
 
-    // alive か revived の間に死の条件（health が極端に落ちた場合）
-    // ただし「育て方が悪いと死ぬ」要素として、緩めに
+    // 育て方で死ぬ（ゆるく）
     if(aliveLike && state.health <= 2){
       state.stage = "dead";
       pushEvent("dead", {});
@@ -1087,89 +1136,10 @@
     render();
   }
 
-  function setDisabledAll(dis){
-    const arr = [ui.actFood, ui.actOut, ui.actMini, ui.actPoop, ui.actDrink, ui.actMacaron, ui.sit];
-    arr.forEach(b => b.disabled = !!dis);
-  }
+  ui.ending.addEventListener("click", () => location.href = "./logs.html");
 
-  // ====== 表示更新 ======
-  function render(){
-    // サブの一言（時間は見せない）
-    const lines = [];
-    if(state.sitterOn) lines.push("時間は止まっています。");
-    if(state.stage === "egg") lines.push("まだ、ここにいる。");
-    if(state.stage === "alive") lines.push("何も言わない。");
-    if(state.stage === "revived") lines.push("戻ってきたけど、少し違う。");
-    if(state.stage === "dead") lines.push("ここから先は、選べないものが増える。");
-    ui.subLine.textContent = lines.join(" ");
-
-    // バブル（イベント語り。状態ラベルではない）
-    if(state.stage === "egg"){
-      ui.bubble.textContent = "どんな子かな？ちょっと待ってね。";
-    }else if(state.stage === "dead"){
-      ui.bubble.textContent = "……";
-    }else if(state.stage === "revived"){
-      ui.bubble.textContent = "……？";
-    }else{
-      ui.bubble.textContent = " ";
-    }
-
-    // たまごの浮き上がり（3分直前で少し持ち上げる）
-    const p = Math.max(0, Math.min(1, state.accMs / INCUBATION_MS));
-    ui.egg.classList.toggle("lift", p > 0.72);
-    ui.egg.style.display = (state.stage === "egg") ? "grid" : "none";
-    ui.pair.style.display = (state.stage === "egg") ? "none" : "flex";
-
-    // ボタン活性
-    const interact = canInteract();
-    ui.actFood.disabled = !interact;
-    ui.actOut.disabled  = !interact;
-    ui.actMini.disabled = !interact;
-    ui.actPoop.disabled = !interact;
-
-    ui.actDrink.disabled   = !(state.stage === "alive" && !state.sitterOn);
-    ui.actMacaron.disabled = !(state.stage === "dead");
-
-    // シッターは dead でもOFF/ONできても良いが、ここでは死後は固定にする
-    if(state.stage === "dead") ui.sit.disabled = true;
-    else ui.sit.disabled = false;
-
-    // バー（数値は見せない）
-    setBar(ui.hungerBar, 100 - state.hunger);
-    setBar(ui.poopBar,   100 - state.poop);
-
-    // アイコンの微妙な変化（数字なし）
-    ui.hungerIcon.textContent = state.hunger < 35 ? "🍙" : state.hunger < 70 ? "🍚" : "🍽️";
-    ui.poopIcon.textContent = state.poop < 35 ? "🧼" : state.poop < 70 ? "💩" : "🫠";
-
-    // 💩表示
-    renderPoops();
-
-    // ハート
-    renderHearts();
-
-    // 表情
-    applySpriteState();
-
-    // ヒント（説明は最小）
-    const h = [];
-    if(state.stage === "dead") h.push("マカロンは、いまだけ。");
-    if(state.sitterOn) h.push("シッター中は何も進まない。");
-    if(state.poop > 60) h.push("……匂いがする。");
-    ui.hintLine.textContent = h.join(" ");
-  }
-
-  // 初回のハート履歴
-  if(state.heartHistory.length === 0){
-    state.heartHistory.push({t: Date.now(), v: state.heart});
-    ensureDayStart();
-    save();
-  }
-
-  // 初期レンダ
+  // ====== 初期描画 ======
   render();
-
-  // 1秒ごと
   setInterval(tick, 1000);
 
 })();
