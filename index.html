@@ -450,18 +450,9 @@
       display:block;
       animation: letterAppear .9s ease-out both;
     }
-    .letterSlot.vanish{
-      display:block;
-      animation: letterVanish .65s ease-in both;
-      pointer-events:none;
-    }
     @keyframes letterAppear{
       0%{opacity:0; transform: translateY(8px) scale(.98); filter: blur(10px);}
       100%{opacity:1; transform: translateY(0) scale(1); filter: blur(0);}
-    }
-    @keyframes letterVanish{
-      0%{opacity:1; transform: translateY(0) scale(1); filter: blur(0);}
-      100%{opacity:0; transform: translateY(10px) scale(.98); filter: blur(10px);}
     }
     .letterBtn{
       width:100%;
@@ -485,46 +476,8 @@
       0%,100%{transform: translateY(0);}
       50%{transform: translateY(-3px);}
     }
-    .letterIcon{
-      font-size: 18px;
-      line-height: 1;
-      opacity:.95;
-    }
-    .letterHint{
-      font-size: 12px;
-      color: rgba(238,242,255,.86);
-      letter-spacing: .02em;
-    }
-    .letterBtn::before,
-    .letterBtn::after{
-      content:"";
-      position:absolute;
-      inset:-25%;
-      background:
-        radial-gradient(circle at 25% 60%, rgba(255,255,255,.20), transparent 55%),
-        radial-gradient(circle at 65% 40%, rgba(255,255,255,.14), transparent 58%),
-        radial-gradient(circle at 40% 20%, rgba(255,255,255,.10), transparent 55%);
-      filter: blur(12px);
-      opacity: 0;
-      transform: scale(.98);
-      pointer-events:none;
-    }
-    .letterSlot.show .letterBtn::before{animation: smokePulse 2.6s ease-in-out infinite;}
-    .letterSlot.show .letterBtn::after{animation: smokePulse 2.6s ease-in-out infinite .8s;}
-    @keyframes smokePulse{
-      0%{opacity:0; transform: scale(.98) translateY(8px);}
-      35%{opacity:1; transform: scale(1.02) translateY(0);}
-      100%{opacity:0; transform: scale(1.05) translateY(-12px);}
-    }
-
-    .letterSlot.show.drop{
-      animation: letterDrop .95s ease-out both;
-    }
-    @keyframes letterDrop{
-      0%{opacity:0; transform: translateY(-46px) scale(.98); filter: blur(10px);}
-      65%{opacity:1; transform: translateY(6px) scale(1.00); filter: blur(0);}
-      100%{opacity:1; transform: translateY(0) scale(1.00); filter: blur(0);}
-    }
+    .letterIcon{font-size: 18px; line-height: 1; opacity:.95;}
+    .letterHint{font-size: 12px; color: rgba(238,242,255,.86); letter-spacing: .02em;}
 
     .letterModal{
       position: fixed;
@@ -539,7 +492,6 @@
     .letterModal.closing{display:grid; animation: modalOut .22s ease-in both;}
     @keyframes modalIn{from{opacity:0;}to{opacity:1;}}
     @keyframes modalOut{from{opacity:1;}to{opacity:0;}}
-
     .letterPaper{
       width: min(560px, 96vw);
       border-radius: 18px;
@@ -549,32 +501,6 @@
       backdrop-filter: blur(12px);
       overflow:hidden;
       position: relative;
-      animation: paperIn .55s ease-out both;
-    }
-    .letterModal.closing .letterPaper{animation: paperOut .25s ease-in both;}
-    @keyframes paperIn{
-      0%{opacity:0; transform: translateY(12px) scale(.98); filter: blur(14px);}
-      100%{opacity:1; transform: translateY(0) scale(1); filter: blur(0);}
-    }
-    @keyframes paperOut{
-      0%{opacity:1; transform: translateY(0) scale(1); filter: blur(0);}
-      100%{opacity:0; transform: translateY(10px) scale(.98); filter: blur(12px);}
-    }
-    .letterPaper::before{
-      content:"";
-      position:absolute;
-      inset:-30%;
-      background:
-        radial-gradient(circle at 30% 70%, rgba(255,255,255,.18), transparent 58%),
-        radial-gradient(circle at 70% 35%, rgba(255,255,255,.12), transparent 62%);
-      filter: blur(14px);
-      opacity: .55;
-      pointer-events:none;
-      animation: paperSmoke 3.6s ease-in-out infinite;
-    }
-    @keyframes paperSmoke{
-      0%,100%{transform: translateY(0); opacity: .45;}
-      50%{transform: translateY(-10px); opacity: .68;}
     }
     .letterHead{
       padding: 12px 12px 10px;
@@ -584,13 +510,8 @@
       justify-content:space-between;
       gap: 10px;
     }
-    .letterHead b{
-      font-size: 14px;
-      letter-spacing:.02em;
-    }
-    .letterBody{
-      padding: 12px;
-    }
+    .letterHead b{font-size: 14px; letter-spacing:.02em;}
+    .letterBody{padding: 12px;}
     .letterText{
       font-size: 13px;
       line-height: 1.85;
@@ -609,86 +530,136 @@
       gap: 10px;
     }
 
-    @media (max-width: 860px){
-      .main{grid-template-columns: 1fr;}
-      .hearts{width: 120px;}
+    /* ここから：💩ミニゲーム（画面切り替え） */
+    .cleanWrap{padding: 12px;}
+    .cleanTop{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
     }
-    @media (prefers-reduced-motion: reduce){
-      *{animation:none !important; transition:none !important;}
-    }
-
-    /* 排泄除去ミニゲーム用 */
-    .cleanStatus{
+    .cleanTop .h{font-weight: 900; font-size: 16px; letter-spacing:.02em;}
+    .cleanTop .p{margin-top: 4px; font-size: 12px; color: var(--muted); line-height:1.6;}
+    .cleanHUD{
       margin-top: 10px;
       display:flex;
+      gap: 10px;
       align-items:center;
       justify-content:space-between;
-      gap: 10px;
-      font-size: 12px;
-      color: rgba(238,242,255,.78);
-      line-height: 1.7;
-      white-space: pre-wrap;
+      flex-wrap:wrap;
     }
-    .cleanTime{
-      margin-top: 10px;
-      height: 8px;
+    .cleanCounter{
+      display:flex; align-items:center; gap: 10px;
+      padding: 8px 10px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      background: rgba(255,255,255,.05);
+      font-size: 12px;
+      color: rgba(238,242,255,.88);
+    }
+    .cleanCounter b{font-size: 12px;}
+    .cleanTime{
+      flex: 1;
+      min-width: 180px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
       overflow:hidden;
     }
     .cleanTime > i{
-      display:block;
-      height:100%;
-      width:100%;
+      display:block; height:100%; width:100%;
       background: linear-gradient(90deg, rgba(196,181,253,.95), rgba(147,197,253,.95));
-      box-shadow: 0 0 14px rgba(147,197,253,.20);
       transform-origin: 0 50%;
       transform: scaleX(1);
+      box-shadow: 0 0 14px rgba(147,197,253,.18);
     }
-    .cleanField{
-      margin-top: 10px;
-      height: 230px;
-      border-radius: 16px;
+
+    .cleanStage{
+      margin-top: 12px;
+      position: relative;
+      height: 420px;
+      border-radius: 18px;
       border: 1px solid rgba(255,255,255,.14);
       background:
-        radial-gradient(800px 260px at 40% 20%, rgba(255,255,255,.06), transparent 60%),
+        radial-gradient(900px 420px at 30% 25%, rgba(255,255,255,.06), transparent 60%),
+        radial-gradient(700px 380px at 80% 60%, rgba(196,181,253,.06), transparent 65%),
         rgba(255,255,255,.03);
-      position: relative;
       overflow:hidden;
+      user-select:none;
+      touch-action: manipulation;
     }
-    .cleanPoop{
+
+    .floatPoop{
       position:absolute;
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      left: 50%;
+      bottom: -70px;
+      width: 64px;
+      height: 64px;
       display:grid;
       place-items:center;
-      font-size: 24px;
-      cursor:pointer;
-      box-shadow: 0 14px 22px rgba(0,0,0,.22);
-      transition: transform .12s ease, opacity .18s ease, filter .18s ease;
-      user-select:none;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,.25));
+      animation: poopUp linear forwards;
+      will-change: transform, opacity;
     }
-    .cleanPoop:hover{transform: translateY(-1px) scale(1.02); filter: brightness(1.08);}
-    .cleanPoop:active{transform: translateY(0) scale(.98);}
-    .cleanPoop.cleaned{opacity:0; transform: scale(.7) rotate(12deg); pointer-events:none; filter: blur(2px);}
-    .cleanSpark{
+    .floatPoop .inner{
+      width: 64px; height: 64px;
+      display:grid; place-items:center;
+      font-size: 44px;
+      line-height: 1;
+      animation: poopSway ease-in-out infinite;
+      will-change: transform;
+      cursor: pointer;
+    }
+    @keyframes poopUp{
+      0%{transform: translateY(0); opacity:0;}
+      12%{opacity:1;}
+      100%{transform: translateY(-520px); opacity:0;}
+    }
+    @keyframes poopSway{
+      0%{transform: translateX(-10px) rotate(-7deg) scale(1);}
+      50%{transform: translateX(12px) rotate(7deg) scale(1.03);}
+      100%{transform: translateX(-10px) rotate(-7deg) scale(1);}
+    }
+    .floatPoop.popped{
+      pointer-events:none;
+      animation: none !important;
+      opacity:0;
+      transform: scale(.7) rotate(12deg);
+      filter: blur(1px);
+      transition: .18s ease;
+    }
+    .popSpark{
       position:absolute;
       width: 18px; height: 18px;
       border-radius: 999px;
       background: rgba(196,181,253,.85);
-      filter: blur(.2px);
-      box-shadow: 0 0 16px rgba(196,181,253,.35);
+      box-shadow: 0 0 18px rgba(196,181,253,.35);
       animation: sparkOut .45s ease-out both;
       pointer-events:none;
     }
     @keyframes sparkOut{
       0%{opacity:0; transform: scale(.6);}
       25%{opacity:.9; transform: scale(1);}
-      100%{opacity:0; transform: scale(1.6) translateY(-10px);}
+      100%{opacity:0; transform: scale(1.7) translateY(-12px);}
+    }
+    .cleanBottomNote{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(238,242,255,.70);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    /* ここまで：💩ミニゲーム */
+
+    @media (max-width: 860px){
+      .main{grid-template-columns: 1fr;}
+      .hearts{width: 120px;}
+      .cleanStage{height: 360px;}
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important; transition:none !important;}
     }
   </style>
 </head>
@@ -726,6 +697,7 @@
       </div>
     </div>
 
+    <!-- メインゲーム画面 -->
     <div id="screenGame" class="screen show">
       <div class="main">
         <div class="card">
@@ -828,6 +800,7 @@
       </div>
     </div>
 
+    <!-- 観察用ログ画面 -->
     <div id="screenObserve" class="screen">
       <div class="card">
         <div class="cardHeader">
@@ -856,8 +829,49 @@
         </div>
       </div>
     </div>
+
+    <!-- 💩ミニゲーム画面（画面切り替え） -->
+    <div id="screenClean" class="screen">
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <div class="h" id="txtCleanHeader">排泄除去</div>
+            <div class="hint" id="txtCleanHint">浮かんでくる💩をタッチして消します</div>
+          </div>
+          <div class="btnRow">
+            <button id="btnCleanExit" class="btnGhost">戻る</button>
+            <button id="btnCleanFinish" class="btnGhost">おわる</button>
+          </div>
+        </div>
+
+        <div class="cleanWrap">
+          <div class="cleanTop">
+            <div>
+              <div class="h" id="cleanTitle"> </div>
+              <div class="p" id="cleanSub"> </div>
+            </div>
+          </div>
+
+          <div class="cleanHUD">
+            <div class="cleanCounter">
+              <span aria-hidden="true">💩</span>
+              <div>
+                <div style="font-size:11px;color:rgba(238,242,255,.66)" id="cleanCounterLabel"> </div>
+                <b id="cleanCounterNum">0 / 0</b>
+              </div>
+            </div>
+            <div class="cleanTime" aria-hidden="true"><i id="cleanTimeFill"></i></div>
+          </div>
+
+          <div class="cleanStage" id="cleanStage" aria-label="cleaning field"></div>
+
+          <div class="cleanBottomNote" id="cleanNote"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- 汎用モーダル -->
   <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal">
       <div class="modalHead">
@@ -872,6 +886,7 @@
     </div>
   </div>
 
+  <!-- 手紙モーダル -->
   <div class="letterModal" id="letterModal" aria-hidden="true" inert>
     <div class="letterPaper" role="dialog" aria-modal="true">
       <div class="letterHead">
@@ -896,8 +911,8 @@
   const url = new URL(location.href);
   const FAST = url.searchParams.get("fast") === "1";
 
-  const SAVE_KEY = "osewa_save_2d_char_v3";
-  const ARCHIVE_KEY = "osewa_archives_2d_char_v3";
+  const SAVE_KEY = "osewa_save_2d_char_v4";
+  const ARCHIVE_KEY = "osewa_archives_2d_char_v4";
 
   const DAY_MS  = 24 * 60 * 60 * 1000;
   const LIFE_MS = 3 * DAY_MS;
@@ -916,8 +931,7 @@
 
   const COLORS = ["blue","green","pink","purple"];
 
-  // 画像パス
-  // sleep は「フォルダ/sleep.png」に合わせる（例：public/char/blue/sleep.png）
+  // sleep は「public/char/blue/sleep.png」のフォルダ構成に合わせる
   const FILES = {
     macaron: {
       blue:   "macaron_blue.png",
@@ -929,12 +943,12 @@
       blue:   { closed:"blue_closed.png",   open:"blue_open.png",   sleep:"blue/sleep.png" },
       green:  { closed:"green_closed.png",  open:"green_open.png",  sleep:"green/sleep.png" },
       purple: { closed:"purple_closed.png", open:"purple_open.png", sleep:"purple/sleep.png" },
-      // pink の sleep は「pick/sleep.png」を使う指定に合わせる
+      // 指定どおり pick/sleep.png
       pink:   { closed:"pink_closed.png",   open:"pink_open.png",   sleep:"pick/sleep.png" },
     }
   };
 
-  const LANG_KEY = "osewa_lang_v3";
+  const LANG_KEY = "osewa_lang_v4";
   function getLang(){
     const v = localStorage.getItem(LANG_KEY);
     return (v === "en" || v === "zh" || v === "ja") ? v : "ja";
@@ -1017,9 +1031,10 @@
       usedDrink: "ドリンクを使った。",
       returned: "戻ってきた。",
       grown: "少し大きくなった。",
-      cleanGameHint: "💩をタップして片づけます（全部じゃなくてもOK）",
-      cleanRemain: "残り",
-      cleanFinish: "おわる"
+      cleanHeader: "排泄除去",
+      cleanHint: "浮かんでくる💩をタッチして消します",
+      cleanCounterLabel: "消した数",
+      cleanNote: "途中でやめてもOK。\n片づけた分だけ、少しだけ変わります。"
     },
     en: {
       docTitle: "3-Day Care Game (2D)",
@@ -1096,9 +1111,10 @@
       usedDrink: "Used a drink.",
       returned: "It came back.",
       grown: "It grew a little.",
-      cleanGameHint: "Tap 💩 to clean (it’s okay if you don’t finish).",
-      cleanRemain: "Left",
-      cleanFinish: "Finish"
+      cleanHeader: "Clean",
+      cleanHint: "Tap floating 💩 to remove",
+      cleanCounterLabel: "Removed",
+      cleanNote: "It’s okay to stop halfway.\nOnly traces will remain."
     },
     zh: {
       docTitle: "三天照护游戏（2D）",
@@ -1175,15 +1191,17 @@
       usedDrink: "使用了饮料。",
       returned: "它回来了。",
       grown: "它稍微变大了。",
-      cleanGameHint: "点击💩清理（不必全部完成也可以）。",
-      cleanRemain: "剩余",
-      cleanFinish: "结束"
+      cleanHeader: "清理",
+      cleanHint: "点击漂浮的💩来清理",
+      cleanCounterLabel: "已清理",
+      cleanNote: "中途结束也可以。\n只会留下痕迹。"
     }
   };
 
   function t(key){
     return (I18N[LANG] && I18N[LANG][key]) || I18N.ja[key] || key;
   }
+
   function getLetterBody(){
     const lines = t("letterLines");
     const arr = Array.isArray(lines) ? lines : I18N.ja.letterLines;
@@ -1194,11 +1212,18 @@
     const arr = Array.isArray(lines) ? lines : I18N.ja.letterLines;
     return arr.join("\n");
   }
+
   function setLang(lang){
     LANG = (lang === "en" || lang === "zh" || lang === "ja") ? lang : "ja";
     localStorage.setItem(LANG_KEY, LANG);
     applyLangToUI();
-    if(ui.letterText) ui.letterText.textContent = getLetterBody();
+    ui.letterText.textContent = getLetterBody();
+    if(ui.langSel) ui.langSel.value = LANG;
+    // 清掃画面文言更新
+    ui.txtCleanHeader.textContent = t("cleanHeader");
+    ui.txtCleanHint.textContent = t("cleanHint");
+    ui.cleanCounterLabel.textContent = t("cleanCounterLabel");
+    ui.cleanNote.textContent = t("cleanNote");
   }
 
   function makeOpt(icon, title, sub, extra){
@@ -1214,19 +1239,19 @@
         makePrompt("どっちにする？", makeOpt("🍙","おにぎり","ぎゅっと。"), makeOpt("🥐","ぱん","ふわっと。")),
         makePrompt("どっちにする？", makeOpt("🥤","ジュース","明るい甘さ。"), makeOpt("🍶","おさけ","静かな熱。")),
         makePrompt("どっちにする？", makeOpt("🍜","ラーメン","あったかい。"), makeOpt("🥗","サラダ","さっぱり。")),
-        makePrompt("どっちにする？", makeOpt("🍪","クッキー","ほろほろ。"), makeOpt("🍫","チョコ","しっとり。")),
+        makePrompt("どっちにする？", makeOpt("🍪","クッキー","ほろほろ。"), makeOpt("🍫","チョコ","しっとり。"))
       ],
       out: [
         makePrompt("どっちにする？", makeOpt("🌳","こうえん","風がある。",{ wild:true }), makeOpt("🎬","えいが","暗くて安心。",{ wild:false })),
         makePrompt("どっちにする？", makeOpt("🌊","うみ","境界がゆれる。",{ wild:true }), makeOpt("🏔️","やま","境界が固い。",{ wild:true })),
         makePrompt("どっちにする？", makeOpt("🚃","でんしゃ","景色が流れる。",{ wild:false }), makeOpt("🚶","さんぽ","考えが並ぶ。",{ wild:true })),
-        makePrompt("どっちにする？", makeOpt("🧸","ぬいぐるみ屋","抱きやすい。",{ wild:false }), makeOpt("📚","ほんや","背表紙の森。",{ wild:false })),
+        makePrompt("どっちにする？", makeOpt("🧸","ぬいぐるみ屋","抱きやすい。",{ wild:false }), makeOpt("📚","ほんや","背表紙の森。",{ wild:false }))
       ],
       style: [
         makePrompt("どっちにする？", makeOpt("✨","きらきら","目が追う。"), makeOpt("🪨","しぶい","後から効く。")),
         makePrompt("どっちにする？", makeOpt("🎀","りぼん","結び目が残る。"), makeOpt("🎩","ぼうし","影が増える。")),
         makePrompt("どっちにする？", makeOpt("🕶️","サングラス","強く見える。"), makeOpt("👓","めがね","賢く見える。")),
-        makePrompt("どっちにする？", makeOpt("👟","スニーカー","軽い音。"), makeOpt("👢","ブーツ","重い音。")),
+        makePrompt("どっちにする？", makeOpt("👟","スニーカー","軽い音。"), makeOpt("👢","ブーツ","重い音。"))
       ]
     },
     en: {
@@ -1234,19 +1259,19 @@
         makePrompt("Pick one?", makeOpt("🍙","Rice ball","Tight and warm."), makeOpt("🥐","Bread","Soft and fluffy.")),
         makePrompt("Pick one?", makeOpt("🥤","Juice","Bright sweetness."), makeOpt("🍶","Sake","Quiet warmth.")),
         makePrompt("Pick one?", makeOpt("🍜","Ramen","Nice and hot."), makeOpt("🥗","Salad","Fresh and light.")),
-        makePrompt("Pick one?", makeOpt("🍪","Cookie","Crumbly."), makeOpt("🍫","Chocolate","Rich.")),
+        makePrompt("Pick one?", makeOpt("🍪","Cookie","Crumbly."), makeOpt("🍫","Chocolate","Rich."))
       ],
       out: [
         makePrompt("Pick one?", makeOpt("🌳","Park","With wind.",{ wild:true }), makeOpt("🎬","Cinema","Safe in the dark.",{ wild:false })),
         makePrompt("Pick one?", makeOpt("🌊","Sea","Borders wobble.",{ wild:true }), makeOpt("🏔️","Mountain","Borders feel solid.",{ wild:true })),
         makePrompt("Pick one?", makeOpt("🚃","Train","Scenery flows.",{ wild:false }), makeOpt("🚶","Walk","Thoughts align.",{ wild:true })),
-        makePrompt("Pick one?", makeOpt("🧸","Plush shop","Easy to hug.",{ wild:false }), makeOpt("📚","Bookstore","A forest of spines.",{ wild:false })),
+        makePrompt("Pick one?", makeOpt("🧸","Plush shop","Easy to hug.",{ wild:false }), makeOpt("📚","Bookstore","A forest of spines.",{ wild:false }))
       ],
       style: [
         makePrompt("Pick one?", makeOpt("✨","Sparkly","Eyes will follow."), makeOpt("🪨","Muted","Hits later.")),
         makePrompt("Pick one?", makeOpt("🎀","Ribbon","A knot remains."), makeOpt("🎩","Hat","More shadow.")),
         makePrompt("Pick one?", makeOpt("🕶️","Sunglasses","Looks strong."), makeOpt("👓","Glasses","Looks smart.")),
-        makePrompt("Pick one?", makeOpt("👟","Sneakers","Light sounds."), makeOpt("👢","Boots","Heavy sounds.")),
+        makePrompt("Pick one?", makeOpt("👟","Sneakers","Light sounds."), makeOpt("👢","Boots","Heavy sounds."))
       ]
     },
     zh: {
@@ -1254,19 +1279,19 @@
         makePrompt("选哪个？", makeOpt("🍙","饭团","暖暖的。"), makeOpt("🥐","面包","软软的。")),
         makePrompt("选哪个？", makeOpt("🥤","果汁","甜甜的。"), makeOpt("🍶","酒","静静的热。")),
         makePrompt("选哪个？", makeOpt("🍜","拉面","热乎乎。"), makeOpt("🥗","沙拉","清爽。")),
-        makePrompt("选哪个？", makeOpt("🍪","饼干","酥酥的。"), makeOpt("🍫","巧克力","浓浓的。")),
+        makePrompt("选哪个？", makeOpt("🍪","饼干","酥酥的。"), makeOpt("🍫","巧克力","浓浓的。"))
       ],
       out: [
         makePrompt("选哪个？", makeOpt("🌳","公园","有风。",{ wild:true }), makeOpt("🎬","电影院","黑暗也安心。",{ wild:false })),
         makePrompt("选哪个？", makeOpt("🌊","海边","边界摇晃。",{ wild:true }), makeOpt("🏔️","山里","边界坚固。",{ wild:true })),
         makePrompt("选哪个？", makeOpt("🚃","电车","景色流动。",{ wild:false }), makeOpt("🚶","散步","想法并排走。",{ wild:true })),
-        makePrompt("选哪个？", makeOpt("🧸","玩偶店","很好抱。",{ wild:false }), makeOpt("📚","书店","书脊像森林。",{ wild:false })),
+        makePrompt("选哪个？", makeOpt("🧸","玩偶店","很好抱。",{ wild:false }), makeOpt("📚","书店","书脊像森林。",{ wild:false }))
       ],
       style: [
         makePrompt("选哪个？", makeOpt("✨","闪闪","眼睛会追。"), makeOpt("🪨","低调","后劲更强。")),
         makePrompt("选哪个？", makeOpt("🎀","蝴蝶结","结会留下。"), makeOpt("🎩","帽子","影子更多。")),
         makePrompt("选哪个？", makeOpt("🕶️","墨镜","看起来更强。"), makeOpt("👓","眼镜","看起来更聪明。")),
-        makePrompt("选哪个？", makeOpt("👟","运动鞋","声音轻。"), makeOpt("👢","靴子","声音重。")),
+        makePrompt("选哪个？", makeOpt("👟","运动鞋","声音轻。"), makeOpt("👢","靴子","声音重。"))
       ]
     }
   };
@@ -1312,7 +1337,6 @@
 
     assetHint: el("assetHint"),
     txtMiniInfo: el("txtMiniInfo"),
-
     liveLog: el("liveLog"),
 
     modalBack: el("modalBack"),
@@ -1324,6 +1348,8 @@
 
     screenGame: el("screenGame"),
     screenObserve: el("screenObserve"),
+    screenClean: el("screenClean"),
+
     obsTitle: el("obsTitle"),
     obsSub: el("obsSub"),
     obsDays: el("obsDays"),
@@ -1350,6 +1376,19 @@
     txtObserveHint: el("txtObserveHint"),
     txtLogHeader: el("txtLogHeader"),
     txtLogHint: el("txtLogHint"),
+
+    // clean screen
+    txtCleanHeader: el("txtCleanHeader"),
+    txtCleanHint: el("txtCleanHint"),
+    btnCleanExit: el("btnCleanExit"),
+    btnCleanFinish: el("btnCleanFinish"),
+    cleanTitle: el("cleanTitle"),
+    cleanSub: el("cleanSub"),
+    cleanStage: el("cleanStage"),
+    cleanTimeFill: el("cleanTimeFill"),
+    cleanCounterLabel: el("cleanCounterLabel"),
+    cleanCounterNum: el("cleanCounterNum"),
+    cleanNote: el("cleanNote"),
   };
 
   function applyLangToUI(){
@@ -1397,6 +1436,12 @@
     ui.btnCsv.textContent = "CSV";
 
     ui.letterText.textContent = getLetterBody();
+
+    // clean
+    ui.txtCleanHeader.textContent = t("cleanHeader");
+    ui.txtCleanHint.textContent = t("cleanHint");
+    ui.cleanCounterLabel.textContent = t("cleanCounterLabel");
+    ui.cleanNote.textContent = t("cleanNote");
   }
 
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
@@ -1504,6 +1549,15 @@
     save.pickCount = save.pickCount ?? 0;
     save.growLevel = save.growLevel ?? 0;
 
+    save.hatched = !!save.hatched;
+    save.hatchAnim = !!save.hatchAnim;
+
+    save.ended = !!save.ended;
+    save.endedAt = save.endedAt ?? null;
+
+    save.macaronActive = !!save.macaronActive;
+    save.macaronEndsAtElapsed = save.macaronEndsAtElapsed ?? null;
+
     if(!Array.isArray(save.live)) save.live = [];
     if(!Array.isArray(save.events)) save.events = [];
     if(!save.days) save.days = {};
@@ -1572,6 +1626,7 @@
   function createNewSave(){
     const t0 = now();
     const playerId = uid();
+
     const macaronColor = COLORS[Math.floor(Math.random() * COLORS.length)];
     const charColor = macaronColor;
 
@@ -1819,14 +1874,8 @@
   }
 
   function showLetterSlot(){
-    ui.letterSlot.classList.remove("vanish");
     if(!ui.letterSlot.classList.contains("show")){
       ui.letterSlot.classList.add("show");
-    }
-    if(ui.letterSlot.dataset.dropped !== "1"){
-      ui.letterSlot.dataset.dropped = "1";
-      ui.letterSlot.classList.add("drop");
-      setTimeout(() => ui.letterSlot.classList.remove("drop"), 980);
     }
   }
 
@@ -1844,9 +1893,7 @@
     }
   }
 
-  // モーダル制御（排泄ミニゲーム用に、閉じる時のフックを入れる）
-  let modalCloseGuard = null;
-
+  // モーダル
   function openModal(title, hint, bodyNode, footButtons){
     ui.modalTitle.textContent = title || "";
     ui.modalHint.textContent = hint || "";
@@ -1859,22 +1906,13 @@
     ui.modalBack.classList.add("show");
     ui.modalBack.setAttribute("aria-hidden","false");
   }
-  function closeModalHard(){
+  function closeModal(){
     ui.modalBack.classList.remove("show");
     ui.modalBack.setAttribute("aria-hidden","true");
-    modalCloseGuard = null;
   }
-  function closeModal(reason){
-    if(typeof modalCloseGuard === "function"){
-      modalCloseGuard(reason);
-      return;
-    }
-    closeModalHard();
-  }
-
   ui.modalX.addEventListener("click", closeModal);
-  ui.modalBack.addEventListener("click", (e) => { if(e.target === ui.modalBack) closeModal("back"); });
-  window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal("esc"); });
+  ui.modalBack.addEventListener("click", (e) => { if(e.target === ui.modalBack) closeModal(); });
+  window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
 
   function mkBtn(text, cls, onClick){
     const b = document.createElement("button");
@@ -2072,13 +2110,145 @@
   function actOut(){ actTwoPick("out", t("btnOut")); }
   function actStyle(){ actTwoPick("style", t("btnStyle")); }
 
-  // 排泄除去ゲーム
-  // poop があるときは、モーダルに💩を出してタップで片づける
-  function actClean(){
+  // 画面切り替え
+  function showGameScreen(){
+    ui.screenObserve.classList.remove("show");
+    ui.screenClean.classList.remove("show");
+    ui.screenGame.classList.add("show");
+  }
+  function showObserveScreen(){
+    ui.screenGame.classList.remove("show");
+    ui.screenClean.classList.remove("show");
+    ui.screenObserve.classList.add("show");
+  }
+  function showCleanScreen(){
+    ui.screenGame.classList.remove("show");
+    ui.screenObserve.classList.remove("show");
+    ui.screenClean.classList.add("show");
+  }
+
+  // 💩ミニゲーム：状態
+  let cleanSession = null;
+
+  function sparkAt(stageEl, x, y){
+    const sp = document.createElement("div");
+    sp.className = "popSpark";
+    sp.style.left = `${x - 9}px`;
+    sp.style.top = `${y - 9}px`;
+    stageEl.appendChild(sp);
+    setTimeout(() => sp.remove(), 520);
+  }
+
+  function buildOneFloatingPoop(stageEl, onPop){
+    const p = document.createElement("div");
+    p.className = "floatPoop";
+
+    const inner = document.createElement("div");
+    inner.className = "inner";
+    inner.textContent = "💩";
+
+    // 位置と速度をランダムに
+    const x = 8 + Math.random()*84; // %
+    const upDur = (FAST ? 2.8 : 4.2) + Math.random() * (FAST ? 1.6 : 2.4);
+    const swayDur = (FAST ? 1.1 : 1.6) + Math.random() * (FAST ? 0.7 : 1.1);
+
+    p.style.left = `${x.toFixed(2)}%`;
+    p.style.animationDuration = `${upDur.toFixed(2)}s`;
+    inner.style.animationDuration = `${swayDur.toFixed(2)}s`;
+
+    p.appendChild(inner);
+
+    const pop = (ev) => {
+      if(p.classList.contains("popped")) return;
+      p.classList.add("popped");
+
+      const rect = stageEl.getBoundingClientRect();
+      const cx = (ev && ev.clientX != null) ? (ev.clientX - rect.left) : (rect.width * x / 100);
+      const cy = (ev && ev.clientY != null) ? (ev.clientY - rect.top) : (rect.height * 0.6);
+      sparkAt(stageEl, cx, cy);
+
+      setTimeout(() => p.remove(), 180);
+      onPop();
+    };
+
+    inner.addEventListener("pointerdown", (ev) => { ev.preventDefault(); pop(ev); }, { passive:false });
+    inner.addEventListener("click", (ev) => { ev.preventDefault(); pop(ev); });
+
+    // 画面外に行ったら新しく出す（消されていない場合）
+    p.addEventListener("animationend", () => {
+      if(p.classList.contains("popped")) return;
+      p.remove();
+      if(cleanSession && cleanSession.active){
+        buildOneFloatingPoop(stageEl, onPop);
+      }
+    });
+
+    stageEl.appendChild(p);
+  }
+
+  function updateCleanHUD(){
+    if(!cleanSession) return;
+    ui.cleanCounterNum.textContent = `${cleanSession.cleared} / ${cleanSession.target}`;
+    const remain = clamp((cleanSession.endsAt - now()) / Math.max(1, cleanSession.totalMs), 0, 1);
+    ui.cleanTimeFill.style.transform = `scaleX(${remain.toFixed(4)})`;
+  }
+
+  function endCleanGameAndApply(reason){
+    if(!cleanSession || !cleanSession.active) return;
+    cleanSession.active = false;
+
+    const s = loadSave();
+    if(!s){
+      cleanSession = null;
+      showGameScreen();
+      return;
+    }
+    const e = calcElapsedMs(s, now());
+    if(!canInteract(s, e)){
+      cleanSession = null;
+      showGameScreen();
+      return;
+    }
+
+    const beforePoop = clamp(s.poop, 0, 3);
+    const ratio = cleanSession.target > 0 ? (cleanSession.cleared / cleanSession.target) : 0;
+
+    // 片づけた割合で poop を減らす（0〜3）
+    // 1/3超で1減、2/3超で2減、ほぼ全部で3減（最大）
+    let reduce = 0;
+    if(ratio >= 0.95) reduce = 3;
+    else if(ratio >= 0.67) reduce = 2;
+    else if(ratio >= 0.34) reduce = 1;
+    s.poop = clamp(beforePoop - reduce, 0, 3);
+
+    // 状態を少し改善（理由は説明しない）
+    s.dirt = clamp(s.dirt - (8 + Math.round(20 * ratio) + (Math.random()*4 - 2)), 0, 100);
+    s.mood = clamp(s.mood + (4 + Math.round(12 * ratio) + (Math.random()*4 - 2)), 0, 100);
+
+    const d = ensureDay(s, s.currentDay);
+    d.careCounts.clean++;
+
+    addChoice(s, t("btnClean"), `💩 ${cleanSession.cleared}/${cleanSession.target}`);
+    applyHeart(s, heartDeltaRandom() + (ratio >= 0.95 ? 1 : 0));
+    pushLiveLog(s, t("cleaned"));
+
+    applyAfterChoiceMaybeSleep(s);
+
+    saveSave(s);
+
+    // 片づけ画面を掃除
+    ui.cleanStage.innerHTML = "";
+
+    cleanSession = null;
+    showGameScreen();
+  }
+
+  function startCleanGame(){
     const save = loadSave(); if(!save) return;
     const elapsed = calcElapsedMs(save, now());
     if(!canInteract(save, elapsed)) return;
 
+    // 💩が無いときは、ゲームに入らず軽く整える
     if(save.poop <= 0){
       const s = loadSave(); if(!s) return;
       s.dirt = clamp(s.dirt - 10, 0, 100);
@@ -2088,163 +2258,68 @@
       return;
     }
 
-    const total = clamp(save.poop, 1, 3);
-    const limitMs = FAST ? 6500 : 12000;
+    // 「poopの数」ではなく、タップで消す“浮遊💩”を増やす
+    const base = 6;
+    const target = Math.min(24, base + save.poop * 6); // 1→12, 2→18, 3→24
+    const totalMs = FAST ? 9000 : 15000;
 
-    let cleared = 0;
-    let finished = false;
-    let timer = null;
+    cleanSession = {
+      active: true,
+      target,
+      cleared: 0,
+      totalMs,
+      startedAt: now(),
+      endsAt: now() + totalMs,
+    };
 
-    const startedAt = now();
+    ui.cleanStage.innerHTML = "";
+    ui.cleanTitle.textContent = save.petName ? `「${save.petName}」` : "";
+    ui.cleanSub.textContent = (LANG==="en") ? "Touch as many as you want."
+      : (LANG==="zh") ? "想清理多少都可以。"
+      : "好きなだけ、触って消して。";
 
-    const body = document.createElement("div");
+    // 画面切り替え
+    showCleanScreen();
+    updateCleanHUD();
 
-    const top = document.createElement("div");
-    top.style.fontSize = "12px";
-    top.style.color = "rgba(238,242,255,.78)";
-    top.style.lineHeight = "1.7";
-    top.style.whiteSpace = "pre-wrap";
-    top.textContent = t("cleanGameHint");
+    const onPop = () => {
+      if(!cleanSession || !cleanSession.active) return;
+      cleanSession.cleared++;
+      updateCleanHUD();
+      if(cleanSession.cleared >= cleanSession.target){
+        setTimeout(() => endCleanGameAndApply("all"), 260);
+      }
+    };
 
-    const status = document.createElement("div");
-    status.className = "cleanStatus";
-
-    const statusLeft = document.createElement("div");
-    const statusSoft = document.createElement("div");
-    statusSoft.style.color = "rgba(238,242,255,.58)";
-    statusSoft.textContent = " ";
-
-    status.appendChild(statusLeft);
-    status.appendChild(statusSoft);
-
-    const timeBar = document.createElement("div");
-    timeBar.className = "cleanTime";
-    const timeFill = document.createElement("i");
-    timeBar.appendChild(timeFill);
-
-    const field = document.createElement("div");
-    field.className = "cleanField";
-
-    body.appendChild(top);
-    body.appendChild(status);
-    body.appendChild(timeBar);
-    body.appendChild(field);
-
-    function updateStatus(){
-      const left = Math.max(0, total - cleared);
-      statusLeft.textContent = `${t("cleanRemain")} ${left}`;
+    // いっぺんに全部出しすぎない（浮遊っぽさ）
+    const initial = Math.min(10, target);
+    for(let i=0;i<initial;i++){
+      buildOneFloatingPoop(ui.cleanStage, onPop);
     }
 
-    function sparkAt(x, y){
-      const sp = document.createElement("div");
-      sp.className = "cleanSpark";
-      sp.style.left = `${x - 9}px`;
-      sp.style.top = `${y - 9}px`;
-      field.appendChild(sp);
-      setTimeout(() => sp.remove(), 520);
-    }
-
-    function finish(reason){
-      if(finished) return;
-      finished = true;
-
-      if(timer) clearTimeout(timer);
-      modalCloseGuard = null;
-
-      const s = loadSave();
-      if(!s){ closeModalHard(); return; }
-      const e = calcElapsedMs(s, now());
-      if(!canInteract(s, e)){ closeModalHard(); return; }
-
-      const beforePoop = clamp(s.poop, 0, 3);
-      const cleanedNow = clamp(cleared, 0, beforePoop);
-      const remain = clamp(beforePoop - cleanedNow, 0, 3);
-      const ratio = cleanedNow / Math.max(1, beforePoop);
-
-      s.poop = remain;
-      s.dirt = clamp(s.dirt - (10 + Math.round(18 * ratio) + (Math.random()*4 - 2)), 0, 100);
-      s.mood = clamp(s.mood + (5 + Math.round(10 * ratio) + (Math.random()*4 - 2)), 0, 100);
-
-      const d = ensureDay(s, s.currentDay);
-      d.careCounts.clean++;
-
-      addChoice(s, t("btnClean"), `💩 ${cleanedNow}/${beforePoop}`);
-      applyHeart(s, heartDeltaRandom() + (ratio >= 0.99 ? 1 : 0));
-      pushLiveLog(s, t("cleaned"));
-
-      applyAfterChoiceMaybeSleep(s);
-
-      saveSave(s);
-      closeModalHard();
-    }
-
-    function spawnPoop(){
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "cleanPoop";
-      b.setAttribute("aria-label", "poop");
-      b.textContent = "💩";
-
-      const left = (8 + Math.random() * 84);
-      const topP = (10 + Math.random() * 74);
-      const rot = (Math.random() * 26 - 13);
-
-      b.style.left = `${left.toFixed(1)}%`;
-      b.style.top  = `${topP.toFixed(1)}%`;
-      b.style.transform = `rotate(${rot.toFixed(1)}deg)`;
-
-      b.addEventListener("click", (ev) => {
-        if(finished) return;
-        if(b.classList.contains("cleaned")) return;
-
-        b.classList.add("cleaned");
-        cleared++;
-        updateStatus();
-
-        const rect = field.getBoundingClientRect();
-        sparkAt(ev.clientX - rect.left, ev.clientY - rect.top);
-
-        setTimeout(() => b.remove(), 220);
-
-        if(cleared >= total){
-          setTimeout(() => finish("all"), 220);
+    // 足りない分は時間差で出す
+    let spawned = initial;
+    const spawnTick = () => {
+      if(!cleanSession || !cleanSession.active) return;
+      if(spawned < target){
+        const add = Math.min(2, target - spawned);
+        for(let k=0;k<add;k++){
+          buildOneFloatingPoop(ui.cleanStage, onPop);
+          spawned++;
         }
-      });
+      }
+      updateCleanHUD();
 
-      field.appendChild(b);
-    }
-
-    for(let i=0;i<total;i++) spawnPoop();
-    updateStatus();
-
-    openModal(
-      t("btnClean"),
-      "",
-      body,
-      [
-        mkBtn(t("cleanFinish"), "", () => finish("finish")),
-        mkBtn(t("btnCancel"), "btnGhost", () => finish("cancel")),
-      ]
-    );
-
-    // ×ボタンや背景クリックやEscで閉じても、そこまでの片づけを反映
-    modalCloseGuard = () => finish("close");
-
-    function rafTime(){
-      if(finished) return;
-      const p = clamp((now() - startedAt) / Math.max(1, limitMs), 0, 1);
-      timeFill.style.transform = `scaleX(${(1 - p).toFixed(4)})`;
-      if(p >= 1){
-        finish("time");
+      if(now() >= cleanSession.endsAt){
+        endCleanGameAndApply("time");
         return;
       }
-      requestAnimationFrame(rafTime);
-    }
-    requestAnimationFrame(rafTime);
-
-    timer = setTimeout(() => finish("time"), limitMs);
+      requestAnimationFrame(spawnTick);
+    };
+    requestAnimationFrame(spawnTick);
   }
 
+  // ドリンク・マカロン
   function actDrink(){
     const save = loadSave(); if(!save) return;
     if(!save.hatched) return;
@@ -2265,7 +2340,7 @@ ${escapeHtml((LANG==="en") ? "Use a drink?\nIt may slightly restore/extend time 
       if(s.ended || s.macaronActive) return;
 
       const d = ensureDay(s, s.currentDay);
-      d.items.drink++;
+      d.items.drink = (d.items.drink ?? 0) + 1;
       addChoice(s, t("btnDrink"), "🥤 Use");
 
       s.hunger = clamp(s.hunger - 12 + (Math.random()*4 - 2), 0, 100);
@@ -2309,7 +2384,7 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
 
       const e = calcElapsedMs(s, now());
       const d = ensureDay(s, s.currentDay);
-      d.items.macaron++;
+      d.items.macaron = (d.items.macaron ?? 0) + 1;
 
       addChoice(s, t("btnMacaron"), "🍬 Use");
 
@@ -2333,6 +2408,7 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
     openModal(t("btnMacaron"), "", body, [ mkBtn(t("btnClose"), "btnGhost", closeModal) ]);
   }
 
+  // 観察用
   function exportObservationData(save){
     const elapsed = calcElapsedMs(save, now());
     return {
@@ -2418,8 +2494,7 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
   }
 
   function showObserveFromData(data){
-    ui.screenGame.classList.remove("show");
-    ui.screenObserve.classList.add("show");
+    showObserveScreen();
 
     const name = data.petName ? `「${data.petName}」` : "";
     ui.obsTitle.textContent = (LANG==="en") ? `Observer Log ${name}` : (LANG==="zh" ? `观察记录 ${name}` : `観察用ログ ${name}`);
@@ -2468,11 +2543,6 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
       `;
       ui.obsDays.appendChild(card);
     }
-  }
-
-  function showGameScreen(){
-    ui.screenObserve.classList.remove("show");
-    ui.screenGame.classList.add("show");
   }
 
   function downloadCSV(save){
@@ -2779,6 +2849,8 @@ ${escapeHtml(u.toString())}
   }
 
   function tick(){
+    // 清掃画面中は、メインのtickを止めずに動かしてもいいが
+    // ここでは「画面を見ている間も時間は進む」仕様にしている。
     const save = loadSave();
     if(!save) return;
 
@@ -2796,6 +2868,9 @@ ${escapeHtml(u.toString())}
 
     save.lastSimElapsed = elapsed;
     saveSave(save);
+
+    // 見ている画面がゲーム画面のときだけ描画を濃くする、という手もあるけど
+    // ここは素直に更新する
     render(save);
 
     requestAnimationFrame(tick);
@@ -2819,15 +2894,17 @@ ${escapeHtml(u.toString())}
     saveSave(s);
   }
 
-  ui.langSel.value = LANG;
+  // イベント登録
   ui.langSel.addEventListener("change", () => setLang(ui.langSel.value));
-
   ui.sitterToggle.addEventListener("click", toggleSitter);
 
   ui.btnFood.addEventListener("click", actFood);
   ui.btnOut.addEventListener("click", actOut);
   ui.btnStyle.addEventListener("click", actStyle);
-  ui.btnClean.addEventListener("click", actClean);
+
+  // ここがポイント：排泄除去は「ミニゲーム画面に切り替える」
+  ui.btnClean.addEventListener("click", startCleanGame);
+
   ui.btnDrink.addEventListener("click", actDrink);
   ui.btnMacaron.addEventListener("click", actMacaron);
 
@@ -2837,12 +2914,18 @@ ${escapeHtml(u.toString())}
   ui.btnLogs.addEventListener("click", openLogsModal);
   ui.btnCsv.addEventListener("click", () => { const s = loadSave(); if(s) downloadCSV(s); });
 
+  // 清掃画面のボタン
+  ui.btnCleanExit.addEventListener("click", () => endCleanGameAndApply("exit"));
+  ui.btnCleanFinish.addEventListener("click", () => endCleanGameAndApply("finish"));
+
+  // 手紙
   ui.letterBtn.addEventListener("click", openLetter);
   ui.letterX.addEventListener("click", closeLetter);
   ui.letterClose.addEventListener("click", closeLetter);
   ui.letterModal.addEventListener("click", (e) => { if(e.target === ui.letterModal) closeLetter(); });
   window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeLetter(); });
 
+  // 観察画面戻り
   ui.btnBackToGame.addEventListener("click", () => {
     const u = new URL(location.href);
     u.searchParams.delete("observe");
@@ -2851,6 +2934,7 @@ ${escapeHtml(u.toString())}
     showGameScreen();
   });
 
+  // 起動
   setLang(getLang());
   applyLangToUI();
 
