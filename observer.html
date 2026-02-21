@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>観察用ログ</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans JP",sans-serif;background:#0b1028;color:#eef2ff;}
+    main{max-width:980px;margin:0 auto;padding:18px 18px 32px}
+    .card{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);border-radius:18px;padding:14px;margin:12px 0;}
+    small{color:rgba(238,242,255,.72);line-height:1.7;display:block}
+    code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:8px;word-break:break-all;}
+    h1{margin:6px 0 10px}
+    h2{margin:10px 0 8px;font-size:16px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{border-bottom:1px solid rgba(255,255,255,.10);padding:8px 6px;vertical-align:top}
+    th{color:rgba(238,242,255,.85);text-align:left}
+    .muted{color:rgba(238,242,255,.72)}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    canvas{width:100%;height:160px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(0,0,0,.12)}
+  </style>
+</head>
+<body>
+<main>
+  <h1>観察用ログ</h1>
+  <div class="card">
+    <small class="muted">操作はできません。ログと推移のみ表示します。</small>
+  </div>
+
+  <div class="card">
+    <h2>ハート推移</h2>
+    <canvas id="chart" width="900" height="260"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>日別まとめ</h2>
+    <div id="daily"></div>
+  </div>
+
+  <div class="card">
+    <h2>事実ログ（新しい順）</h2>
+    <div id="events"></div>
+  </div>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  function b64dec(token){
+    const b64 = token.replaceAll("-","+").replaceAll("_","/");
+    const pad = b64 + "===".slice((b64.length % 4) || 4);
+    const bin = atob(pad);
+    const esc = bin.split("").map(c => "%" + c.charCodeAt(0).toString(16).padStart(2,"0")).join("");
+    return decodeURIComponent(esc);
+  }
+
+  const hash = location.hash.replace(/^#/,"");
+  const m = hash.match(/share=([^&]+)/);
+  if(!m){
+    document.getElementById("daily").innerHTML = `<div class="muted">共有データがありません。</div>`;
+    return;
+  }
+
+  let s = null;
+  try{
+    s = JSON.parse(b64dec(m[1]));
+  }catch(_){
+    document.getElementById("daily").innerHTML = `<div class="muted">共有データが壊れています。</div>`;
+    return;
+  }
+
+  const ui = {
+    daily: document.getElementById("daily"),
+    events: document.getElementById("events"),
+    chart: document.getElementById("chart"),
+  };
+
+  function hms(ms){
+    const m = Math.floor(ms/60000);
+    const h = Math.floor(m/60);
+    const mm = m%60;
+    if(h<=0) return `${mm}分`;
+    return `${h}時間${mm}分`;
+  }
+
+  function renderDaily(){
+    const rows = s.day || [];
+    let html = "";
+    for(let i=0;i<3;i++){
+      const d = rows[i] || {};
+      html += `
+        <div class="card" style="margin:10px 0">
+          <div class="muted">Day ${i+1} / シッター ${hms(d.sitterMs||0)}</div>
+          <table>
+            <tr><th>ごはん</th><td>${(d.food||[]).length}回<div class="muted">${(d.food||[]).slice(0,8).join(" / ")}</div></td></tr>
+            <tr><th>おでかけ</th><td>${(d.out||[]).length}回<div class="muted">${(d.out||[]).slice(0,8).join(" / ")}</div></td></tr>
+            <tr><th>ミニ</th><td>${(d.mini||[]).length}回<div class="muted">${(d.mini||[]).slice(0,8).join(" / ")}</div></td></tr>
+            <tr><th>そうじ</th><td>${(d.poop||[]).length}回<div class="muted">${(d.poop||[]).slice(0,8).join(" / ")}</div></td></tr>
+            <tr><th>ドリンク</th><td>${d.drink||0}回</td></tr>
+            <tr><th>マカロン</th><td>${d.macaron||0}回</td></tr>
+          </table>
+        </div>
+      `;
+    }
+    ui.daily.innerHTML = html;
+  }
+
+  function renderEvents(){
+    if(!Array.isArray(s.events)){
+      ui.events.innerHTML = `<div class="muted">データがありません。</div>`;
+      return;
+    }
+    const ev = [...s.events].reverse().slice(0, 120);
+    let html = `<table><tr><th>時刻</th><th>Day</th><th>種類</th><th>内容</th></tr>`;
+    for(const e of ev){
+      const t = (e.t||"").replace("T"," ").replace("Z","");
+      const detail = Object.entries(e).filter(([k]) => !["t","day","type","stage"].includes(k))
+        .map(([k,v]) => `${k}:${typeof v==="object"?JSON.stringify(v):String(v)}`).join(" / ");
+      html += `<tr>
+        <td class="mono">${t}</td>
+        <td>${e.day||""}</td>
+        <td>${e.type||""}</td>
+        <td class="muted">${detail}</td>
+      </tr>`;
+    }
+    html += `</table>`;
+    ui.events.innerHTML = html;
+  }
+
+  function drawChart(){
+    const c = ui.chart;
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle = "rgba(255,255,255,.08)";
+    for(let i=0;i<=4;i++){
+      const y = 30 + i*(c.height-60)/4;
+      ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(c.width-30,y); ctx.stroke();
+    }
+
+    if(!Array.isArray(s.heartHistory) || s.heartHistory.length < 2){
+      ctx.fillStyle = "rgba(238,242,255,.65)";
+      ctx.fillText("データがありません", 40, 40);
+      return;
+    }
+
+    const hh = s.heartHistory;
+    const t0 = hh[0].t, t1 = hh[hh.length-1].t;
+    const min = 0, max = 10;
+
+    function xOf(t){
+      const p = (t - t0) / Math.max(1, (t1 - t0));
+      return 30 + p*(c.width-60);
+    }
+    function yOf(v){
+      const p = (v - min) / (max - min);
+      return (c.height-30) - p*(c.height-60);
+    }
+
+    ctx.strokeStyle = "rgba(185,246,202,.55)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(xOf(hh[0].t), yOf(hh[0].v));
+    for(const p of hh){
+      ctx.lineTo(xOf(p.t), yOf(p.v));
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(255,255,255,.75)";
+    for(const p of hh.slice(-12)){
+      ctx.beginPath();
+      ctx.arc(xOf(p.t), yOf(p.v), 3, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  renderDaily();
+  renderEvents();
+  drawChart();
+})();
+</script>
+</body>
+</html>
