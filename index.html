@@ -411,90 +411,6 @@
       flex: 0 0 auto;
     }
 
-    /* ここから：排泄除去ミニゲーム */
-    .cleanStatus{
-      margin-top: 10px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      font-size: 12px;
-      color: rgba(238,242,255,.78);
-      line-height: 1.7;
-      white-space: pre-wrap;
-    }
-    .cleanTime{
-      margin-top: 10px;
-      height: 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      overflow:hidden;
-    }
-    .cleanTime > i{
-      display:block;
-      height:100%;
-      width:100%;
-      background: linear-gradient(90deg, rgba(196,181,253,.95), rgba(147,197,253,.95));
-      box-shadow: 0 0 14px rgba(147,197,253,.20);
-      transform-origin: 0 50%;
-    }
-    .cleanField{
-      margin-top: 10px;
-      height: 230px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.14);
-      background:
-        radial-gradient(800px 260px at 40% 20%, rgba(255,255,255,.06), transparent 60%),
-        rgba(255,255,255,.03);
-      position: relative;
-      overflow:hidden;
-    }
-    .cleanPoop{
-      position:absolute;
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      display:grid;
-      place-items:center;
-      font-size: 24px;
-      cursor:pointer;
-      box-shadow: 0 14px 22px rgba(0,0,0,.22);
-      transition: transform .12s ease, opacity .18s ease, filter .18s ease;
-      user-select:none;
-    }
-    .cleanPoop:hover{
-      transform: translateY(-1px) scale(1.02);
-      filter: brightness(1.08);
-    }
-    .cleanPoop:active{
-      transform: translateY(0) scale(.98);
-    }
-    .cleanPoop.cleaned{
-      opacity:0;
-      transform: scale(.7) rotate(12deg);
-      pointer-events:none;
-      filter: blur(2px);
-    }
-    .cleanSpark{
-      position:absolute;
-      width: 18px; height: 18px;
-      border-radius: 999px;
-      background: rgba(196,181,253,.85);
-      filter: blur(.2px);
-      box-shadow: 0 0 16px rgba(196,181,253,.35);
-      animation: sparkOut .45s ease-out both;
-      pointer-events:none;
-    }
-    @keyframes sparkOut{
-      0%{opacity:0; transform: scale(.6);}
-      25%{opacity:.9; transform: scale(1);}
-      100%{opacity:0; transform: scale(1.6) translateY(-10px);}
-    }
-    /* ここまで：排泄除去ミニゲーム */
-
     .observeWrap{padding: 12px;}
     .observeHeader{display:flex; gap: 10px; align-items:flex-start; justify-content:space-between; flex-wrap: wrap;}
     .observeHeader .h{font-weight: 900; font-size: 16px; letter-spacing:.02em;}
@@ -699,6 +615,80 @@
     }
     @media (prefers-reduced-motion: reduce){
       *{animation:none !important; transition:none !important;}
+    }
+
+    /* 排泄除去ミニゲーム用 */
+    .cleanStatus{
+      margin-top: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: rgba(238,242,255,.78);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    .cleanTime{
+      margin-top: 10px;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .cleanTime > i{
+      display:block;
+      height:100%;
+      width:100%;
+      background: linear-gradient(90deg, rgba(196,181,253,.95), rgba(147,197,253,.95));
+      box-shadow: 0 0 14px rgba(147,197,253,.20);
+      transform-origin: 0 50%;
+      transform: scaleX(1);
+    }
+    .cleanField{
+      margin-top: 10px;
+      height: 230px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(800px 260px at 40% 20%, rgba(255,255,255,.06), transparent 60%),
+        rgba(255,255,255,.03);
+      position: relative;
+      overflow:hidden;
+    }
+    .cleanPoop{
+      position:absolute;
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      display:grid;
+      place-items:center;
+      font-size: 24px;
+      cursor:pointer;
+      box-shadow: 0 14px 22px rgba(0,0,0,.22);
+      transition: transform .12s ease, opacity .18s ease, filter .18s ease;
+      user-select:none;
+    }
+    .cleanPoop:hover{transform: translateY(-1px) scale(1.02); filter: brightness(1.08);}
+    .cleanPoop:active{transform: translateY(0) scale(.98);}
+    .cleanPoop.cleaned{opacity:0; transform: scale(.7) rotate(12deg); pointer-events:none; filter: blur(2px);}
+    .cleanSpark{
+      position:absolute;
+      width: 18px; height: 18px;
+      border-radius: 999px;
+      background: rgba(196,181,253,.85);
+      filter: blur(.2px);
+      box-shadow: 0 0 16px rgba(196,181,253,.35);
+      animation: sparkOut .45s ease-out both;
+      pointer-events:none;
+    }
+    @keyframes sparkOut{
+      0%{opacity:0; transform: scale(.6);}
+      25%{opacity:.9; transform: scale(1);}
+      100%{opacity:0; transform: scale(1.6) translateY(-10px);}
     }
   </style>
 </head>
@@ -926,11 +916,8 @@
 
   const COLORS = ["blue","green","pink","purple"];
 
-  // 指定の sleep パスを「そのまま」使用
-  // public/char/blue_sleep.png
-  // public/char/green_sleep.png
-  // public/char/purple_sleep.png
-  // public/char/pick_sleep.png
+  // 画像パス
+  // sleep は「フォルダ/sleep.png」に合わせる（例：public/char/blue/sleep.png）
   const FILES = {
     macaron: {
       blue:   "macaron_blue.png",
@@ -939,10 +926,11 @@
       purple: "macaron_purple.png",
     },
     char: {
-      blue:   { closed:"blue_closed.png",   open:"blue_open.png",   sleep:"blue_sleep.png" },
-      green:  { closed:"green_closed.png",  open:"green_open.png",  sleep:"green_sleep.png" },
-      purple: { closed:"purple_closed.png", open:"purple_open.png", sleep:"purple_sleep.png" },
-      pink:   { closed:"pink_closed.png",   open:"pink_open.png",   sleep:"pick_sleep.png" },
+      blue:   { closed:"blue_closed.png",   open:"blue_open.png",   sleep:"blue/sleep.png" },
+      green:  { closed:"green_closed.png",  open:"green_open.png",  sleep:"green/sleep.png" },
+      purple: { closed:"purple_closed.png", open:"purple_open.png", sleep:"purple/sleep.png" },
+      // pink の sleep は「pick/sleep.png」を使う指定に合わせる
+      pink:   { closed:"pink_closed.png",   open:"pink_open.png",   sleep:"pick/sleep.png" },
     }
   };
 
@@ -1029,8 +1017,6 @@
       usedDrink: "ドリンクを使った。",
       returned: "戻ってきた。",
       grown: "少し大きくなった。",
-
-      /* 排泄除去ゲーム */
       cleanGameHint: "💩をタップして片づけます（全部じゃなくてもOK）",
       cleanRemain: "残り",
       cleanFinish: "おわる"
@@ -1110,8 +1096,6 @@
       usedDrink: "Used a drink.",
       returned: "It came back.",
       grown: "It grew a little.",
-
-      /* Poop clean minigame */
       cleanGameHint: "Tap 💩 to clean (it’s okay if you don’t finish).",
       cleanRemain: "Left",
       cleanFinish: "Finish"
@@ -1191,8 +1175,6 @@
       usedDrink: "使用了饮料。",
       returned: "它回来了。",
       grown: "它稍微变大了。",
-
-      /* 排泄清理小游戏 */
       cleanGameHint: "点击💩清理（不必全部完成也可以）。",
       cleanRemain: "剩余",
       cleanFinish: "结束"
@@ -1590,7 +1572,6 @@
   function createNewSave(){
     const t0 = now();
     const playerId = uid();
-
     const macaronColor = COLORS[Math.floor(Math.random() * COLORS.length)];
     const charColor = macaronColor;
 
@@ -1675,7 +1656,7 @@
     if(isSleeping(save, elapsed)) return;
 
     const since = elapsed - (save.lastSleepAtElapsed || 0);
-    const cool = FAST ? 7 * 1000 : 4 * 60 * 1000;
+    const cool = FAST ? 6 * 1000 : 4 * 60 * 1000;
     if(since < cool) return;
 
     save.sleepUntilElapsed = elapsed + SLEEP_MS;
@@ -1716,7 +1697,7 @@
 
     const calm = (save.mood > 72 && save.hunger < 55 && save.dirt < 55 && save.poop === 0);
     if(calm){
-      const p = minutes * 0.05;
+      const p = minutes * (FAST ? 0.16 : 0.05);
       if(Math.random() < p){
         maybeStartSleep(save, elapsed);
       }
@@ -1863,8 +1844,10 @@
     }
   }
 
+  // モーダル制御（排泄ミニゲーム用に、閉じる時のフックを入れる）
+  let modalCloseGuard = null;
+
   function openModal(title, hint, bodyNode, footButtons){
-    modalCloseGuard = null;
     ui.modalTitle.textContent = title || "";
     ui.modalHint.textContent = hint || "";
     ui.modalBody.innerHTML = "";
@@ -1876,24 +1859,18 @@
     ui.modalBack.classList.add("show");
     ui.modalBack.setAttribute("aria-hidden","false");
   }
-
-  /* ここから：ミニゲーム中に閉じたら「途中まで片づけた」扱いにするためのガード */
-  let modalCloseGuard = null;
-
   function closeModalHard(){
     ui.modalBack.classList.remove("show");
     ui.modalBack.setAttribute("aria-hidden","true");
+    modalCloseGuard = null;
   }
   function closeModal(reason){
     if(typeof modalCloseGuard === "function"){
-      const cb = modalCloseGuard;
-      modalCloseGuard = null;
-      cb(reason);
+      modalCloseGuard(reason);
       return;
     }
     closeModalHard();
   }
-  /* ここまで */
 
   ui.modalX.addEventListener("click", closeModal);
   ui.modalBack.addEventListener("click", (e) => { if(e.target === ui.modalBack) closeModal("back"); });
@@ -1949,7 +1926,8 @@
 
   function applyAfterChoiceMaybeSleep(save){
     const elapsed = calcElapsedMs(save, now());
-    if(Math.random() < 0.18){
+    const p = FAST ? 0.32 : 0.18;
+    if(Math.random() < p){
       maybeStartSleep(save, elapsed);
     }
   }
@@ -2094,13 +2072,13 @@
   function actOut(){ actTwoPick("out", t("btnOut")); }
   function actStyle(){ actTwoPick("style", t("btnStyle")); }
 
-  /* ここが追加：排泄除去ミニゲーム（💩をタップして片づける） */
+  // 排泄除去ゲーム
+  // poop があるときは、モーダルに💩を出してタップで片づける
   function actClean(){
     const save = loadSave(); if(!save) return;
     const elapsed = calcElapsedMs(save, now());
     if(!canInteract(save, elapsed)) return;
 
-    // 💩がないときは、軽く整えるだけ
     if(save.poop <= 0){
       const s = loadSave(); if(!s) return;
       s.dirt = clamp(s.dirt - 10, 0, 100);
@@ -2115,6 +2093,8 @@
 
     let cleared = 0;
     let finished = false;
+    let timer = null;
+
     const startedAt = now();
 
     const body = document.createElement("div");
@@ -2168,19 +2148,19 @@
       if(finished) return;
       finished = true;
 
-      clearTimeout(timer);
+      if(timer) clearTimeout(timer);
+      modalCloseGuard = null;
 
-      const s = loadSave(); if(!s) { closeModalHard(); return; }
+      const s = loadSave();
+      if(!s){ closeModalHard(); return; }
       const e = calcElapsedMs(s, now());
-      if(!canInteract(s, e)) { closeModalHard(); return; }
+      if(!canInteract(s, e)){ closeModalHard(); return; }
 
       const beforePoop = clamp(s.poop, 0, 3);
       const cleanedNow = clamp(cleared, 0, beforePoop);
       const remain = clamp(beforePoop - cleanedNow, 0, 3);
-
       const ratio = cleanedNow / Math.max(1, beforePoop);
 
-      // 片づけた分だけ、少し良くなる（でも理由は説明しない）
       s.poop = remain;
       s.dirt = clamp(s.dirt - (10 + Math.round(18 * ratio) + (Math.random()*4 - 2)), 0, 100);
       s.mood = clamp(s.mood + (5 + Math.round(10 * ratio) + (Math.random()*4 - 2)), 0, 100);
@@ -2198,10 +2178,7 @@
       closeModalHard();
     }
 
-    // ミニゲーム中に×や外側クリックやEscで閉じた場合も、途中経過でfinish
-    modalCloseGuard = () => finish("close");
-
-    function spawnPoop(i){
+    function spawnPoop(){
       const b = document.createElement("button");
       b.type = "button";
       b.className = "cleanPoop";
@@ -2225,24 +2202,33 @@
         updateStatus();
 
         const rect = field.getBoundingClientRect();
-        const cx = ev.clientX - rect.left;
-        const cy = ev.clientY - rect.top;
-        sparkAt(cx, cy);
+        sparkAt(ev.clientX - rect.left, ev.clientY - rect.top);
 
         setTimeout(() => b.remove(), 220);
 
         if(cleared >= total){
-          setTimeout(() => finish("all"), 320);
+          setTimeout(() => finish("all"), 220);
         }
       });
 
       field.appendChild(b);
     }
 
-    for(let i=0; i<total; i++){
-      spawnPoop(i);
-    }
+    for(let i=0;i<total;i++) spawnPoop();
     updateStatus();
+
+    openModal(
+      t("btnClean"),
+      "",
+      body,
+      [
+        mkBtn(t("cleanFinish"), "", () => finish("finish")),
+        mkBtn(t("btnCancel"), "btnGhost", () => finish("cancel")),
+      ]
+    );
+
+    // ×ボタンや背景クリックやEscで閉じても、そこまでの片づけを反映
+    modalCloseGuard = () => finish("close");
 
     function rafTime(){
       if(finished) return;
@@ -2256,19 +2242,8 @@
     }
     requestAnimationFrame(rafTime);
 
-    const timer = setTimeout(() => finish("time"), limitMs);
-
-    openModal(
-      t("btnClean"),
-      "",
-      body,
-      [
-        mkBtn(t("cleanFinish"), "", () => finish("finish")),
-        mkBtn(t("btnCancel"), "btnGhost", () => finish("cancel")),
-      ]
-    );
+    timer = setTimeout(() => finish("time"), limitMs);
   }
-  /* ここまで：排泄除去ミニゲーム */
 
   function actDrink(){
     const save = loadSave(); if(!save) return;
@@ -2360,7 +2335,7 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
 
   function exportObservationData(save){
     const elapsed = calcElapsedMs(save, now());
-    const d = {
+    return {
       version: 1,
       playerId: save.playerId,
       startedAt: save.startedAt,
@@ -2375,7 +2350,6 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
       events: save.events || [],
       heart: save.heart
     };
-    return d;
   }
 
   function encodeObs(obj){
@@ -2413,14 +2387,13 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
 
     const minX = pts[0].elapsed;
     const maxX = pts[pts.length-1].elapsed;
-    const minY = 0, maxY = 100;
 
     function xOf(x){
       const tt = (x - minX) / Math.max(1, (maxX - minX));
       return 20 + tt * (w - 40);
     }
     function yOf(y){
-      const tt = (y - minY) / (maxY - minY);
+      const tt = y / 100;
       return (h - 18) - tt * (h - 36);
     }
 
@@ -2660,6 +2633,7 @@ ${escapeHtml(u.toString())}
     );
   }
 
+  // 手紙モーダル
   let lastFocusEl = null;
 
   function openLetter(){
