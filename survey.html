@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>アンケート → ゲーム</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans JP",sans-serif;background:#0b1028;color:#eef2ff;}
+    main{max-width:760px;margin:0 auto;padding:22px;}
+    .card{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);border-radius:18px;padding:16px;margin:12px 0;}
+    button{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#eef2ff;border-radius:14px;padding:12px 12px;font-weight:800;cursor:pointer;}
+    button[disabled]{opacity:.45;cursor:not-allowed;}
+    small{color:rgba(238,242,255,.72);line-height:1.7;}
+    code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:8px;}
+  </style>
+</head>
+<body>
+<main>
+  <h1>アンケート</h1>
+
+  <div class="card">
+    <small>
+      個人が特定される情報（氏名・メール・住所など）は入力しないでください。<br>
+      先にGoogleフォームに回答してから、ゲームを開始します。
+    </small>
+  </div>
+
+  <div class="card">
+    <div>参加者ID（匿名）: <code id="pid"></code></div>
+    <small>このIDをフォーム側に自動で入れて送る設定にできます。</small>
+  </div>
+
+  <div class="card">
+    <button id="btnOpenForm">Googleフォームを開く</button>
+    <small style="display:block;margin-top:8px;">
+      別タブで開きます。送信まで終わったら、このページに戻ってください。
+    </small>
+  </div>
+
+  <div class="card">
+    <label><input type="checkbox" id="chkDone"> フォームに回答しました</label>
+    <div style="margin-top:10px;">
+      <button id="btnGoGame" disabled>ゲームへ進む</button>
+    </div>
+    <small style="display:block;margin-top:8px;">
+      このボタンはこの端末だけで有効になります（研究運用の簡易ゲートです）。
+    </small>
+  </div>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  // ゲーム側とそろえるキー
+  const SURVEY_DONE_KEY = "gift_survey_done";
+  const SURVEY_PID_KEY  = "gift_pid";
+
+  // ここをあなたのフォームに差し替え
+  const FORM_URL_BASE = "https://docs.google.com/forms/d/e/XXXXXXXXXXXX/viewform";
+
+  // フォームで「参加者ID」を受け取る質問の entry 番号に差し替え
+  // 例: entry.1234567890
+  const ENTRY_PID = "entry.1234567890";
+
+  function uid(){
+    try{
+      const a = new Uint32Array(4);
+      crypto.getRandomValues(a);
+      return [...a].map(x => x.toString(16).padStart(8,"0")).join("");
+    }catch(_){
+      return "id_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+    }
+  }
+
+  function pid(){
+    let v = localStorage.getItem(SURVEY_PID_KEY);
+    if(!v){
+      v = "p_" + uid();
+      localStorage.setItem(SURVEY_PID_KEY, v);
+    }
+    return v;
+  }
+
+  const pidEl = document.getElementById("pid");
+  const btnOpen = document.getElementById("btnOpenForm");
+  const chkDone = document.getElementById("chkDone");
+  const btnGo = document.getElementById("btnGoGame");
+
+  pidEl.textContent = pid();
+
+  function formUrl(){
+    const u = new URL(FORM_URL_BASE);
+    u.searchParams.set("usp","pp_url");
+    u.searchParams.set(ENTRY_PID, pid());
+    return u.toString();
+  }
+
+  btnOpen.addEventListener("click", () => {
+    window.open(formUrl(), "_blank", "noopener");
+  });
+
+  chkDone.addEventListener("change", () => {
+    btnGo.disabled = !chkDone.checked;
+  });
+
+  btnGo.addEventListener("click", () => {
+    localStorage.setItem(SURVEY_DONE_KEY, "1");
+    location.href = "./index.html";
+  });
+
+})();
+</script>
+</body>
+</html>
