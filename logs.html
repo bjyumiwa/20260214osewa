@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ログ</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans JP",sans-serif;background:#0b1028;color:#eef2ff;}
+    main{max-width:980px;margin:0 auto;padding:18px 18px 32px}
+    .card{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);border-radius:18px;padding:14px;margin:12px 0;}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    button{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#eef2ff;border-radius:14px;padding:12px 12px;font-weight:900;cursor:pointer;}
+    button:active{transform:translateY(1px)}
+    small{color:rgba(238,242,255,.72);line-height:1.7;display:block}
+    code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:8px;word-break:break-all;}
+    h1{margin:6px 0 10px}
+    h2{margin:10px 0 8px;font-size:16px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{border-bottom:1px solid rgba(255,255,255,.10);padding:8px 6px;vertical-align:top}
+    th{color:rgba(238,242,255,.85);text-align:left}
+    .muted{color:rgba(238,242,255,.72)}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    .pill{display:inline-flex;gap:6px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);padding:6px 10px;border-radius:999px}
+    canvas{width:100%;height:160px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(0,0,0,.12)}
+  </style>
+</head>
+<body>
+<main>
+  <div class="row">
+    <h1>ログ</h1>
+    <div class="row" style="justify-content:flex-end">
+      <button id="back">ゲームへ</button>
+      <button id="reset">データを消す</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <small class="muted">
+      ここには評価はありません。<br>
+      ただ、起きたことだけがあります。
+    </small>
+  </div>
+
+  <div class="card">
+    <h2>ハート推移</h2>
+    <canvas id="chart" width="900" height="260"></canvas>
+    <small class="muted">数値は出しません。形だけ。</small>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>日別まとめ</h2>
+      <div id="daily"></div>
+    </div>
+
+    <div class="card">
+      <h2>共有（観察用URL）</h2>
+      <small class="muted">ログとハート推移だけを、URLに埋め込んで渡します。閲覧者は操作できません。</small>
+      <div style="margin-top:10px">
+        <button id="makeShare">共有URLを作る</button>
+      </div>
+      <div style="margin-top:10px" id="shareBox"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>事実ログ（新しい順）</h2>
+    <div id="events"></div>
+  </div>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const SAVE_KEY = "tosewa_save_v1";
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(!raw) return null;
+      return JSON.parse(raw);
+    }catch(_){
+      return null;
+    }
+  }
+
+  const s = load();
+
+  const ui = {
+    back: document.getElementById("back"),
+    reset: document.getElementById("reset"),
+    daily: document.getElementById("daily"),
+    events: document.getElementById("events"),
+    makeShare: document.getElementById("makeShare"),
+    shareBox: document.getElementById("shareBox"),
+    chart: document.getElementById("chart"),
+  };
+
+  ui.back.addEventListener("click", () => location.href = "./index.html");
+  ui.reset.addEventListener("click", () => {
+    if(!confirm("本当に消しますか？")) return;
+    localStorage.removeItem(SAVE_KEY);
+    location.reload();
+  });
+
+  function hms(ms){
+    const m = Math.floor(ms/60000);
+    const h = Math.floor(m/60);
+    const mm = m%60;
+    if(h<=0) return `${mm}分`;
+    return `${h}時間${mm}分`;
+  }
+
+  function renderDaily(){
+    if(!s){
+      ui.daily.innerHTML = `<div class="muted">データがありません。</div>`;
+      return;
+    }
+
+    const rows = s.day || [];
+    let html = "";
+    for(let i=0;i<3;i++){
+      const d = rows[i] || {};
+      const food = (d.food||[]).length;
+      const out  = (d.out||[]).length;
+      const mini = (d.mini||[]).length;
+      const poop = (d.poop||[]).length;
+
+      const fChoices = (d.food||[]).slice(0,8).join(" / ");
+      const oChoices = (d.out||[]).slice(0,8).join(" / ");
+      const mChoices = (d.mini||[]).slice(0,8).join(" / ");
+      const pChoices = (d.poop||[]).slice(0,8).join(" / ");
+
+      html += `
+        <div class="card" style="margin:10px 0">
+          <div class="row">
+            <div class="pill">Day ${i+1}</div>
+            <div class="muted">シッター ${hms(d.sitterMs||0)}</div>
+          </div>
+          <table>
+            <tr><th>ごはん</th><td>${food}回<div class="muted">${fChoices}</div></td></tr>
+            <tr><th>おでかけ</th><td>${out}回<div class="muted">${oChoices}</div></td></tr>
+            <tr><th>ミニ</th><td>${mini}回<div class="muted">${mChoices}</div></td></tr>
+            <tr><th>そうじ</th><td>${poop}回<div class="muted">${pChoices}</div></td></tr>
+            <tr><th>ドリンク</th><td>${d.drink||0}回</td></tr>
+            <tr><th>マカロン</th><td>${d.macaron||0}回</td></tr>
+          </table>
+        </div>
+      `;
+    }
+    ui.daily.innerHTML = html;
+  }
+
+  function renderEvents(){
+    if(!s || !Array.isArray(s.events)){
+      ui.events.innerHTML = `<div class="muted">データがありません。</div>`;
+      return;
+    }
+    const ev = [...s.events].reverse();
+    const take = ev.slice(0, 120);
+
+    let html = `<table><tr><th>時刻</th><th>Day</th><th>種類</th><th>内容</th></tr>`;
+    for(const e of take){
+      const t = (e.t||"").replace("T"," ").replace("Z","");
+      const detail = Object.entries(e).filter(([k]) => !["t","day","type","stage"].includes(k))
+        .map(([k,v]) => `${k}:${typeof v==="object"?JSON.stringify(v):String(v)}`).join(" / ");
+      html += `<tr>
+        <td class="mono">${t}</td>
+        <td>${e.day||""}</td>
+        <td>${e.type||""}</td>
+        <td class="muted">${detail}</td>
+      </tr>`;
+    }
+    html += `</table>`;
+    ui.events.innerHTML = html;
+  }
+
+  // URL共有：ログをURLに埋め込む（静的サイト用）
+  function b64enc(str){
+    const utf8 = encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_,p)=>String.fromCharCode(parseInt(p,16)));
+    return btoa(utf8).replaceAll("=","").replaceAll("+","-").replaceAll("/","_");
+  }
+
+  ui.makeShare.addEventListener("click", () => {
+    if(!s){
+      ui.shareBox.innerHTML = `<div class="muted">データがありません。</div>`;
+      return;
+    }
+    const payload = {
+      v:1,
+      createdAt: s.createdAt,
+      endedAt: s.endedAt,
+      day: s.day,
+      heartHistory: s.heartHistory,
+      events: s.events,
+    };
+    const token = b64enc(JSON.stringify(payload));
+    const url = new URL(location.href);
+    url.pathname = url.pathname.replace(/logs\.html$/,"observer.html");
+    url.hash = "share=" + token;
+
+    ui.shareBox.innerHTML = `
+      <div style="margin-top:10px">
+        <div class="muted">観察用URL</div>
+        <code id="shareUrl">${url.toString()}</code>
+        <div style="margin-top:10px">
+          <button id="copyShare">コピー</button>
+        </div>
+      </div>
+    `;
+    document.getElementById("copyShare").addEventListener("click", async () => {
+      const txt = url.toString();
+      try{
+        await navigator.clipboard.writeText(txt);
+        alert("コピーしました");
+      }catch(_){
+        prompt("このURLをコピーしてください", txt);
+      }
+    });
+  });
+
+  // ハート推移の簡単チャート（数値表示なし）
+  function drawChart(){
+    const c = ui.chart;
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0,0,c.width,c.height);
+
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 2;
+
+    // 背景グリッド（目安）
+    ctx.strokeStyle = "rgba(255,255,255,.08)";
+    for(let i=0;i<=4;i++){
+      const y = 30 + i*(c.height-60)/4;
+      ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(c.width-30,y); ctx.stroke();
+    }
+
+    if(!s || !Array.isArray(s.heartHistory) || s.heartHistory.length < 2){
+      ctx.fillStyle = "rgba(238,242,255,.65)";
+      ctx.fillText("データがありません", 40, 40);
+      return;
+    }
+
+    const hh = s.heartHistory;
+    const t0 = hh[0].t, t1 = hh[hh.length-1].t;
+    const min = 0, max = 10;
+
+    function xOf(t){
+      const p = (t - t0) / Math.max(1, (t1 - t0));
+      return 30 + p*(c.width-60);
+    }
+    function yOf(v){
+      const p = (v - min) / (max - min);
+      return (c.height-30) - p*(c.height-60);
+    }
+
+    ctx.strokeStyle = "rgba(185,246,202,.55)";
+    ctx.beginPath();
+    ctx.moveTo(xOf(hh[0].t), yOf(hh[0].v));
+    for(const p of hh){
+      ctx.lineTo(xOf(p.t), yOf(p.v));
+    }
+    ctx.stroke();
+
+    // 点
+    ctx.fillStyle = "rgba(255,255,255,.75)";
+    for(const p of hh.slice(-12)){
+      ctx.beginPath();
+      ctx.arc(xOf(p.t), yOf(p.v), 3, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  renderDaily();
+  renderEvents();
+  drawChart();
+})();
+</script>
+</body>
+</html>
