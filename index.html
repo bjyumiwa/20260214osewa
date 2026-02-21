@@ -411,6 +411,90 @@
       flex: 0 0 auto;
     }
 
+    /* ここから：排泄除去ミニゲーム */
+    .cleanStatus{
+      margin-top: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: rgba(238,242,255,.78);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    .cleanTime{
+      margin-top: 10px;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .cleanTime > i{
+      display:block;
+      height:100%;
+      width:100%;
+      background: linear-gradient(90deg, rgba(196,181,253,.95), rgba(147,197,253,.95));
+      box-shadow: 0 0 14px rgba(147,197,253,.20);
+      transform-origin: 0 50%;
+    }
+    .cleanField{
+      margin-top: 10px;
+      height: 230px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(800px 260px at 40% 20%, rgba(255,255,255,.06), transparent 60%),
+        rgba(255,255,255,.03);
+      position: relative;
+      overflow:hidden;
+    }
+    .cleanPoop{
+      position:absolute;
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      display:grid;
+      place-items:center;
+      font-size: 24px;
+      cursor:pointer;
+      box-shadow: 0 14px 22px rgba(0,0,0,.22);
+      transition: transform .12s ease, opacity .18s ease, filter .18s ease;
+      user-select:none;
+    }
+    .cleanPoop:hover{
+      transform: translateY(-1px) scale(1.02);
+      filter: brightness(1.08);
+    }
+    .cleanPoop:active{
+      transform: translateY(0) scale(.98);
+    }
+    .cleanPoop.cleaned{
+      opacity:0;
+      transform: scale(.7) rotate(12deg);
+      pointer-events:none;
+      filter: blur(2px);
+    }
+    .cleanSpark{
+      position:absolute;
+      width: 18px; height: 18px;
+      border-radius: 999px;
+      background: rgba(196,181,253,.85);
+      filter: blur(.2px);
+      box-shadow: 0 0 16px rgba(196,181,253,.35);
+      animation: sparkOut .45s ease-out both;
+      pointer-events:none;
+    }
+    @keyframes sparkOut{
+      0%{opacity:0; transform: scale(.6);}
+      25%{opacity:.9; transform: scale(1);}
+      100%{opacity:0; transform: scale(1.6) translateY(-10px);}
+    }
+    /* ここまで：排泄除去ミニゲーム */
+
     .observeWrap{padding: 12px;}
     .observeHeader{display:flex; gap: 10px; align-items:flex-start; justify-content:space-between; flex-wrap: wrap;}
     .observeHeader .h{font-weight: 900; font-size: 16px; letter-spacing:.02em;}
@@ -944,7 +1028,12 @@
       cleaned: "きれいにした。",
       usedDrink: "ドリンクを使った。",
       returned: "戻ってきた。",
-      grown: "少し大きくなった。"
+      grown: "少し大きくなった。",
+
+      /* 排泄除去ゲーム */
+      cleanGameHint: "💩をタップして片づけます（全部じゃなくてもOK）",
+      cleanRemain: "残り",
+      cleanFinish: "おわる"
     },
     en: {
       docTitle: "3-Day Care Game (2D)",
@@ -1020,7 +1109,12 @@
       cleaned: "Cleaned.",
       usedDrink: "Used a drink.",
       returned: "It came back.",
-      grown: "It grew a little."
+      grown: "It grew a little.",
+
+      /* Poop clean minigame */
+      cleanGameHint: "Tap 💩 to clean (it’s okay if you don’t finish).",
+      cleanRemain: "Left",
+      cleanFinish: "Finish"
     },
     zh: {
       docTitle: "三天照护游戏（2D）",
@@ -1096,7 +1190,12 @@
       cleaned: "已清理。",
       usedDrink: "使用了饮料。",
       returned: "它回来了。",
-      grown: "它稍微变大了。"
+      grown: "它稍微变大了。",
+
+      /* 排泄清理小游戏 */
+      cleanGameHint: "点击💩清理（不必全部完成也可以）。",
+      cleanRemain: "剩余",
+      cleanFinish: "结束"
     }
   };
 
@@ -1420,12 +1519,11 @@
 
     save.letterShown = save.letterShown ?? false;
 
-    // 成長用
-    save.pickCount = save.pickCount ?? 0;     // ミニ選択の回数（食事/おでかけ/おしゃれ）
-    save.growLevel = save.growLevel ?? 0;     // 20回ごとに+1
+    save.pickCount = save.pickCount ?? 0;
+    save.growLevel = save.growLevel ?? 0;
 
     if(!Array.isArray(save.live)) save.live = [];
-    if(!Array.isArray(save.events)) save.events = []; // 全履歴（CSV用）
+    if(!Array.isArray(save.events)) save.events = [];
     if(!save.days) save.days = {};
     ensureDay(save, 1);
 
@@ -1722,7 +1820,7 @@
 
   function applyGrowthScale(save){
     const base = 1.00;
-    const step = 0.035; // 20回ごとに少しずつ
+    const step = 0.035;
     const max = 1.35;
     const sc = Math.min(max, base + (save.growLevel || 0) * step);
     ui.charScaleBox.style.transform = `scale(${sc.toFixed(3)})`;
@@ -1766,6 +1864,7 @@
   }
 
   function openModal(title, hint, bodyNode, footButtons){
+    modalCloseGuard = null;
     ui.modalTitle.textContent = title || "";
     ui.modalHint.textContent = hint || "";
     ui.modalBody.innerHTML = "";
@@ -1777,13 +1876,28 @@
     ui.modalBack.classList.add("show");
     ui.modalBack.setAttribute("aria-hidden","false");
   }
-  function closeModal(){
+
+  /* ここから：ミニゲーム中に閉じたら「途中まで片づけた」扱いにするためのガード */
+  let modalCloseGuard = null;
+
+  function closeModalHard(){
     ui.modalBack.classList.remove("show");
     ui.modalBack.setAttribute("aria-hidden","true");
   }
+  function closeModal(reason){
+    if(typeof modalCloseGuard === "function"){
+      const cb = modalCloseGuard;
+      modalCloseGuard = null;
+      cb(reason);
+      return;
+    }
+    closeModalHard();
+  }
+  /* ここまで */
+
   ui.modalX.addEventListener("click", closeModal);
-  ui.modalBack.addEventListener("click", (e) => { if(e.target === ui.modalBack) closeModal(); });
-  window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+  ui.modalBack.addEventListener("click", (e) => { if(e.target === ui.modalBack) closeModal("back"); });
+  window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal("esc"); });
 
   function mkBtn(text, cls, onClick){
     const b = document.createElement("button");
@@ -1980,14 +2094,14 @@
   function actOut(){ actTwoPick("out", t("btnOut")); }
   function actStyle(){ actTwoPick("style", t("btnStyle")); }
 
+  /* ここが追加：排泄除去ミニゲーム（💩をタップして片づける） */
   function actClean(){
     const save = loadSave(); if(!save) return;
     const elapsed = calcElapsedMs(save, now());
     if(!canInteract(save, elapsed)) return;
 
-    // ここは2択ミニ選択ではなく、タップで消す仕様のまま
-    const need = Math.max(1, save.poop);
-    if(need <= 0){
+    // 💩がないときは、軽く整えるだけ
+    if(save.poop <= 0){
       const s = loadSave(); if(!s) return;
       s.dirt = clamp(s.dirt - 10, 0, 100);
       applyHeart(s, heartDeltaRandom());
@@ -1996,45 +2110,165 @@
       return;
     }
 
+    const total = clamp(save.poop, 1, 3);
+    const limitMs = FAST ? 6500 : 12000;
+
+    let cleared = 0;
+    let finished = false;
+    const startedAt = now();
+
     const body = document.createElement("div");
-    body.innerHTML = `<div style="font-size:12px;color:rgba(238,242,255,.78);line-height:1.7; white-space:pre-wrap">
-タップして消します（残り ${need}）
-    </div>`;
 
-    const two = document.createElement("div");
-    two.className = "two";
+    const top = document.createElement("div");
+    top.style.fontSize = "12px";
+    top.style.color = "rgba(238,242,255,.78)";
+    top.style.lineHeight = "1.7";
+    top.style.whiteSpace = "pre-wrap";
+    top.textContent = t("cleanGameHint");
 
-    const careful = () => doClean(true);
-    const quick   = () => doClean(false);
+    const status = document.createElement("div");
+    status.className = "cleanStatus";
 
-    function doClean(isCareful){
-      const s = loadSave(); if(!s) return;
+    const statusLeft = document.createElement("div");
+    const statusSoft = document.createElement("div");
+    statusSoft.style.color = "rgba(238,242,255,.58)";
+    statusSoft.textContent = " ";
+
+    status.appendChild(statusLeft);
+    status.appendChild(statusSoft);
+
+    const timeBar = document.createElement("div");
+    timeBar.className = "cleanTime";
+    const timeFill = document.createElement("i");
+    timeBar.appendChild(timeFill);
+
+    const field = document.createElement("div");
+    field.className = "cleanField";
+
+    body.appendChild(top);
+    body.appendChild(status);
+    body.appendChild(timeBar);
+    body.appendChild(field);
+
+    function updateStatus(){
+      const left = Math.max(0, total - cleared);
+      statusLeft.textContent = `${t("cleanRemain")} ${left}`;
+    }
+
+    function sparkAt(x, y){
+      const sp = document.createElement("div");
+      sp.className = "cleanSpark";
+      sp.style.left = `${x - 9}px`;
+      sp.style.top = `${y - 9}px`;
+      field.appendChild(sp);
+      setTimeout(() => sp.remove(), 520);
+    }
+
+    function finish(reason){
+      if(finished) return;
+      finished = true;
+
+      clearTimeout(timer);
+
+      const s = loadSave(); if(!s) { closeModalHard(); return; }
       const e = calcElapsedMs(s, now());
-      if(!canInteract(s, e)) return;
+      if(!canInteract(s, e)) { closeModalHard(); return; }
+
+      const beforePoop = clamp(s.poop, 0, 3);
+      const cleanedNow = clamp(cleared, 0, beforePoop);
+      const remain = clamp(beforePoop - cleanedNow, 0, 3);
+
+      const ratio = cleanedNow / Math.max(1, beforePoop);
+
+      // 片づけた分だけ、少し良くなる（でも理由は説明しない）
+      s.poop = remain;
+      s.dirt = clamp(s.dirt - (10 + Math.round(18 * ratio) + (Math.random()*4 - 2)), 0, 100);
+      s.mood = clamp(s.mood + (5 + Math.round(10 * ratio) + (Math.random()*4 - 2)), 0, 100);
 
       const d = ensureDay(s, s.currentDay);
       d.careCounts.clean++;
 
-      addChoice(s, t("btnClean"), isCareful ? "Careful" : "Quick");
-
-      s.poop = 0;
-      s.dirt = clamp(s.dirt - (isCareful ? 26 : 16) + (Math.random()*4 - 2), 0, 100);
-      s.mood = clamp(s.mood + (isCareful ? 10 :  6) + (Math.random()*4 - 2), 0, 100);
-
-      applyHeart(s, heartDeltaRandom());
+      addChoice(s, t("btnClean"), `💩 ${cleanedNow}/${beforePoop}`);
+      applyHeart(s, heartDeltaRandom() + (ratio >= 0.99 ? 1 : 0));
       pushLiveLog(s, t("cleaned"));
 
       applyAfterChoiceMaybeSleep(s);
+
       saveSave(s);
-      closeModal();
+      closeModalHard();
     }
 
-    two.appendChild(mkChoice("🧼", (LANG==="en"?"Carefully":(LANG==="zh"?"认真":"ていねい")), (LANG==="en"?"Take a little time.":(LANG==="zh"?"慢一点。":"少し時間をかける。")), careful));
-    two.appendChild(mkChoice("🧻", (LANG==="en"?"Quickly":(LANG==="zh"?"快速":"さっと")), (LANG==="en"?"Finish fast.":(LANG==="zh"?"快一点。":"急いで済ませる。")), quick));
-    body.appendChild(two);
+    // ミニゲーム中に×や外側クリックやEscで閉じた場合も、途中経過でfinish
+    modalCloseGuard = () => finish("close");
 
-    openModal(t("btnClean"), t("twoChoice"), body, [ mkBtn(t("btnCancel"), "btnGhost", closeModal) ]);
+    function spawnPoop(i){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "cleanPoop";
+      b.setAttribute("aria-label", "poop");
+      b.textContent = "💩";
+
+      const left = (8 + Math.random() * 84);
+      const topP = (10 + Math.random() * 74);
+      const rot = (Math.random() * 26 - 13);
+
+      b.style.left = `${left.toFixed(1)}%`;
+      b.style.top  = `${topP.toFixed(1)}%`;
+      b.style.transform = `rotate(${rot.toFixed(1)}deg)`;
+
+      b.addEventListener("click", (ev) => {
+        if(finished) return;
+        if(b.classList.contains("cleaned")) return;
+
+        b.classList.add("cleaned");
+        cleared++;
+        updateStatus();
+
+        const rect = field.getBoundingClientRect();
+        const cx = ev.clientX - rect.left;
+        const cy = ev.clientY - rect.top;
+        sparkAt(cx, cy);
+
+        setTimeout(() => b.remove(), 220);
+
+        if(cleared >= total){
+          setTimeout(() => finish("all"), 320);
+        }
+      });
+
+      field.appendChild(b);
+    }
+
+    for(let i=0; i<total; i++){
+      spawnPoop(i);
+    }
+    updateStatus();
+
+    function rafTime(){
+      if(finished) return;
+      const p = clamp((now() - startedAt) / Math.max(1, limitMs), 0, 1);
+      timeFill.style.transform = `scaleX(${(1 - p).toFixed(4)})`;
+      if(p >= 1){
+        finish("time");
+        return;
+      }
+      requestAnimationFrame(rafTime);
+    }
+    requestAnimationFrame(rafTime);
+
+    const timer = setTimeout(() => finish("time"), limitMs);
+
+    openModal(
+      t("btnClean"),
+      "",
+      body,
+      [
+        mkBtn(t("cleanFinish"), "", () => finish("finish")),
+        mkBtn(t("btnCancel"), "btnGhost", () => finish("cancel")),
+      ]
+    );
   }
+  /* ここまで：排泄除去ミニゲーム */
 
   function actDrink(){
     const save = loadSave(); if(!save) return;
@@ -2107,7 +2341,6 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
       s.macaronActive = true;
       s.macaronEndsAtElapsed = e + MACARON_REVIVE_MS;
 
-      // ほんの少し戻る
       s.hunger = clamp(s.hunger - 8, 0, 100);
       s.dirt   = clamp(s.dirt - 6, 0, 100);
       s.mood   = clamp(s.mood + 10, 0, 100);
@@ -2183,12 +2416,12 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
     const minY = 0, maxY = 100;
 
     function xOf(x){
-      const t = (x - minX) / Math.max(1, (maxX - minX));
-      return 20 + t * (w - 40);
+      const tt = (x - minX) / Math.max(1, (maxX - minX));
+      return 20 + tt * (w - 40);
     }
     function yOf(y){
-      const t = (y - minY) / (maxY - minY);
-      return (h - 18) - t * (h - 36);
+      const tt = (y - minY) / (maxY - minY);
+      return (h - 18) - tt * (h - 36);
     }
 
     ctx.globalAlpha = 0.35;
@@ -2412,7 +2645,6 @@ ${escapeHtml(u.toString())}
         await navigator.clipboard.writeText(u.toString());
         const s = loadSave(); if(s) { pushLiveLog(s, t("shareCopied")); saveSave(s); }
       }catch(_){
-        // 失敗時も黙ってOK
       }
       closeModal();
     };
@@ -2428,7 +2660,6 @@ ${escapeHtml(u.toString())}
     );
   }
 
-  // 手紙モーダル（あなたが貼ってくれた版を統合）
   let lastFocusEl = null;
 
   function openLetter(){
@@ -2511,7 +2742,6 @@ ${escapeHtml(u.toString())}
     }
 
     if(!save.hatched){
-      // 指定：マカロン待ち中に表示
       ui.stageNote.textContent = t("waitNote");
       return;
     }
@@ -2539,50 +2769,38 @@ ${escapeHtml(u.toString())}
   function render(save){
     const elapsed = calcElapsedMs(save, now());
 
-    // 表示切り替え
     ui.macaronArea.style.display = save.hatched ? "none" : "grid";
     ui.charArea.style.display = save.hatched ? "grid" : "none";
 
     ui.thanksOverlay.classList.toggle("show", save.ended && !save.macaronActive);
 
-    // マカロンの羽化演出
     ui.macaronImg.classList.toggle("hatchLift", !!save.hatchAnim);
 
-    // キャラ状態クラス
     const st = stateClass(save);
     ui.charArea.classList.remove("low","cry","lively","sleep");
     if(st) ui.charArea.classList.add(st);
     if(save.hatched && isSleeping(save, elapsed)) ui.charArea.classList.add("sleep");
 
-    // 画像
     applyVisualImages(save);
-
-    // 成長
     applyGrowthScale(save);
 
-    // UI
     updateHeartUI(save);
     updatePoopUI(save);
     setStageText(save);
 
-    // 操作可否
     const inter = canInteract(save, elapsed);
     setInteractable(inter);
 
-    // マカロンボタン：死後のみ
     ui.btnMacaron.disabled = !(save.ended && !save.macaronActive);
 
-    // 手紙：一定時間で出現
     if(!save.letterShown && elapsed >= LETTER_DELAY_MS){
       save.letterShown = true;
       saveSave(save);
     }
     if(save.letterShown) showLetterSlot();
 
-    // ライブログ
     renderLiveLog(save);
 
-    // サブライン
     ui.subline.textContent = save.ended && !save.macaronActive ? t("subEnded") : t("subRunning");
   }
 
@@ -2627,7 +2845,6 @@ ${escapeHtml(u.toString())}
     saveSave(s);
   }
 
-  // イベント登録
   ui.langSel.value = LANG;
   ui.langSel.addEventListener("change", () => setLang(ui.langSel.value));
 
@@ -2660,13 +2877,11 @@ ${escapeHtml(u.toString())}
     showGameScreen();
   });
 
-  // 起動
   setLang(getLang());
   applyLangToUI();
 
   const save = initOrLoad();
   if(save){
-    // 既存シッター状態反映
     ui.sitterToggle.dataset.on = save.pausedSince ? "true" : "false";
     ui.letterText.textContent = getLetterBody();
     render(save);
