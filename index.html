@@ -533,17 +533,8 @@
       gap: 10px;
     }
 
-    /* ここから：💩ミニゲーム（画面切り替え） */
+    /* 💩ミニゲーム（画面切り替え） */
     .cleanWrap{padding: 12px;}
-    .cleanTop{
-      display:flex;
-      gap: 10px;
-      align-items:flex-start;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-    .cleanTop .h{font-weight: 900; font-size: 16px; letter-spacing:.02em;}
-    .cleanTop .p{margin-top: 4px; font-size: 12px; color: var(--muted); line-height:1.6;}
     .cleanHUD{
       margin-top: 10px;
       display:flex;
@@ -578,7 +569,6 @@
       transform: scaleX(1);
       box-shadow: 0 0 14px rgba(147,197,253,.18);
     }
-
     .cleanStage{
       margin-top: 12px;
       position: relative;
@@ -593,7 +583,6 @@
       user-select:none;
       touch-action: manipulation;
     }
-
     .floatPoop{
       position:absolute;
       left: 50%;
@@ -654,44 +643,11 @@
       line-height: 1.7;
       white-space: pre-wrap;
     }
-    /* ここまで：💩ミニゲーム */
-
-    /* アンケート画面 */
-    .surveyWrap{padding: 14px;}
-    .surveyTitle{font-weight: 900; font-size: 16px; letter-spacing:.02em;}
-    .surveySub{margin-top: 6px; font-size: 12px; color: var(--muted); line-height:1.7; white-space: pre-wrap;}
-    .qList{margin-top: 12px; display:flex; flex-direction:column; gap: 10px;}
-    .qItem{
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      border-radius: 16px;
-      padding: 10px;
-    }
-    .qItem .q{font-weight: 800; font-size: 12px; line-height:1.6;}
-    .qItem .opts{margin-top: 8px; display:grid; grid-template-columns: repeat(5, 1fr); gap: 6px;}
-    .opt{
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.04);
-      border-radius: 12px;
-      padding: 8px 6px;
-      font-size: 11px;
-      text-align:center;
-      cursor:pointer;
-      user-select:none;
-      transition: .18s ease;
-    }
-    .opt:hover{background: rgba(255,255,255,.07);}
-    .opt[data-on="true"]{background: rgba(196,181,253,.14); border-color: rgba(196,181,253,.22);}
-    .surveyFoot{margin-top: 12px; display:flex; gap: 10px; justify-content:flex-end; flex-wrap:wrap;}
-    .surveyWarn{margin-top: 10px; font-size: 12px; color: rgba(255,200,200,.85); display:none;}
-    .surveyWarn.show{display:block;}
 
     @media (max-width: 860px){
       .main{grid-template-columns: 1fr;}
       .hearts{width: 120px;}
       .cleanStage{height: 360px;}
-      .qItem .opts{grid-template-columns: 1fr; }
-      .opt{ text-align:left; padding: 10px 10px;}
     }
     @media (prefers-reduced-motion: reduce){
       *{animation:none !important; transition:none !important;}
@@ -732,32 +688,8 @@
       </div>
     </div>
 
-    <!-- アンケート画面（送信したら必ずゲームへ移動） -->
-    <div id="screenSurvey" class="screen">
-      <div class="card">
-        <div class="cardHeader">
-          <div>
-            <div class="h" id="txtSurveyHeader">アンケート</div>
-            <div class="hint" id="txtSurveyHint">送信するとゲームがはじまります</div>
-          </div>
-        </div>
-        <div class="surveyWrap">
-          <div class="surveyTitle" id="surveyTitle">はじめる前に</div>
-          <div class="surveySub" id="surveySub">短い質問です。評価ではなく、いまの感覚を残します。</div>
-
-          <div class="qList" id="qList"></div>
-
-          <div class="surveyWarn" id="surveyWarn">すべて選んでから送信してください。</div>
-
-          <div class="surveyFoot">
-            <button id="btnSurveySend">送信してはじめる</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- メインゲーム画面 -->
-    <div id="screenGame" class="screen">
+    <div id="screenGame" class="screen show">
       <div class="main">
         <div class="card">
           <div class="cardHeader">
@@ -796,16 +728,8 @@
 
               <!-- 💩最大10 -->
               <div class="poops" aria-hidden="true" id="poopRow">
-                <div class="poop" id="poop1"></div>
-                <div class="poop" id="poop2"></div>
-                <div class="poop" id="poop3"></div>
-                <div class="poop" id="poop4"></div>
-                <div class="poop" id="poop5"></div>
-                <div class="poop" id="poop6"></div>
-                <div class="poop" id="poop7"></div>
-                <div class="poop" id="poop8"></div>
-                <div class="poop" id="poop9"></div>
-                <div class="poop" id="poop10"></div>
+                <div class="poop"></div><div class="poop"></div><div class="poop"></div><div class="poop"></div><div class="poop"></div>
+                <div class="poop"></div><div class="poop"></div><div class="poop"></div><div class="poop"></div><div class="poop"></div>
               </div>
 
               <div class="stageNote" id="stageNote"></div>
@@ -898,7 +822,7 @@
       </div>
     </div>
 
-    <!-- 💩ミニゲーム画面（画面切り替え） -->
+    <!-- 💩ミニゲーム画面 -->
     <div id="screenClean" class="screen">
       <div class="card">
         <div class="cardHeader">
@@ -913,18 +837,11 @@
         </div>
 
         <div class="cleanWrap">
-          <div class="cleanTop">
-            <div>
-              <div class="h" id="cleanTitle"> </div>
-              <div class="p" id="cleanSub"> </div>
-            </div>
-          </div>
-
           <div class="cleanHUD">
             <div class="cleanCounter">
               <span aria-hidden="true">💩</span>
               <div>
-                <div style="font-size:11px;color:rgba(238,242,255,.66)" id="cleanCounterLabel"> </div>
+                <div style="font-size:11px;color:rgba(238,242,255,.66)" id="cleanCounterLabel">消した数</div>
                 <b id="cleanCounterNum">0 / 0</b>
               </div>
             </div>
@@ -933,7 +850,7 @@
 
           <div class="cleanStage" id="cleanStage" aria-label="cleaning field"></div>
 
-          <div class="cleanBottomNote" id="cleanNote"></div>
+          <div class="cleanBottomNote" id="cleanNote">途中でやめてもOK。片づけた分だけ、少しだけ変わります。</div>
         </div>
       </div>
     </div>
@@ -975,17 +892,12 @@
   "use strict";
 
   const ASSET_BASE = "public/char/";
-
   const url = new URL(location.href);
   const FAST = url.searchParams.get("fast") === "1";
 
   const SAVE_KEY = "osewa_save_2d_char_v5";
   const ARCHIVE_KEY = "osewa_archives_2d_char_v5";
   const LANG_KEY = "osewa_lang_v5";
-
-  // アンケート（送信後に必ずゲームへ遷移させる）
-  const SURVEY_DONE_KEY = "osewa_survey_done_v1";
-  const SURVEY_DATA_KEY = "osewa_survey_data_v1";
 
   const DAY_MS  = 24 * 60 * 60 * 1000;
   const LIFE_MS = 3 * DAY_MS;
@@ -997,11 +909,11 @@
   const DRINK_EXTEND_MS   = FAST ? 20 * 1000 : 60 * 60 * 1000;
   const DRINK_BACK_MS     = FAST ?  8 * 1000 : 30 * 60 * 1000;
 
-  // 眠り：ランダムだけだと「出ない」ことがあるので、アイドルで必ず入る仕組みも入れる
+  // 眠り：ランダムだけだと出ないことがあるので、アイドルでも必ず入る
   const SLEEP_MS = FAST ? 10 * 1000 : 2 * 60 * 1000;
-  const IDLE_SLEEP_AFTER_MS = FAST ? 11 * 1000 : 70 * 1000; // 触らないと自然に眠る
+  const IDLE_SLEEP_AFTER_MS = FAST ? 11 * 1000 : 70 * 1000;
 
-  // 💩最大10
+  // 💩最大10（ここが要望のポイント）
   const POOP_MAX = 10;
 
   const HUNGER_PER_MIN = 0.25;
@@ -1110,13 +1022,7 @@
       cleanHeader: "排泄除去",
       cleanHint: "浮かんでくる💩をタッチして消します",
       cleanCounterLabel: "消した数",
-      cleanNote: "途中でやめてもOK。\n片づけた分だけ、少しだけ変わります。",
-      surveyHeader: "アンケート",
-      surveyHint: "送信するとゲームがはじまります",
-      surveyTitle: "はじめる前に",
-      surveySub: "短い質問です。評価ではなく、いまの感覚を残します。",
-      surveySend: "送信してはじめる",
-      surveyWarn: "すべて選んでから送信してください。",
+      cleanNote: "途中でやめてもOK。\n片づけた分だけ、少しだけ変わります。"
     },
     en: {
       docTitle: "3-Day Care Game (2D)",
@@ -1196,13 +1102,7 @@
       cleanHeader: "Clean",
       cleanHint: "Tap floating 💩 to remove",
       cleanCounterLabel: "Removed",
-      cleanNote: "It’s okay to stop halfway.\nOnly traces will remain.",
-      surveyHeader: "Survey",
-      surveyHint: "Start after sending",
-      surveyTitle: "Before you start",
-      surveySub: "Short questions. This is not an evaluation.",
-      surveySend: "Send & Start",
-      surveyWarn: "Please answer all questions.",
+      cleanNote: "It’s okay to stop halfway.\nOnly traces will remain."
     },
     zh: {
       docTitle: "三天照护游戏（2D）",
@@ -1282,19 +1182,14 @@
       cleanHeader: "清理",
       cleanHint: "点击漂浮的💩来清理",
       cleanCounterLabel: "已清理",
-      cleanNote: "中途结束也可以。\n只会留下痕迹。",
-      surveyHeader: "问卷",
-      surveyHint: "发送后开始游戏",
-      surveyTitle: "开始之前",
-      surveySub: "简短问题，不是评价。",
-      surveySend: "发送并开始",
-      surveyWarn: "请回答所有问题。",
+      cleanNote: "中途结束也可以。\n只会留下痕迹。"
     }
   };
 
   function t(key){
     return (I18N[LANG] && I18N[LANG][key]) || I18N.ja[key] || key;
   }
+
   function getLetterBody(){
     const lines = t("letterLines");
     const arr = Array.isArray(lines) ? lines : I18N.ja.letterLines;
@@ -1317,13 +1212,6 @@
     ui.txtCleanHint.textContent = t("cleanHint");
     ui.cleanCounterLabel.textContent = t("cleanCounterLabel");
     ui.cleanNote.textContent = t("cleanNote");
-
-    ui.txtSurveyHeader.textContent = t("surveyHeader");
-    ui.txtSurveyHint.textContent = t("surveyHint");
-    ui.surveyTitle.textContent = t("surveyTitle");
-    ui.surveySub.textContent = t("surveySub");
-    ui.btnSurveySend.textContent = t("surveySend");
-    ui.surveyWarn.textContent = t("surveyWarn");
   }
 
   function makeOpt(icon, title, sub, extra){
@@ -1413,10 +1301,7 @@
     charImg: el("charImg"),
     thanksOverlay: el("thanksOverlay"),
     txtThanks: el("txtThanks"),
-
-    // 💩10個
-    poopEls: Array.from({length:10}, (_,i)=> el("poop"+(i+1))),
-
+    poopEls: Array.from(document.querySelectorAll("#poopRow .poop")),
     btnFood: el("btnFood"),
     btnOut: el("btnOut"),
     btnStyle: el("btnStyle"),
@@ -1438,7 +1323,6 @@
     modalBody: el("modalBody"),
     modalFoot: el("modalFoot"),
     modalX: el("modalX"),
-    screenSurvey: el("screenSurvey"),
     screenGame: el("screenGame"),
     screenObserve: el("screenObserve"),
     screenClean: el("screenClean"),
@@ -1465,28 +1349,15 @@
     txtObserveHint: el("txtObserveHint"),
     txtLogHeader: el("txtLogHeader"),
     txtLogHint: el("txtLogHint"),
-
-    // clean
     txtCleanHeader: el("txtCleanHeader"),
     txtCleanHint: el("txtCleanHint"),
     btnCleanExit: el("btnCleanExit"),
     btnCleanFinish: el("btnCleanFinish"),
-    cleanTitle: el("cleanTitle"),
-    cleanSub: el("cleanSub"),
     cleanStage: el("cleanStage"),
     cleanTimeFill: el("cleanTimeFill"),
     cleanCounterLabel: el("cleanCounterLabel"),
     cleanCounterNum: el("cleanCounterNum"),
     cleanNote: el("cleanNote"),
-
-    // survey
-    txtSurveyHeader: el("txtSurveyHeader"),
-    txtSurveyHint: el("txtSurveyHint"),
-    surveyTitle: el("surveyTitle"),
-    surveySub: el("surveySub"),
-    qList: el("qList"),
-    btnSurveySend: el("btnSurveySend"),
-    surveyWarn: el("surveyWarn"),
   };
 
   function applyLangToUI(){
@@ -1539,13 +1410,6 @@
     ui.txtCleanHint.textContent = t("cleanHint");
     ui.cleanCounterLabel.textContent = t("cleanCounterLabel");
     ui.cleanNote.textContent = t("cleanNote");
-
-    ui.txtSurveyHeader.textContent = t("surveyHeader");
-    ui.txtSurveyHint.textContent = t("surveyHint");
-    ui.surveyTitle.textContent = t("surveyTitle");
-    ui.surveySub.textContent = t("surveySub");
-    ui.btnSurveySend.textContent = t("surveySend");
-    ui.surveyWarn.textContent = t("surveyWarn");
   }
 
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
@@ -1587,7 +1451,7 @@
 
   function assetPath(file){ return ASSET_BASE + file; }
 
-  // 画像が見つからないときに、UIにそっと警告を出す（デバッグ用）
+  // 画像が見つからない時だけ、右下にそっと出す
   const missingAssets = new Set();
   function noteMissingAsset(src){
     if(!src) return;
@@ -1606,6 +1470,7 @@
     const baseNow = save.pausedSince ? save.pausedSince : tNow;
     return Math.max(0, baseNow - save.startedAt - save.totalPausedMs);
   }
+
   function dayIndex(elapsed){
     return clamp(Math.floor(elapsed / DAY_MS) + 1, 1, 3);
   }
@@ -1647,7 +1512,6 @@
     save.pausedSince = save.pausedSince ?? null;
 
     save.lifeExtensionMs = save.lifeExtensionMs ?? 0;
-
     save.petName = save.petName ?? "";
 
     save.heart = clamp(save.heart ?? 50, 0, 100);
@@ -1661,8 +1525,6 @@
 
     save.sleepUntilElapsed = save.sleepUntilElapsed ?? null;
     save.lastSleepAtElapsed = save.lastSleepAtElapsed ?? 0;
-
-    // アイドル眠りのため：最後に触った時刻（elapsed）
     save.lastActionElapsed = save.lastActionElapsed ?? 0;
 
     save.letterShown = save.letterShown ?? false;
@@ -1781,7 +1643,6 @@
 
       sleepUntilElapsed: null,
       lastSleepAtElapsed: 0,
-
       lastActionElapsed: 0,
 
       lastSimElapsed: 0,
@@ -1811,18 +1672,16 @@
   }
 
   function canInteract(save, elapsed){
-    if(save.pausedSince) return true; // シッター中はボタンは押せる（ただし時間は止まる）
+    if(save.pausedSince) return true;
     if(save.macaronActive) return true;
     if(save.ended) return false;
     if(!save.hatched) return false;
     return isAlive(save, elapsed);
   }
 
-  // dirt から poop を作る（最大10）
+  // dirtからpoopを増やす（最大10）
   function updatePoop(save){
-    // dirt 35を超えると増え始め、95でほぼ10
     const desired = clamp(Math.floor((save.dirt - 35) / 6), 0, POOP_MAX);
-    // 放置して増える“感じ”を出すため、基本は増える方向を優先（減らすのは掃除だけ）
     save.poop = Math.max(save.poop, desired);
   }
 
@@ -1840,6 +1699,11 @@
     save.sleepUntilElapsed = elapsed + SLEEP_MS;
     save.lastSleepAtElapsed = elapsed;
     pushLiveLog(save, reasonText || t("logQuiet"));
+  }
+
+  function touchAction(save){
+    const e = calcElapsedMs(save, now());
+    save.lastActionElapsed = e;
   }
 
   function applyTimeSimulation(save, elapsed){
@@ -1861,7 +1725,6 @@
 
     moodDelta -= minutes * 0.35 * stress;
 
-    // 💩によるゆっくり悪化（10なので強すぎない係数にする）
     if(save.poop > 0) moodDelta -= minutes * 0.035 * save.poop;
 
     if(save.hunger < 35 && save.dirt < 35 && save.poop === 0){
@@ -1873,7 +1736,6 @@
 
     save.mood = clamp(save.mood + moodDelta, 0, 100);
 
-    // 自然睡眠：落ち着いていて、たまに寝る
     const calm = (save.mood > 72 && save.hunger < 55 && save.dirt < 55 && save.poop <= 1);
     if(calm && !isSleeping(save, elapsed)){
       const p = minutes * (FAST ? 0.22 : 0.08);
@@ -1908,7 +1770,6 @@
         s.hatched = true;
         s.hatchAnim = false;
         pushLiveLog(s, t("logHatched"));
-        // 誕生直後は“触った扱い”にして、しばらく眠りに入りにくくする
         s.lastActionElapsed = calcElapsedMs(s, now());
         saveSave(s);
         openNameModal(true);
@@ -1951,7 +1812,6 @@
   }
 
   function stateClass(save){
-    // 💩最大10に合わせて閾値調整
     if(save.mood < 25 || save.hunger > 85 || save.dirt > 85 || save.poop >= 8) return "cry";
     if(save.mood < 45 || save.hunger > 70 || save.dirt > 70 || save.poop >= 5) return "low";
     if(save.mood > 70 && save.hunger < 55 && save.dirt < 55 && save.poop <= 1) return "lively";
@@ -1972,7 +1832,6 @@
 
     let charFile = FILES.char[cc].closed;
     if(sleeping){
-      // ここで必ずsleep画像へ
       charFile = FILES.char[cc].sleep;
     }else{
       const sc = stateClass(save);
@@ -1992,9 +1851,7 @@
 
   function updatePoopUI(save){
     const n = clamp(Math.round(save.poop), 0, POOP_MAX);
-    ui.poopEls.forEach((p, i) => {
-      p.classList.toggle("on", i < n);
-    });
+    ui.poopEls.forEach((p, i) => p.classList.toggle("on", i < n));
   }
 
   function updateHeartUI(save){
@@ -2050,6 +1907,7 @@
     b.addEventListener("click", onClick);
     return b;
   }
+
   function mkChoice(icon, title, sub, onPick){
     const div = document.createElement("div");
     div.className = "choice";
@@ -2068,11 +1926,13 @@
     }
     return a;
   }
+
   function listForLang(key){
     const pack = TWOCHOICE[LANG] || TWOCHOICE.ja;
     const list = pack[key] || (TWOCHOICE.ja[key] || []);
     return list;
   }
+
   function pickFromBag(save, key){
     const list = listForLang(key);
     if(!list || !list.length) return null;
@@ -2088,16 +1948,8 @@
     return list[idx];
   }
 
-  function touchAction(save){
-    // “触った”痕跡（眠りに入るまでの時間をリセット）
-    const e = calcElapsedMs(save, now());
-    save.lastActionElapsed = e;
-    // 触ったら、もし眠っていたら少しで起きる…のはやりすぎなので、今回は解除しない
-  }
-
   function applyAfterChoiceMaybeSleep(save){
     const elapsed = calcElapsedMs(save, now());
-    // 触った直後にいきなり眠るのは少し変なので、確率を下げる
     const p = FAST ? 0.20 : 0.10;
     if(Math.random() < p){
       startSleep(save, elapsed, t("logQuiet"));
@@ -2154,7 +2006,6 @@
       const name = normalizeName(input.value);
       s.petName = name || "？？？";
       touchAction(s);
-
       addChoice(s, "Name", s.petName);
       pushLiveLog(s, `${t("logNamed")}${s.petName}`);
       saveSave(s);
@@ -2247,32 +2098,23 @@
   function actStyle(){ actTwoPick("style", t("btnStyle")); }
 
   // 画面切り替え
-  function showSurveyScreen(){
-    ui.screenObserve.classList.remove("show");
-    ui.screenClean.classList.remove("show");
-    ui.screenGame.classList.remove("show");
-    ui.screenSurvey.classList.add("show");
-  }
   function showGameScreen(){
-    ui.screenSurvey.classList.remove("show");
     ui.screenObserve.classList.remove("show");
     ui.screenClean.classList.remove("show");
     ui.screenGame.classList.add("show");
   }
   function showObserveScreen(){
-    ui.screenSurvey.classList.remove("show");
     ui.screenGame.classList.remove("show");
     ui.screenClean.classList.remove("show");
     ui.screenObserve.classList.add("show");
   }
   function showCleanScreen(){
-    ui.screenSurvey.classList.remove("show");
     ui.screenGame.classList.remove("show");
     ui.screenObserve.classList.remove("show");
     ui.screenClean.classList.add("show");
   }
 
-  // 💩ミニゲーム
+  // 💩ミニゲーム（poop=10でも遊べる）
   let cleanSession = null;
 
   function sparkAt(stageEl, x, y){
@@ -2292,7 +2134,7 @@
     inner.className = "inner";
     inner.textContent = "💩";
 
-    const x = 8 + Math.random()*84; // %
+    const x = 8 + Math.random()*84;
     const upDur = (FAST ? 2.7 : 4.0) + Math.random() * (FAST ? 1.6 : 2.8);
     const swayDur = (FAST ? 1.0 : 1.6) + Math.random() * (FAST ? 0.7 : 1.1);
 
@@ -2358,10 +2200,8 @@
     const beforePoop = clamp(s.poop, 0, POOP_MAX);
     const ratio = cleanSession.target > 0 ? (cleanSession.cleared / cleanSession.target) : 0;
 
-    // 片づけた割合で poop を減らす（最大10）
-    // poop=10 でも遊べるように、素直に割合で減らす
+    // poop=10でも成立するように「割合で減らす」
     let reduce = Math.floor(ratio * beforePoop + 1e-9);
-    // 触って消して、少しでも消せたなら最小1（ただしbefore=0なら0）
     if(beforePoop > 0 && cleanSession.cleared > 0) reduce = Math.max(reduce, 1);
     reduce = clamp(reduce, 0, beforePoop);
 
@@ -2393,7 +2233,6 @@
 
     touchAction(save);
 
-    // 💩が無いときは、ゲームに入らず軽く整える
     if(save.poop <= 0){
       const s = loadSave(); if(!s) return;
       touchAction(s);
@@ -2404,8 +2243,8 @@
       return;
     }
 
-    // poop=10でも遊べる：ターゲットと時間を少し伸ばす
-    const target = clamp(8 + save.poop * 2, 10, 40); // poop10 -> 28
+    // poop=10でも遊べる設定
+    const target = clamp(8 + save.poop * 2, 10, 40);     // poop10 -> 28
     const totalMs = clamp((FAST ? 9000 : 15000) + save.poop * (FAST ? 260 : 700), 9000, 24000);
 
     cleanSession = {
@@ -2418,11 +2257,6 @@
     };
 
     ui.cleanStage.innerHTML = "";
-    ui.cleanTitle.textContent = save.petName ? `「${save.petName}」` : "";
-    ui.cleanSub.textContent = (LANG==="en") ? "Touch and remove them."
-      : (LANG==="zh") ? "点击并清理。"
-      : "触って消して。";
-
     showCleanScreen();
     updateCleanHUD();
 
@@ -2575,11 +2409,13 @@ ${escapeHtml((LANG==="en") ? "Use a macaron?\nIt may bring it back briefly, but 
       heart: save.heart
     };
   }
+
   function encodeObs(obj){
     const json = JSON.stringify(obj);
     const b64 = btoa(unescape(encodeURIComponent(json)));
     return b64.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
   }
+
   function decodeObs(s){
     try{
       const b64 = s.replace(/-/g,"+").replace(/_/g,"/");
@@ -2969,54 +2805,9 @@ ${escapeHtml(u.toString())}
     ui.subline.textContent = save.ended && !save.macaronActive ? t("subEnded") : t("subRunning");
   }
 
-  // tick開始は「アンケート送信後」または「既にアンケート済み」のときだけ
-  let loopStarted = false;
-  function startMainLoop(){
-    if(loopStarted) return;
-    loopStarted = true;
-
-    const tick = () => {
-      const save = loadSave();
-      if(!save) return;
-
-      const tNow = now();
-      const elapsed = calcElapsedMs(save, tNow);
-
-      // シッター中は時間停止（寿命・空腹・排泄・状態変化すべて止める）
-      if(!save.pausedSince && !save.ended){
-        applyTimeSimulation(save, elapsed);
-        updateDayBoundary(save, elapsed);
-        maybeHatch(save, elapsed);
-        maybeEnd(save, elapsed);
-
-        // アイドル眠り：触らない時間が続いたら、必ず眠る
-        if(save.hatched && !isSleeping(save, elapsed)){
-          const idle = elapsed - (save.lastActionElapsed || 0);
-          if(idle >= IDLE_SLEEP_AFTER_MS){
-            startSleep(save, elapsed, t("logQuiet"));
-            // 眠った瞬間を「動いた」扱いにして、連続で入り直さない
-            save.lastActionElapsed = elapsed;
-          }
-        }
-      }
-
-      updateMacaronTimer(save, elapsed);
-
-      save.lastSimElapsed = elapsed;
-      saveSave(save);
-
-      render(save);
-
-      requestAnimationFrame(tick);
-    };
-
-    requestAnimationFrame(tick);
-  }
-
   function toggleSitter(){
     const s = loadSave(); if(!s) return;
 
-    // シッター切替も“触った”扱い
     touchAction(s);
 
     if(!s.pausedSince){
@@ -3034,89 +2825,6 @@ ${escapeHtml(u.toString())}
     saveSave(s);
   }
 
-  // アンケート（5問・5択）
-  const SURVEY_QUESTIONS = [
-    { id:"q1", ja:"これからこの存在を、少し大事に感じそうだ。", en:"I may care about this being.", zh:"我可能会在意这个存在。"},
-    { id:"q2", ja:"見えない時間（放置）も、この存在を想像してしまいそうだ。", en:"I may think about it even when away.", zh:"即使不在也会想到它。"},
-    { id:"q3", ja:"選ぶとき、正解よりも「なんとなく」を大事にしそうだ。", en:"I may value intuition over correctness.", zh:"我会更重视直觉而不是正确。"},
-    { id:"q4", ja:"別れが近いと知ったら、行動が変わりそうだ。", en:"Knowing an ending may change my actions.", zh:"知道会结束会改变我的行为。"},
-    { id:"q5", ja:"記録（ログ）を見返すと、気持ちが動きそうだ。", en:"Looking back at logs may move me.", zh:"回看记录可能让我有所触动。"},
-  ];
-  const LIKERT = {
-    ja: ["1 まったくそう思わない","2 あまりそう思わない","3 どちらでもない","4 少しそう思う","5 とてもそう思う"],
-    en: ["1 Strongly disagree","2 Disagree","3 Neutral","4 Agree","5 Strongly agree"],
-    zh: ["1 非常不同意","2 不同意","3 一般","4 同意","5 非常同意"],
-  };
-
-  const surveyState = {}; // {q1:1..5}
-
-  function buildSurveyUI(){
-    ui.qList.innerHTML = "";
-    const labels = LIKERT[LANG] || LIKERT.ja;
-
-    for(const q of SURVEY_QUESTIONS){
-      const item = document.createElement("div");
-      item.className = "qItem";
-
-      const qText = (LANG==="en") ? q.en : (LANG==="zh") ? q.zh : q.ja;
-      item.innerHTML = `<div class="q">${escapeHtml(qText)}</div>`;
-
-      const opts = document.createElement("div");
-      opts.className = "opts";
-
-      for(let v=1; v<=5; v++){
-        const o = document.createElement("div");
-        o.className = "opt";
-        o.textContent = labels[v-1];
-        o.dataset.on = (surveyState[q.id] === v) ? "true" : "false";
-        o.addEventListener("click", () => {
-          surveyState[q.id] = v;
-          // 選択反映
-          Array.from(opts.children).forEach((ch, idx) => {
-            ch.dataset.on = (idx === (v-1)) ? "true" : "false";
-          });
-          ui.surveyWarn.classList.remove("show");
-        });
-        opts.appendChild(o);
-      }
-
-      item.appendChild(opts);
-      ui.qList.appendChild(item);
-    }
-  }
-
-  function allSurveyAnswered(){
-    return SURVEY_QUESTIONS.every(q => Number.isFinite(surveyState[q.id]) && surveyState[q.id] >= 1 && surveyState[q.id] <= 5);
-  }
-
-  function finishSurveyAndStart(){
-    if(!allSurveyAnswered()){
-      ui.surveyWarn.classList.add("show");
-      return;
-    }
-    const payload = {
-      version: 1,
-      t: now(),
-      lang: LANG,
-      answers: { ...surveyState }
-    };
-    localStorage.setItem(SURVEY_DATA_KEY, JSON.stringify(payload));
-    localStorage.setItem(SURVEY_DONE_KEY, "1");
-
-    // 送信後に必ずゲームへ
-    let s = loadSave();
-    if(!s){
-      s = createNewSave();
-      saveSave(s);
-    }
-    ui.sitterToggle.dataset.on = s.pausedSince ? "true" : "false";
-
-    showGameScreen();
-    render(s);
-    startMainLoop();
-  }
-
-  // 観察画面への入口
   function initObserveMode(){
     const observe = url.searchParams.get("observe") === "1" || location.hash.startsWith("#obs=");
     if(!observe) return false;
@@ -3135,22 +2843,69 @@ ${escapeHtml(u.toString())}
     return false;
   }
 
+  // メインループ
+  function tick(){
+    const save = loadSave();
+    if(!save) return;
+
+    const tNow = now();
+    const elapsed = calcElapsedMs(save, tNow);
+
+    // シッター中は時間停止（寿命・空腹・排泄・状態変化すべて止める）
+    if(!save.pausedSince && !save.ended){
+      applyTimeSimulation(save, elapsed);
+      updateDayBoundary(save, elapsed);
+      maybeHatch(save, elapsed);
+      maybeEnd(save, elapsed);
+
+      // 触らない時間が続いたら必ずsleep（寝画像を確実に見せる）
+      if(save.hatched && !isSleeping(save, elapsed)){
+        const idle = elapsed - (save.lastActionElapsed || 0);
+        if(idle >= IDLE_SLEEP_AFTER_MS){
+          startSleep(save, elapsed, t("logQuiet"));
+          save.lastActionElapsed = elapsed;
+        }
+      }
+    }
+
+    updateMacaronTimer(save, elapsed);
+
+    save.lastSimElapsed = elapsed;
+    saveSave(save);
+
+    render(save);
+
+    requestAnimationFrame(tick);
+  }
+
   // 起動
   setLang(getLang());
   applyLangToUI();
 
-  // 言語変更はアンケートにも反映
-  ui.langSel.addEventListener("change", () => {
-    setLang(ui.langSel.value);
-    buildSurveyUI();
-  });
+  if(initObserveMode()){
+    return;
+  }
 
+  let save = loadSave();
+  if(!save){
+    save = createNewSave();
+    saveSave(save);
+  }
+
+  ui.sitterToggle.dataset.on = save.pausedSince ? "true" : "false";
+  ui.letterText.textContent = getLetterBody();
+  render(save);
+
+  // イベント
+  ui.langSel.addEventListener("change", () => setLang(ui.langSel.value));
   ui.sitterToggle.addEventListener("click", toggleSitter);
 
   ui.btnFood.addEventListener("click", actFood);
   ui.btnOut.addEventListener("click", actOut);
   ui.btnStyle.addEventListener("click", actStyle);
+
   ui.btnClean.addEventListener("click", startCleanGame);
+
   ui.btnDrink.addEventListener("click", actDrink);
   ui.btnMacaron.addEventListener("click", actMacaron);
 
@@ -3174,54 +2929,10 @@ ${escapeHtml(u.toString())}
     u.searchParams.delete("observe");
     u.hash = "";
     history.replaceState({}, "", u.toString());
-    // 観察から戻ったら、アンケート済みならゲームへ、未ならアンケートへ
-    if(localStorage.getItem(SURVEY_DONE_KEY) === "1"){
-      showGameScreen();
-      const s = loadSave();
-      if(s){
-        ui.sitterToggle.dataset.on = s.pausedSince ? "true" : "false";
-        render(s);
-        startMainLoop();
-      }else{
-        // セーブが無ければ新規
-        const ns = createNewSave();
-        saveSave(ns);
-        render(ns);
-        startMainLoop();
-      }
-    }else{
-      showSurveyScreen();
-      buildSurveyUI();
-    }
+    showGameScreen();
   });
 
-  // アンケート送信ボタン
-  ui.btnSurveySend.addEventListener("click", finishSurveyAndStart);
-
-  // 初期分岐
-  if(initObserveMode()){
-    return;
-  }
-
-  // アンケート未送信なら、必ずアンケート画面へ
-  if(localStorage.getItem(SURVEY_DONE_KEY) !== "1"){
-    showSurveyScreen();
-    buildSurveyUI();
-    return;
-  }
-
-  // アンケート済みならゲームへ
-  showGameScreen();
-  let save = loadSave();
-  if(!save){
-    save = createNewSave();
-    saveSave(save);
-  }
-  ui.sitterToggle.dataset.on = save.pausedSince ? "true" : "false";
-  ui.letterText.textContent = getLetterBody();
-  render(save);
-  startMainLoop();
-
+  requestAnimationFrame(tick);
 })();
 </script>
 </body>
