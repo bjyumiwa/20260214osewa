@@ -47,7 +47,7 @@
   <div class="card" id="returnBox">
     <small>
       Googleフォームの「確認メッセージ（送信完了画面の文章）」に、次のURLを貼ってください。<br>
-      そこから戻ってきたときだけ、ゲームが解放されます。
+      そこから戻ってきたときだけ、ゲームが解放されます。戻ってきたら自動でゲームへ進みます。
     </small>
     <div style="margin-top:10px;">
       戻りURL: <code id="returnUrl"></code>
@@ -66,7 +66,7 @@
       <button id="btnGoGame">ゲームへ進む</button>
     </div>
     <small style="margin-top:8px;">
-      この端末のこのブラウザでのみ有効になります（研究運用の簡易ゲートです）。
+      自動で移動しない環境のために、手動ボタンも残しています。
     </small>
   </div>
 
@@ -84,10 +84,22 @@
 (() => {
   "use strict";
 
-  // ゲームと共通のキー
-  const SURVEY_DONE_KEY = "gift_survey_done";
-  const SURVEY_DONE_AT  = "gift_survey_done_at";
-  const SURVEY_PID_KEY  = "gift_pid";
+  /*
+    重要：ゲームのファイル名/場所が違う場合はここだけ直す
+    例）同じ階層に game.html なら "./game.html"
+    例）一つ上の階層に index.html なら "../index.html"
+  */
+  const GAME_URL = "./index.html";
+
+  // 旧キー（いまのあなたのsurvey.htmlで使っている）
+  const GIFT_SURVEY_DONE_KEY = "gift_survey_done";
+  const GIFT_SURVEY_DONE_AT  = "gift_survey_done_at";
+  const GIFT_SURVEY_PID_KEY  = "gift_pid";
+
+  // ゲーム側が別キーを見ていても解放できるように「併用」するキー
+  const OSEWA_SURVEY_DONE_KEY = "osewa_survey_done_v1";
+  const OSEWA_SURVEY_DONE_AT  = "osewa_survey_done_at_v1";
+  const OSEWA_SURVEY_PID_KEY  = "osewa_pid_v1";
 
   // あなたのGoogleフォームURLに差し替え
   const FORM_URL_BASE = "https://docs.google.com/forms/d/e/1FAIpQLSdKcqLBRLcGALdwYhWQFD1tuZtbqXyLpTBxfZZ9Or2pug16Rg/viewform";
@@ -106,20 +118,33 @@
     }
   }
 
-  function pid(){
-    let v = localStorage.getItem(SURVEY_PID_KEY);
+  function getOrCreatePid(){
+    let v = localStorage.getItem(GIFT_SURVEY_PID_KEY)
+         || localStorage.getItem(OSEWA_SURVEY_PID_KEY);
     if(!v){
       v = "p_" + uid();
-      localStorage.setItem(SURVEY_PID_KEY, v);
+      localStorage.setItem(GIFT_SURVEY_PID_KEY, v);
+      localStorage.setItem(OSEWA_SURVEY_PID_KEY, v);
+    }else{
+      localStorage.setItem(GIFT_SURVEY_PID_KEY, v);
+      localStorage.setItem(OSEWA_SURVEY_PID_KEY, v);
     }
     return v;
   }
 
   function setDone(){
-    localStorage.setItem(SURVEY_DONE_KEY, "1");
-    localStorage.setItem(SURVEY_DONE_AT, new Date().toISOString());
+    const iso = new Date().toISOString();
+    localStorage.setItem(GIFT_SURVEY_DONE_KEY, "1");
+    localStorage.setItem(GIFT_SURVEY_DONE_AT, iso);
+
+    localStorage.setItem(OSEWA_SURVEY_DONE_KEY, "1");
+    localStorage.setItem(OSEWA_SURVEY_DONE_AT, iso);
   }
-  function isDone(){ return localStorage.getItem(SURVEY_DONE_KEY) === "1"; }
+
+  function isDone(){
+    return localStorage.getItem(GIFT_SURVEY_DONE_KEY) === "1"
+        || localStorage.getItem(OSEWA_SURVEY_DONE_KEY) === "1";
+  }
 
   const pidEl = document.getElementById("pid");
   const btnOpen = document.getElementById("btnOpenForm");
@@ -131,20 +156,28 @@
   const btnGo = document.getElementById("btnGoGame");
   const btnReset = document.getElementById("btnReset");
 
-  pidEl.textContent = pid();
+  const pid = getOrCreatePid();
+  pidEl.textContent = pid;
 
   function formUrl(){
     const u = new URL(FORM_URL_BASE);
     u.searchParams.set("usp","pp_url");
-    u.searchParams.set(ENTRY_PID, pid());
+    u.searchParams.set(ENTRY_PID, pid);
     return u.toString();
   }
 
   // 送信完了画面から戻ってくる用のURL（survey.html?done=1）
   function buildReturnUrl(){
     const u = new URL(location.href);
+    u.hash = "";
     u.searchParams.set("done","1");
     return u.toString();
+  }
+
+  function goGame(){
+    // survey.html がサブフォルダでも事故りにくいように URL で解決
+    const to = new URL(GAME_URL, location.href).toString();
+    location.href = to;
   }
 
   function render(){
@@ -162,13 +195,19 @@
     }
   }
 
-  // done=1 のときだけゲート解除する（チェックボックスを無くす）
+  // done=1 のときだけゲート解除する（そして自動でゲームへ）
   const qs = new URLSearchParams(location.search);
   if(qs.get("done") === "1"){
     setDone();
+
+    // URLをきれいに戻す（done=1を消す）
     qs.delete("done");
-    const newUrl = location.pathname + (qs.toString() ? "?" + qs.toString() : "");
-    history.replaceState(null, "", newUrl);
+    const cleaned = location.pathname + (qs.toString() ? "?" + qs.toString() : "");
+    history.replaceState(null, "", cleaned);
+
+    // ここがポイント：戻ってきたら自動でゲームへ
+    // ポップアップブロックに触れない普通の遷移
+    setTimeout(goGame, 300);
   }
 
   returnUrlEl.textContent = buildReturnUrl();
@@ -188,13 +227,13 @@
     }
   });
 
-  btnGo.addEventListener("click", () => {
-    location.href = "./index.html";
-  });
+  btnGo.addEventListener("click", goGame);
 
   btnReset.addEventListener("click", () => {
-    localStorage.removeItem(SURVEY_DONE_KEY);
-    localStorage.removeItem(SURVEY_DONE_AT);
+    localStorage.removeItem(GIFT_SURVEY_DONE_KEY);
+    localStorage.removeItem(GIFT_SURVEY_DONE_AT);
+    localStorage.removeItem(OSEWA_SURVEY_DONE_KEY);
+    localStorage.removeItem(OSEWA_SURVEY_DONE_AT);
     render();
   });
 
